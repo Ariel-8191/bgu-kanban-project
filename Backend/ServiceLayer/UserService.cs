@@ -10,7 +10,7 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         private UserFacade userFacade;
 
         /// <summary>
-        /// Intializes a new instance of the <see cref="UserService"/> class with the specified user facade.
+        /// Intializes a new instance of the <see cref="UserService"/> class.
         /// </summary>
         /// <param name="userFacade"></param>
         public UserService(UserFacade userFacade)
