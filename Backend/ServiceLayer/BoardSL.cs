@@ -1,7 +1,7 @@
 ﻿namespace IntroSE.Kanban.Backend.ServiceLayer
 {
     /// <summary>
-    /// Class representing a board in the service layer.
+    /// Represents a board in the service layer.
     /// </summary>
     public class BoardSL
     {
@@ -10,10 +10,10 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="BoardSL"/> class.
         /// </summary>
-        /// <param name="boardBL"></param>
+        /// <param name="boardBL">The board instance from the businnes layer that the new instance represents</param>
         internal BoardSL(BoardBL boardBL)
         {
-            this.BoardName = boardBL.BoardBL;
+            this.BoardName = boardBL.BoardName;
         }
     }
 }

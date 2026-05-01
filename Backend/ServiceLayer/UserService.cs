@@ -3,26 +3,26 @@
 namespace IntroSE.Kanban.Backend.ServiceLayer
 {
     /// <summary>
-    /// Provides service layer functionality for user management, including registration, login, and logout operations.
+    /// Provides service-layer functionality for user management within the application.
     /// </summary>
     public class UserService
     {
         private UserFacade userFacade;
 
         /// <summary>
-        /// Intializes a new instance of the <see cref="UserService"/> class.
+        /// Initializes a new instance of the <see cref="UserService"/> class.
         /// </summary>
-        /// <param name="userFacade"></param>
+        /// <param name="userFacade">The user facade instance that will handle the core logic.</param>
         public UserService(UserFacade userFacade)
         {
-            userFacade = userFacade;
+            this.userFacade = userFacade;
         }
 
         /// <summary>
         /// This method registers a new user to the system.
         /// </summary>
-        /// <param name="email">The user email address, used as the username for logging the system.</param>
-        /// <param name="password">The user password.</param>
+        /// <param name="email">The user email address, used as the username for logging the system</param>
+        /// <param name="password">The user password</param>
         /// <returns>A JSON representation of the new user</returns>
         public string Register(string email, string password)
         {
