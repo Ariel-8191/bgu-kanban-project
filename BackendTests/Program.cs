@@ -9,6 +9,52 @@ namespace IntroSE.Kanban.BackendTests
             Console.WriteLine("Starting Tests...");
 
             TestRunner runner = new TestRunner();
+
+            // UserService Tests
+            UserServiceTests userTests = new UserServiceTests();
+
+            runner.RunTest(userTests.Register_ValidUser_Success);
+            runner.RunTest(userTests.Register_NullEmail_Failure);
+            runner.RunTest(userTests.Register_NullPassword_Failure);
+            runner.RunTest(userTests.Register_InvalidPassword_Failure);
+            runner.RunTest(userTests.Register_InvalidEmail_Failure);
+            runner.RunTest(userTests.Register_ExistingEmail_Failure);
+
+            runner.RunTest(userTests.Login_ValidCredentials_Success);
+            runner.RunTest(userTests.Login_NullEmail_Failure);
+            runner.RunTest(userTests.Login_NonExistingEmail_Failure);
+            runner.RunTest(userTests.Login_WrongPassword_Failure);
+
+            runner.RunTest(userTests.Logout_ValidUser_Success);
+            runner.RunTest(userTests.Logout_NullEmail_Failure);
+            runner.RunTest(userTests.Logout_NotLoggedIn_Failure);
+
+            // BoardService Tests
+            BoardServiceTests boardTests = new BoardServiceTests();
+
+            runner.RunTest(boardTests.CreateBoard_ValidNewBoard_Success);
+            runner.RunTest(boardTests.CreateBoard_NullName_Failure);
+            runner.RunTest(boardTests.CreateBoard_UserNotLoggedIn_Failure);
+            runner.RunTest(boardTests.CreateBoard_BoardNameTaken_Failure);
+
+            runner.RunTest(boardTests.CreateBoard_ValidNewBoard_Success);
+            runner.RunTest(boardTests.CreateBoard_NullName_Failure);
+            runner.RunTest(boardTests.CreateBoard_UserNotLoggedIn_Failure);
+            runner.RunTest(boardTests.CreateBoard_BoardNameTaken_Failure);
+
+            runner.RunTest(boardTests.LimitTasksInColumn_ValidLimit_Success);
+            runner.RunTest(boardTests.LimitTasksInColumn_NullBoardName_Success);
+            runner.RunTest(boardTests.LimitTasksInColumn_UserNotLoggedIn_Failure);
+            runner.RunTest(boardTests.LimitTasksInColumn_BoardDoesNotExist_Failure);
+            runner.RunTest(boardTests.LimitTasksInColumn_InvalidColumnIndex_Failure);
+            runner.RunTest(boardTests.LimitTasksInColumn_NegativeLimit_Failure);
+            runner.RunTest(boardTests.LimitTasksInColumn_LimitBelowTaskAmount_Failure);
+
+            runner.RunTest(boardTests.GetInProgressTasks_ValidEmptyList_Success);
+            runner.RunTest(boardTests.GetInProgressTasks_UserNotLoggedIn_Failure);
+
+
+            // TaskService Tests
             TaskServiceTests taskTests = new TaskServiceTests();
 
             runner.RunTest(taskTests.AddTask_ValidTask_Success);
@@ -29,6 +75,9 @@ namespace IntroSE.Kanban.BackendTests
             runner.RunTest(taskTests.AdvanceTask_InvalidColumnIndex_Failure);
             runner.RunTest(taskTests.AdvanceTask_UserNotLoggedIn_Failure);
             runner.RunTest(taskTests.AdvanceTask_NextColumnIsFull_Failure);
+
+
+            runner.PrintSummary();
         }
     }
 
