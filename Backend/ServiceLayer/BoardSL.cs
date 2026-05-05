@@ -1,0 +1,19 @@
+﻿namespace IntroSE.Kanban.Backend.ServiceLayer
+{
+    /// <summary>
+    /// Represents a board in the service layer.
+    /// </summary>
+    public class BoardSL
+    {
+        public string BoardName { get; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BoardSL"/> class.
+        /// </summary>
+        /// <param name="boardBL">The board instance from the businnes layer that the new instance represents</param>
+        internal BoardSL(BoardBL boardBL)
+        {
+            this.BoardName = boardBL.BoardName;
+        }
+    }
+}
