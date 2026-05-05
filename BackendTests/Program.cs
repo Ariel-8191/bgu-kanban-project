@@ -1,10 +1,34 @@
-﻿namespace IntroSE.Kanban.BackendTests
+﻿using BackendTests;
+
+namespace IntroSE.Kanban.BackendTests
 {
     internal class Program
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Starting tests...");
+            Console.WriteLine("Starting Tests...");
+
+            TestRunner runner = new TestRunner();
+            TaskServiceTests taskTests = new TaskServiceTests();
+
+            runner.RunTest(taskTests.AddTask_ValidTask_Success);
+            runner.RunTest(taskTests.AddTask_UserNotLoggedIn_Failure);
+            runner.RunTest(taskTests.AddTask_BoardDoesNotExist_Failure);
+            runner.RunTest(taskTests.AddTask_InvalidTitle_Failure);
+            runner.RunTest(taskTests.AddTask_DescriptionTooLong_Failure);
+            runner.RunTest(taskTests.AddTask_BacklogIsFull_Failure);
+
+            runner.RunTest(taskTests.EditTask_ValidEdit_Success);
+            runner.RunTest(taskTests.EditTask_TaskIsDone_Failure);
+            runner.RunTest(taskTests.EditTask_UserNotLoggedIn_Failure);
+            runner.RunTest(taskTests.EditTask_TaskDoesNotExist_Failure);
+
+            runner.RunTest(taskTests.AdvanceTask_ValidAdvance_Success);
+            runner.RunTest(taskTests.AdvanceTask_TaskIsDone_Failure);
+            runner.RunTest(taskTests.AdvanceTask_TaskDoesNotExist_Failure);
+            runner.RunTest(taskTests.AdvanceTask_InvalidColumnIndex_Failure);
+            runner.RunTest(taskTests.AdvanceTask_UserNotLoggedIn_Failure);
+            runner.RunTest(taskTests.AdvanceTask_NextColumnIsFull_Failure);
         }
     }
 
