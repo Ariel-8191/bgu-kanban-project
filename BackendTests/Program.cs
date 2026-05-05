@@ -1,10 +1,38 @@
-﻿namespace IntroSE.Kanban.BackendTests
+﻿using BackendTests;
+
+namespace IntroSE.Kanban.BackendTests
 {
     internal class Program
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Starting tests...");
+            Console.WriteLine("Starting Tests...");
+
+            TestRunner runner = new TestRunner();
+            BoardServiceTests boardTests = new BoardServiceTests();
+
+            runner.RunTest(boardTests.CreateBoard_ValidNewBoard_Success);
+            runner.RunTest(boardTests.CreateBoard_NullName_Failure);
+            runner.RunTest(boardTests.CreateBoard_UserNotLoggedIn_Failure);
+            runner.RunTest(boardTests.CreateBoard_BoardNameTaken_Failure);
+
+            runner.RunTest(boardTests.CreateBoard_ValidNewBoard_Success);
+            runner.RunTest(boardTests.CreateBoard_NullName_Failure);
+            runner.RunTest(boardTests.CreateBoard_UserNotLoggedIn_Failure);
+            runner.RunTest(boardTests.CreateBoard_BoardNameTaken_Failure);
+
+            runner.RunTest(boardTests.LimitTasksInColumn_ValidLimit_Success);
+            runner.RunTest(boardTests.LimitTasksInColumn_NullBoardName_Success);
+            runner.RunTest(boardTests.LimitTasksInColumn_UserNotLoggedIn_Failure);
+            runner.RunTest(boardTests.LimitTasksInColumn_BoardDoesNotExist_Failure);
+            runner.RunTest(boardTests.LimitTasksInColumn_InvalidColumnIndex_Failure);
+            runner.RunTest(boardTests.LimitTasksInColumn_NegativeLimit_Failure);
+            runner.RunTest(boardTests.LimitTasksInColumn_LimitBelowTaskAmount_Failure);
+
+            runner.RunTest(boardTests.GetInProgressTasks_ValidEmptyList_Success);
+            runner.RunTest(boardTests.GetInProgressTasks_UserNotLoggedIn_Failure);
+
+            runner.PrintSummary();
         }
     }
 
