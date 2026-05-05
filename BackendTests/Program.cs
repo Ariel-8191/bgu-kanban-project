@@ -1,10 +1,31 @@
-﻿namespace IntroSE.Kanban.BackendTests
+﻿using BackendTests;
+
+namespace IntroSE.Kanban.BackendTests
 {
     internal class Program
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Starting tests...");
+            Console.WriteLine("Starting Tests...");
+
+            TestRunner runner = new TestRunner();
+            UserServiceTests userTests = new UserServiceTests();
+
+            runner.RunTest(userTests.Register_ValidUser_Success);
+            runner.RunTest(userTests.Register_NullEmail_Failure);
+            runner.RunTest(userTests.Register_NullPassword_Failure);
+            runner.RunTest(userTests.Register_InvalidPassword_Failure);
+            runner.RunTest(userTests.Register_InvalidEmail_Failure);
+            runner.RunTest(userTests.Register_ExistingEmail_Failure);
+
+            runner.RunTest(userTests.Login_ValidCredentials_Success);
+            runner.RunTest(userTests.Login_NullEmail_Failure);
+            runner.RunTest(userTests.Login_NonExistingEmail_Failure);
+            runner.RunTest(userTests.Login_WrongPassword_Failure);
+
+            runner.RunTest(userTests.Logout_ValidUser_Success);
+            runner.RunTest(userTests.Logout_NullEmail_Failure);
+            runner.RunTest(userTests.Logout_NotLoggedIn_Failure);
         }
     }
 
