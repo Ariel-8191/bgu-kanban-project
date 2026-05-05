@@ -9,6 +9,8 @@ namespace IntroSE.Kanban.BackendTests
             Console.WriteLine("Starting Tests...");
 
             TestRunner runner = new TestRunner();
+
+            // UserService Tests
             UserServiceTests userTests = new UserServiceTests();
 
             runner.RunTest(userTests.Register_ValidUser_Success);
@@ -26,6 +28,32 @@ namespace IntroSE.Kanban.BackendTests
             runner.RunTest(userTests.Logout_ValidUser_Success);
             runner.RunTest(userTests.Logout_NullEmail_Failure);
             runner.RunTest(userTests.Logout_NotLoggedIn_Failure);
+
+            // BoardService Tests
+            BoardServiceTests boardTests = new BoardServiceTests();
+
+            runner.RunTest(boardTests.CreateBoard_ValidNewBoard_Success);
+            runner.RunTest(boardTests.CreateBoard_NullName_Failure);
+            runner.RunTest(boardTests.CreateBoard_UserNotLoggedIn_Failure);
+            runner.RunTest(boardTests.CreateBoard_BoardNameTaken_Failure);
+
+            runner.RunTest(boardTests.CreateBoard_ValidNewBoard_Success);
+            runner.RunTest(boardTests.CreateBoard_NullName_Failure);
+            runner.RunTest(boardTests.CreateBoard_UserNotLoggedIn_Failure);
+            runner.RunTest(boardTests.CreateBoard_BoardNameTaken_Failure);
+
+            runner.RunTest(boardTests.LimitTasksInColumn_ValidLimit_Success);
+            runner.RunTest(boardTests.LimitTasksInColumn_NullBoardName_Success);
+            runner.RunTest(boardTests.LimitTasksInColumn_UserNotLoggedIn_Failure);
+            runner.RunTest(boardTests.LimitTasksInColumn_BoardDoesNotExist_Failure);
+            runner.RunTest(boardTests.LimitTasksInColumn_InvalidColumnIndex_Failure);
+            runner.RunTest(boardTests.LimitTasksInColumn_NegativeLimit_Failure);
+            runner.RunTest(boardTests.LimitTasksInColumn_LimitBelowTaskAmount_Failure);
+
+            runner.RunTest(boardTests.GetInProgressTasks_ValidEmptyList_Success);
+            runner.RunTest(boardTests.GetInProgressTasks_UserNotLoggedIn_Failure);
+
+            runner.PrintSummary();
         }
     }
 
