@@ -1,4 +1,5 @@
 ﻿using System;
+using IntroSE.Kanban.Backend.BusinessLayer.Board;
 
 namespace IntroSE.Kanban.Backend.ServiceLayer
 {
@@ -13,7 +14,7 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// Initializes a new instance of the <see cref="TaskService"/> class.
         /// </summary>
         /// <param name="boardFacade">The board facade instance that will handle the core logic.</param>
-        public TaskService(BoardFacade boardFacade)
+        internal TaskService(BoardFacade boardFacade)
         {
             this.boardFacade = boardFacade;
         }
