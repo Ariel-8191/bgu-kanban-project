@@ -1,4 +1,6 @@
-﻿namespace IntroSE.Kanban.Backend.ServiceLayer
+﻿using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
+
+namespace IntroSE.Kanban.Backend.ServiceLayer
 {
     /// <summary>
     /// Provides a factory for creating and resolving service instances.
