@@ -1,4 +1,6 @@
-﻿using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
+﻿using IntroSE.Kanban.Backend.BusinessLayer.User;
+using IntroSE.Kanban.Backend.BusinessLayer.Board;
+using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
 
 namespace IntroSE.Kanban.Backend.ServiceLayer
 {

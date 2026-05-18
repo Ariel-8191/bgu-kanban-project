@@ -1,4 +1,5 @@
 ﻿using System;
+using IntroSE.Kanban.Backend.BusinessLayer.User;
 
 namespace IntroSE.Kanban.Backend.ServiceLayer
 {
@@ -13,7 +14,7 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// Initializes a new instance of the <see cref="UserService"/> class.
         /// </summary>
         /// <param name="userFacade">The user facade instance that will handle the core logic.</param>
-        public UserService(UserFacade userFacade)
+        internal UserService(UserFacade userFacade)
         {
             this.userFacade = userFacade;
         }

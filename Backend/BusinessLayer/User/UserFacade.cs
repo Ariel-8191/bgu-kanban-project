@@ -15,7 +15,8 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.User
         /// <summary>
         /// Initializes a new instance of the <see cref="UserFacade"/> class.
         /// </summary>
-        public UserFacade()
+        /// <param name="authenticationFacade">The authentication facade used to verify users.</param>
+        public UserFacade(AuthenticationFacade authenticationFacade)
         {
             throw new NotImplementedException();
         }
