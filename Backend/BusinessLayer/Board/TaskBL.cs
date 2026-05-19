@@ -7,6 +7,8 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
     /// </summary>
     internal class TaskBL
     {
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         public long taskID;
         public DateTime creationTime;
         public string _title;

@@ -1,4 +1,5 @@
 ﻿using System;
+using IntroSE.Kanban.Backend.BusinessLayer.User;
 
 namespace IntroSE.Kanban.Backend.ServiceLayer
 {
@@ -7,13 +8,15 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
     /// </summary>
     public class UserService
     {
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         private UserFacade userFacade;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UserService"/> class.
         /// </summary>
         /// <param name="userFacade">The user facade instance that will handle the core logic.</param>
-        public UserService(UserFacade userFacade)
+        internal UserService(UserFacade userFacade)
         {
             this.userFacade = userFacade;
         }

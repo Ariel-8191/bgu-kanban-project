@@ -9,13 +9,16 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.User
     /// </summary>
     internal class UserFacade
     {
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         private Dictionary<string, UserBL> users;
         private AuthenticationFacade authenticationFacade;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UserFacade"/> class.
         /// </summary>
-        public UserFacade()
+        /// <param name="authenticationFacade">The authentication facade used to verify users.</param>
+        public UserFacade(AuthenticationFacade authenticationFacade)
         {
             throw new NotImplementedException();
         }
