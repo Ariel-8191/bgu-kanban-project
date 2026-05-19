@@ -8,6 +8,8 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
     /// </summary>
     public class BoardService
     {
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         private BoardFacade boardFacade;
 
         /// <summary>

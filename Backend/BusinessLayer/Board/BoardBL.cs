@@ -8,6 +8,8 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
     /// </summary>
     internal class BoardBL
     {
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         public string BoardName { get; }
         private Dictionary<long, TaskBL> tasks;
         private List<ColumnBL> columns;

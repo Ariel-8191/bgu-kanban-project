@@ -9,6 +9,8 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.User
     /// </summary>
     internal class UserFacade
     {
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         private Dictionary<string, UserBL> users;
         private AuthenticationFacade authenticationFacade;
 
