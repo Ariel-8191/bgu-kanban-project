@@ -8,6 +8,8 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
     /// </summary>
     internal class ColumnBL
     {
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         private Dictionary<long, TaskBL> tasks;
         public string Name { get; }
         public int? _taskLimit;

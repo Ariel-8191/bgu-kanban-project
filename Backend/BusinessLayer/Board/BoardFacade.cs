@@ -13,6 +13,8 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
     /// </summary>
     internal class BoardFacade
     {
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         private Dictionary<string, Dictionary<string, BoardSL>> boards;
         private AuthenticationFacade authenticationFacade;
 

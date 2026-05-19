@@ -7,6 +7,8 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.User
     /// </summary>
     internal class UserBL
     {
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         public string Email { get; }
 
         private string _password;

@@ -1,4 +1,5 @@
 ﻿using System;
+using IntroSE.Kanban.Backend.BusinessLayer.Board;
 
 namespace IntroSE.Kanban.Backend.ServiceLayer
 {
@@ -7,13 +8,15 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
     /// </summary>
     public class BoardService
     {
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         private BoardFacade boardFacade;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BoardService"/> class.
         /// </summary>
         /// <param name="boardFacade">The board facade instance that will handle the core logic.</param>
-        public BoardService(BoardFacade boardFacade)
+        internal BoardService(BoardFacade boardFacade)
         {
             this.boardFacade = boardFacade;
         }
