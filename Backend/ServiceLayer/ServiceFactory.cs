@@ -1,6 +1,10 @@
-﻿using IntroSE.Kanban.Backend.BusinessLayer.User;
-using IntroSE.Kanban.Backend.BusinessLayer.Board;
+﻿using IntroSE.Kanban.Backend.BusinessLayer.Board;
 using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
+using IntroSE.Kanban.Backend.BusinessLayer.User;
+using log4net;
+using log4net.Config;
+using System.IO;
+using System.Reflection;
 
 namespace IntroSE.Kanban.Backend.ServiceLayer
 {
@@ -18,6 +22,9 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// </summary>
         public ServiceFactory()
         {
+            var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
+            XmlConfigurator.Configure(logRepository, new FileInfo("log4net.config"));
+
             AuthenticationFacade authenticationFacade = new AuthenticationFacade();
             UserFacade userFacade = new UserFacade(authenticationFacade);
             BoardFacade boardFacade = new BoardFacade(authenticationFacade);
