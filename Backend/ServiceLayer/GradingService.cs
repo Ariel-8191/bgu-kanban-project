@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
 
 namespace IntroSE.Kanban.Backend.ServiceLayer
@@ -49,10 +51,11 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
     /// </summary>
     public class GradingService
     {
+        ServiceFactory serviceFactory;
 
         public GradingService()
         {
-            throw new NotImplementedException();
+            this.serviceFactory = new ServiceFactory();
         }
 
 
@@ -64,7 +67,16 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <returns>An empty response, unless an error occurs (see <see cref="GradingService"/>)</returns>
         public string Register(string email, string password)
         {
-            throw new NotImplementedException();
+            Response<UserSL> response = JsonSerializer.Deserialize<Response<UserSL>>(serviceFactory.UserService.Register(email, password));
+            if (response.ErrorMessage == null)
+            {
+                return new Response<UserSL>().ToJson();
+            }
+            else
+            {
+                return response.ToJson();
+            }
+
         }
 
 
