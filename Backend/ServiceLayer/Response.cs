@@ -1,12 +1,14 @@
-﻿namespace IntroSE.Kanban.Backend.ServiceLayer
+﻿using System.Text.Json;
+
+namespace IntroSE.Kanban.Backend.ServiceLayer
 {
     /// <summary>
     /// Represents a response returned from the service layer.
     /// </summary>
     public class Response<T>
     {
-        public string ErrorMessage { get; }
-        public T ReturnValue { get; }
+        public string ErrorMessage { get; set; }
+        public T ReturnValue { get; set; }
 
         /// <summary>
         /// Initializes a new empty instance of the <see cref="Response{T}"/> class.
@@ -29,6 +31,11 @@
         public Response(T returnValue)
         {
             this.ReturnValue = returnValue;
+        }
+
+        public string ToJson()
+        {
+            return JsonSerializer.Serialize(this);
         }
 
     }
