@@ -20,7 +20,8 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.User
         /// <param name="authenticationFacade">The authentication facade used to verify users.</param>
         public UserFacade(AuthenticationFacade authenticationFacade)
         {
-            throw new NotImplementedException();
+            this.users = new Dictionary<string, UserBL>(StringComparer.OrdinalIgnoreCase);
+            this.authenticationFacade = authenticationFacade;
         }
 
         /// <summary>
@@ -31,7 +32,22 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.User
         /// <returns>A <see cref="UserBL"/> object representing the newly registered user.</returns>
         public UserBL Register(string email, string password)
         {
-            throw new NotImplementedException();
+            if (email == null) 
+            {
+                log.Warn("Invalid email: Email is null.");
+                throw new ArgumentNullException(nameof(email), "Email cannot be null.");
+            }
+            if (users.ContainsKey(email))
+            {
+                log.Warn("Email already exists.");
+                throw new InvalidOperationException("Email already exists in the system.");
+            }
+            UserBL user = new UserBL(email, password);
+            users.Add(email, user);
+            authenticationFacade.Login(email);
+            log.Info("User successfully added");
+
+            return user;
         }
 
         /// <summary>
