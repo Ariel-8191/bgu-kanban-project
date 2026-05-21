@@ -20,7 +20,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.CrossCutting
         /// <exception cref="NotImplementedException">Thrown because the method is not yet implemented.</exception>
         public AuthenticationFacade()
         {
-            throw new NotImplementedException();
+            this.loggedInUsers = new HashSet<string>();
         }
 
         /// <summary>
@@ -31,25 +31,25 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.CrossCutting
         /// <exception cref="NotImplementedException">Thrown because the method is not yet implemented.</exception>
         public bool IsLoggedIn(string email)
         {
-            throw new NotImplementedException();
+            return loggedInUsers.Contains(email);
         }
 
         /// <summary>
         /// Authenticates a user and records their state as logged in.
-        /// (Note: In a complete implementation, this method typically accepts parameters such as email and password).
         /// </summary>
+        /// <param name="email">The email address of the user to log in.</param>
         /// <exception cref="NotImplementedException">Thrown because the method is not yet implemented.</exception>
-        public void Login()
+        public void Login(string email)
         {
-            throw new NotImplementedException();
+            this.loggedInUsers.Add(email);
         }
 
         /// <summary>
         /// Terminates a user's active session and removes them from the logged-in state.
-        /// (Note: In a complete implementation, this method typically accepts a parameter such as the user's email to identify who is logging out).
         /// </summary>
+        /// <param name="email">The email address of the user to log in.</param>
         /// <exception cref="NotImplementedException">Thrown because the method is not yet implemented.</exception>
-        public void Logout()
+        public void Logout(string email)
         {
             throw new NotImplementedException();
         }
