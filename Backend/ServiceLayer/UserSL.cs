@@ -1,11 +1,13 @@
-﻿namespace IntroSE.Kanban.Backend.ServiceLayer
+﻿using IntroSE.Kanban.Backend.BusinessLayer.User;
+
+namespace IntroSE.Kanban.Backend.ServiceLayer
 {
     /// <summary>
     /// Represents a user in the service layer.
     /// </summary>
     public class UserSL
     {
-        public string Email { get; }
+        public string Email { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UserSL"/> class.
@@ -15,5 +17,8 @@
         {
             this.Email = userBL.Email;
         }
+
+        // Required by System.Text.Json for deserialization
+        public UserSL() { }
     }
 }

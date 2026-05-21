@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using IntroSE.Kanban.Backend.BusinessLayer.User;
 
 namespace IntroSE.Kanban.Backend.ServiceLayer
@@ -29,7 +30,16 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <returns>A JSON representation of the new user</returns>
         public string Register(string email, string password)
         {
-            throw new NotImplementedException();
+            try
+            {
+                UserSL user = new UserSL(this.userFacade.Register(email, password));
+                return new Response<UserSL>(user).ToJson();
+            }
+            catch (Exception ex)
+            {
+                return new Response<UserSL>(ex.Message).ToJson();
+            }
+
         }
 
 
