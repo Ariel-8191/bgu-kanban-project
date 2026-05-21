@@ -1,4 +1,6 @@
-﻿namespace IntroSE.Kanban.Backend.ServiceLayer
+﻿using IntroSE.Kanban.Backend.BusinessLayer.Board;
+
+namespace IntroSE.Kanban.Backend.ServiceLayer
 {
     /// <summary>
     /// Represents a board in the service layer.

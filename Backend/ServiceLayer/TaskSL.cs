@@ -1,4 +1,5 @@
 ﻿using System;
+using IntroSE.Kanban.Backend.BusinessLayer.Board;
 
 namespace IntroSE.Kanban.Backend.ServiceLayer
 {

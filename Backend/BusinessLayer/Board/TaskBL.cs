@@ -9,8 +9,8 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        public long taskID;
-        public DateTime creationTime;
+        public long TaskID { get; }
+        public DateTime CreationTime { get; }
         public string _title;
         public string Title
         {
