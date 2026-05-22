@@ -28,7 +28,6 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.CrossCutting
         /// </summary>
         /// <param name="email">The email address of the user to check.</param>
         /// <returns><c>true</c> if the user is currently logged in; otherwise, <c>false</c>.</returns>
-        /// <exception cref="NotImplementedException">Thrown because the method is not yet implemented.</exception>
         public bool IsLoggedIn(string email)
         {
             return loggedInUsers.Contains(email);
@@ -38,7 +37,6 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.CrossCutting
         /// Authenticates a user and records their state as logged in.
         /// </summary>
         /// <param name="email">The email address of the user to log in.</param>
-        /// <exception cref="NotImplementedException">Thrown because the method is not yet implemented.</exception>
         public void Login(string email)
         {
             loggedInUsers.Add(email);
@@ -48,10 +46,14 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.CrossCutting
         /// Terminates a user's active session and removes them from the logged-in state.
         /// </summary>
         /// <param name="email">The email address of the user to log in.</param>
-        /// <exception cref="NotImplementedException">Thrown because the method is not yet implemented.</exception>
         public void Logout(string email)
         {
-            throw new NotImplementedException();
+            if (!IsLoggedIn(email))
+            {
+                log.WarnFormat("Failed logout attempt for email '{0}'. Reason: User is not currently logged in.", email);
+                throw new InvalidOperationException("User is not currently logged in.");
+            }
+            loggedInUsers.Remove(email);
         }
     }
 }
