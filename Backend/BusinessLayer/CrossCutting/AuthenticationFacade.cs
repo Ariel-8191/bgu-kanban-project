@@ -41,7 +41,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.CrossCutting
         /// <exception cref="NotImplementedException">Thrown because the method is not yet implemented.</exception>
         public void Login(string email)
         {
-            this.loggedInUsers.Add(email);
+            loggedInUsers.Add(email);
         }
 
         /// <summary>

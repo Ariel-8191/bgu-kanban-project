@@ -1,6 +1,8 @@
-﻿using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Security.Authentication;
+
+using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
 
 namespace IntroSE.Kanban.Backend.BusinessLayer.User
 {
@@ -34,18 +36,19 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.User
         {
             if (email == null) 
             {
-                log.Warn("Invalid email: Email is null.");
+                log.Warn("Failed registration attempt. Reason: Email is null.");
                 throw new ArgumentNullException(nameof(email), "Email cannot be null.");
             }
             if (users.ContainsKey(email))
             {
-                log.Warn("Email already exists.");
+                log.WarnFormat("Failed registration attempt. Reason: The email '{0}' already exists.", email);
                 throw new InvalidOperationException("Email already exists in the system.");
             }
+
             UserBL user = new UserBL(email, password);
             users.Add(email, user);
             authenticationFacade.Login(email);
-            log.Info("User successfully added");
+            log.InfoFormat("User '{0}' successfully created", email);
 
             return user;
         }
@@ -58,7 +61,29 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.User
         /// <returns>A <see cref="UserBL"/> object representing the logged-in user.</returns>
         public UserBL Login(string email, string password)
         {
-            throw new NotImplementedException();
+            if (email == null)
+            {
+                log.Warn("Failed login attempt. Reason: Email is null.");
+                throw new ArgumentNullException(nameof(email), "Email cannot be null.");
+            }
+            if (!users.ContainsKey(email))
+            {
+                log.WarnFormat("Failed login attempt for email '{0}'. Reason: There is no user with that email.", email);
+                throw new AuthenticationException("Email doesn't exist in the system.");
+            }
+
+            UserBL user = users[email];
+            if (user.CheckPassword(password))
+            {
+                authenticationFacade.Login(email);
+                log.InfoFormat("User '{0}' successfully logged in.");
+                return user;
+            }
+            else
+            {
+                log.WarnFormat("Failed login attempt for email '{0}'. Reason: Incorrect password.", email);
+                throw new AuthenticationException("Password is incorrect.");
+            }
         }
 
         /// <summary>
