@@ -21,7 +21,10 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <param name="boardName">The name to be assigned to the new board.</param>
         public BoardBL(string boardName)
         {
-            throw new NotImplementedException();
+            this.BoardName = boardName;
+            this.tasks = new Dictionary<long, TaskBL>();
+            this.columns = new List<ColumnBL>();
+            this.nextTaskID = 0;
         }
 
         /// <summary>

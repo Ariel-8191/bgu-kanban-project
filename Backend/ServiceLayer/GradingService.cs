@@ -251,7 +251,15 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <returns>An empty response, unless an error occurs (see <see cref="GradingService"/>)</returns>
         public string CreateBoard(string email, string name)
         {
-            throw new NotImplementedException();
+            Response<BoardSL> response = JsonSerializer.Deserialize<Response<BoardSL>>(serviceFactory.BoardService.CreateBoard(email, name));
+            if (response.ErrorMessage == null)
+            {
+                return new Response<BoardSL>().ToJson();
+            }
+            else
+            {
+                return response.ToJson();
+            }
         }
 
 

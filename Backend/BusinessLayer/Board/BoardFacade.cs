@@ -1,10 +1,6 @@
-﻿using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
-using IntroSE.Kanban.Backend.ServiceLayer;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
 
 namespace IntroSE.Kanban.Backend.BusinessLayer.Board
 {
@@ -15,7 +11,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        private Dictionary<string, Dictionary<string, BoardSL>> boards;
+        private Dictionary<string, Dictionary<string, BoardBL>> boards;
         private AuthenticationFacade authenticationFacade;
 
         /// <summary>
@@ -24,7 +20,8 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <param name="authenticationFacade">The authentication facade used to verify users.</param>
         public BoardFacade(AuthenticationFacade authenticationFacade)
         {
-            throw new NotImplementedException();
+            this.boards = new Dictionary<string, Dictionary<string, BoardBL>>(StringComparer.OrdinalIgnoreCase);
+            this.authenticationFacade = authenticationFacade;
         }
 
         /// <summary>
@@ -35,7 +32,39 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <returns>The created <see cref="BoardBL"/> object.</returns>
         public BoardBL CreateBoard(string email, string boardName)
         {
-            throw new NotImplementedException();
+            if (email == null)
+            {
+                log.Warn("Failed board creation attempt. Reason: Email is null.");
+                throw new ArgumentNullException(nameof(email), "Email cannot be null.");
+            }
+            if (!authenticationFacade.IsLoggedIn(email))
+            {
+                log.WarnFormat("Failed board creation attempt. Reason: User '{0}' isn't logged in.", email);
+                throw new InvalidOperationException("User isn't logged in.");
+            }
+            if (string.IsNullOrEmpty(boardName))
+            {
+                log.Warn("Failed board creation attempt. Reason: Invalid board name.");
+                throw new InvalidOperationException("Invalid board name.");
+            }
+
+            if (!boards.ContainsKey(email))
+            {
+                boards.Add(email, new Dictionary<string, BoardBL>(StringComparer.OrdinalIgnoreCase));
+            }
+            Dictionary<string, BoardBL> userBoards = boards[email];
+
+            if (userBoards.ContainsKey(boardName))
+            {
+                log.Warn("Failed board creation attempt. Reason: Board name taken.");
+                throw new InvalidOperationException("Board name taken.");
+            }
+
+            BoardBL newBoard = new BoardBL(boardName);
+            userBoards.Add(boardName, newBoard);
+            log.InfoFormat("New board '{0}' for user '{1}' created successfully", boardName, email);
+            return newBoard;
+
         }
 
         /// <summary>
