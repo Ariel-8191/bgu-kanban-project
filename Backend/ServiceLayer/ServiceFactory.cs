@@ -27,11 +27,11 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
 
             AuthenticationFacade authenticationFacade = new AuthenticationFacade();
             UserFacade userFacade = new UserFacade(authenticationFacade);
-            //BoardFacade boardFacade = new BoardFacade(authenticationFacade);
+            BoardFacade boardFacade = new BoardFacade(authenticationFacade);
 
             this.UserService = new UserService(userFacade);
-            //this.BoardService = new BoardService(boardFacade);
-            //this.TaskService = new TaskService(boardFacade);
+            this.BoardService = new BoardService(boardFacade);
+            this.TaskService = new TaskService(boardFacade);
         }
     }
 }
