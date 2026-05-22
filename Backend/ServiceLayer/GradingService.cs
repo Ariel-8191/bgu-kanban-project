@@ -90,7 +90,7 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
             Response<UserSL> response = JsonSerializer.Deserialize<Response<UserSL>>(serviceFactory.UserService.Login(email, password));
             if (response.ErrorMessage == null)
             {
-                return new Response<string>(response.ReturnValue.Email).ToJson();
+                return new Response<string>(null, response.ReturnValue.Email).ToJson();
             }
             else
             {

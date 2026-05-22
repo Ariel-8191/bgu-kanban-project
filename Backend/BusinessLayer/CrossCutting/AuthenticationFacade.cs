@@ -20,7 +20,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.CrossCutting
         /// <exception cref="NotImplementedException">Thrown because the method is not yet implemented.</exception>
         public AuthenticationFacade()
         {
-            this.loggedInUsers = new HashSet<string>();
+            this.loggedInUsers = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         }
 
         /// <summary>
