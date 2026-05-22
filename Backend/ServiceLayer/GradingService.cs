@@ -76,7 +76,6 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
             {
                 return response.ToJson();
             }
-
         }
 
 
@@ -107,7 +106,15 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <returns>An empty response, unless an error occurs (see <see cref="GradingService"/>)</returns>
         public string Logout(string email)
         {
-            throw new NotImplementedException();
+            Response<UserSL> response = JsonSerializer.Deserialize<Response<UserSL>>(serviceFactory.UserService.Logout(email));
+            if (response.ErrorMessage == null)
+            {
+                return new Response<UserSL>().ToJson();
+            }
+            else
+            {
+                return response.ToJson();
+            }
         }
 
         /// <summary>
