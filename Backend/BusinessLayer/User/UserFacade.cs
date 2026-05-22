@@ -76,7 +76,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.User
             if (user.CheckPassword(password))
             {
                 authenticationFacade.Login(email);
-                log.InfoFormat("User '{0}' successfully logged in.");
+                log.InfoFormat("User '{0}' successfully logged in.", email);
                 return user;
             }
             else
@@ -90,9 +90,24 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.User
         /// Logs out an authenticated user from the system.
         /// </summary>
         /// <param name="email">The email address of the user to log out.</param>
-        public void Logout(string email)
+        /// <returns>A <see cref="UserBL"/> object representing the logged-out user.</returns>
+        public UserBL Logout(string email)
         {
-            throw new NotImplementedException();
+            if (email == null)
+            {
+                log.Warn("Failed logout attempt. Reason: Email is null.");
+                throw new ArgumentNullException(nameof(email), "Email cannot be null.");
+            }
+            if (!users.ContainsKey(email))
+            {
+                log.WarnFormat("Failed logout attempt for email '{0}'. Reason: There is no user with that email.", email);
+                throw new AuthenticationException("Email doesn't exist in the system.");
+            }
+
+            UserBL user = users[email];
+            authenticationFacade.Logout(email);
+            log.InfoFormat("User '{0}' successfully logged out.", email);
+            return user;
         }
     }
 }

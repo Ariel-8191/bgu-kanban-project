@@ -76,7 +76,15 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <returns>A JSON representation of the logged-out user</returns>
         public string Logout(string email)
         {
-            throw new NotImplementedException();
+            try
+            {
+                UserSL user = new UserSL(this.userFacade.Logout(email));
+                return new Response<UserSL>(user).ToJson();
+            }
+            catch (Exception ex)
+            {
+                return new Response<UserSL>(ex.Message).ToJson();
+            }
         }
 
     }
