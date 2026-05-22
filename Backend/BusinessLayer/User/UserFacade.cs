@@ -90,6 +90,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.User
         /// Logs out an authenticated user from the system.
         /// </summary>
         /// <param name="email">The email address of the user to log out.</param>
+        /// <returns>A <see cref="UserBL"/> object representing the logged-out user.</returns>
         public UserBL Logout(string email)
         {
             if (email == null)
