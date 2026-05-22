@@ -43,7 +43,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.User
         /// <returns>True if the password matches; otherwise, false.</returns>
         public bool CheckPassword(string password)
         {
-            throw new NotImplementedException();
+            return password == this.Password;
         }
 
         /// <summary>

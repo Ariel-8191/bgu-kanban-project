@@ -88,7 +88,15 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <returns>A response with the user's email, unless an error occurs (see <see cref="GradingService"/>)</returns>
         public string Login(string email, string password)
         {
-            throw new NotImplementedException();
+            Response<UserSL> response = JsonSerializer.Deserialize<Response<UserSL>>(serviceFactory.UserService.Login(email, password));
+            if (response.ErrorMessage == null)
+            {
+                return new Response<string>(response.ReturnValue.Email).ToJson();
+            }
+            else
+            {
+                return response.ToJson();
+            }
         }
 
 
