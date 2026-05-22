@@ -1,5 +1,6 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
+using System.Security.Authentication;
+
 using IntroSE.Kanban.Backend.BusinessLayer.User;
 
 namespace IntroSE.Kanban.Backend.ServiceLayer
@@ -51,7 +52,20 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <returns>A JSON representation of the logged-in user</returns>
         public string Login(string email, string password)
         {
-            throw new NotImplementedException();
+            try
+            {
+                UserSL user = new UserSL(this.userFacade.Login(email, password));
+                return new Response<UserSL>(user).ToJson();
+            }
+            // The user shouldn't know which part of the login failed
+            catch (AuthenticationException)
+            {
+                return new Response<UserSL>("Invalid username or password").ToJson();
+            }
+            catch (Exception ex)
+            {
+                return new Response<UserSL>(ex.Message).ToJson();
+            }
         }
 
 
