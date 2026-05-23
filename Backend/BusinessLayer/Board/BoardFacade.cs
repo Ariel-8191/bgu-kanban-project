@@ -48,7 +48,8 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
                 throw new InvalidOperationException("Invalid board name.");
             }
 
-            bool userHasBoards = boards.TryGetValue(email, out var userBoards);
+            Dictionary<string, BoardBL> userBoards;
+            bool userHasBoards = boards.TryGetValue(email, out userBoards);
             if (userHasBoards && userBoards.ContainsKey(boardName))
             {
                 log.WarnFormat("Failed board creation attempt. Reason: Board name '{0}' taken.", boardName);
@@ -75,7 +76,10 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <returns>The deleted <see cref="BoardBL"/> object.</returns>
         public BoardBL DeleteBoard(string email, string boardName)
         {
-            throw new NotImplementedException();
+            BoardBL board = GetBoard(email, boardName);
+            boards[email].Remove(boardName); // the call to 'GetBoard' in the previous line ensures the input is valid
+            log.InfoFormat("Board '{0}' belonging to user '{1}' deleted successfully", boardName, email);
+            return board;
         }
 
         /// <summary>
@@ -176,6 +180,40 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         public void LimitTasksInColumn(string email, string boardName, int columnIndex, int? limit)
         {
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Retrieves a user's board.
+        /// </summary>
+        /// <param name="email">The email address of the user the board belongs to.</param>
+        /// <param name="boardName">The name of the board.</param>
+        /// <returns>The <see cref="BoardBL"/> object.</returns>
+        private BoardBL GetBoard(string email, string boardName)
+        {
+            if (email == null)
+            {
+                log.Warn("Failed board retrieval attempt. Reason: Email is null.");
+                throw new ArgumentNullException(nameof(email), "Email cannot be null.");
+            }
+            if (!authenticationFacade.IsLoggedIn(email))
+            {
+                log.WarnFormat("Failed board retrieval attempt. Reason: User '{0}' isn't logged in.", email);
+                throw new InvalidOperationException("User isn't logged in.");
+            }
+            if (string.IsNullOrEmpty(boardName))
+            {
+                log.Warn("Failed board retrieval attempt. Reason: Invalid board name.");
+                throw new InvalidOperationException("Invalid board name.");
+            }
+            Dictionary<string, BoardBL> userBoards;
+            bool userHasBoards = boards.TryGetValue(email, out userBoards);
+            if (!userHasBoards || !userBoards.ContainsKey(boardName))
+            {
+                log.WarnFormat("Failed board retrieval attempt. Reason: Board '{0}' doesn't exist.", boardName);
+                throw new InvalidOperationException("Board doesn't exist.");
+            }
+
+            return userBoards[boardName];
         }
     }
 }
