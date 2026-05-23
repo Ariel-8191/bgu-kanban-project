@@ -36,7 +36,7 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
             }
             catch (Exception ex)
             {
-                return new Response<UserSL>(ex.Message).ToJson();
+                return new Response<BoardSL>(ex.Message).ToJson();
             }
         }
 
@@ -55,7 +55,7 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
             }
             catch (Exception ex)
             {
-                return new Response<UserSL>(ex.Message).ToJson();
+                return new Response<BoardSL>(ex.Message).ToJson();
             }
         }
 

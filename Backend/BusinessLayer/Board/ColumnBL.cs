@@ -18,7 +18,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             get { return _taskLimit; }
             set
             {
-                throw new NotImplementedException();
+                _taskLimit = value;
             }
         }
 
@@ -28,7 +28,8 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <param name="name">The name of the column.</param>
         public ColumnBL(string name)
         {
-            throw new NotImplementedException();
+            this.Name = name;
+            this.tasks = new Dictionary<long, TaskBL>();
         }
 
         /// <summary>
@@ -38,7 +39,14 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <returns>The added <see cref="TaskBL"/> object.</returns>
         public TaskBL AddTask (TaskBL task)
         {
-            throw new NotImplementedException();
+            if (TaskLimit.HasValue && tasks.Count >= TaskLimit.Value)
+            {
+                log.WarnFormat("Failed adding task to column '{0}'. Reason: task limit of {1} reached.", Name, TaskLimit.Value);
+                throw new InvalidOperationException("Cannot add task: column has reached its task limit.");
+            }
+
+            tasks.Add(task.TaskID, task);
+            return task;
         }
 
         /// <summary>
