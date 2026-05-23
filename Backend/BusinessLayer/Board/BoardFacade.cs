@@ -93,7 +93,10 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <returns>The newly created <see cref="TaskBL"/> object.</returns>
         public TaskBL AddTask(string email, string boardName, string title, DateTime dueDate, string description)
         {
-            throw new NotImplementedException();
+            BoardBL board = GetBoard(email, boardName);
+            TaskBL newTask = board.AddTask(title, dueDate, description);
+            log.InfoFormat("New task with ID '{0}' added to board '{1}' for user '{2}'", newTask.TaskID, boardName, email);
+            return newTask;
         }
 
         /// <summary>
