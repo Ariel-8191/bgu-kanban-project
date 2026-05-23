@@ -30,9 +30,9 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             this.nextTaskID = 0;
 
             this.columns = new List<ColumnBL>();
-            //columns.Add(new ColumnBL(BacklogColumnName));
-            //columns.Add(new ColumnBL(InProgressColumnName));
-            //columns.Add(new ColumnBL(DoneColumnName));
+            columns.Add(new ColumnBL(BacklogColumnName));
+            columns.Add(new ColumnBL(InProgressColumnName));
+            columns.Add(new ColumnBL(DoneColumnName));
         }
 
         /// <summary>
@@ -44,7 +44,14 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <returns>The newly created <see cref="TaskBL"/> object.</returns>
         public TaskBL AddTask(string title, DateTime dueDate, string description)
         {
-            throw new NotImplementedException();
+            TaskBL newTask = new TaskBL(this.nextTaskID, title, dueDate, description);
+            nextTaskID++;
+            this.tasks.Add(newTask.TaskID, newTask);
+
+            ColumnBL backlog = columns[0];
+            backlog.AddTask(newTask);
+
+            return newTask;
         }
 
         /// <summary>

@@ -17,26 +17,51 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             get { return _title; }
             private set
             {
-                throw new NotImplementedException();
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    log.Warn("Invalid title: Value is null or whitespace.");
+                    throw new ArgumentException("Title cannot be null or whitespace.", nameof(value));
+                }
+                if (value.Length > 50)
+                {
+                    log.WarnFormat("Invalid title: Length of '{0}' exceeds maximum of 50 characters.", nameof(value));
+                    throw new ArgumentException("Title cannot exceed 50 characters.", nameof(value));
+                }
+
+                _title = value;
             }
         }
-        public DateTime _dueDate;
-        public DateTime DueDate
-        {
-            get { return _dueDate; }
-            private set
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public DateTime DueDate { get; private set; }
         public string _description;
         public string Description
         {
             get { return _description; }
             private set
             {
-                throw new NotImplementedException();
+                if (value.Length > 300)
+                {
+                    log.WarnFormat("Invalid description: Length of '{0}' exceeds maximum of 300 characters.", nameof(value));
+                    throw new ArgumentException("Description cannot exceed 300 characters.", nameof(value));
+                }
+
+                _description = value;
             }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TaskBL"/> class with the specified details.
+        /// </summary>
+        /// param name="taskID">The unique identifier for the task.</param>
+        /// param name="title">The title of the task.</param>
+        /// param name="dueDate">The deadline/due date for the task.</param>
+        /// param name="description">A detailed description of the task.</param>
+        public TaskBL(long taskID, string title, DateTime dueDate, string description)
+        {
+            TaskID = taskID;
+            CreationTime = DateTime.Now;
+            Title = title;
+            DueDate = dueDate;
+            Description = description;
         }
 
         /// <summary>
