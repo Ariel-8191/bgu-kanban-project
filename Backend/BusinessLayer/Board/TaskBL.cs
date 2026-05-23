@@ -57,11 +57,11 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// param name="description">A detailed description of the task.</param>
         public TaskBL(long taskID, string title, DateTime dueDate, string description)
         {
-            TaskID = taskID;
-            CreationTime = DateTime.Now;
-            Title = title;
-            DueDate = dueDate;
-            Description = description;
+            this.TaskID = taskID;
+            this.CreationTime = DateTime.Now;
+            this.Title = title;
+            this.DueDate = dueDate;
+            this.Description = description;
         }
 
         /// <summary>
