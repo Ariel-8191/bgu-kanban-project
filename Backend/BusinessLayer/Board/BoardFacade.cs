@@ -48,23 +48,23 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
                 throw new InvalidOperationException("Invalid board name.");
             }
 
-            if (!boards.ContainsKey(email))
+            bool userHasBoards = boards.TryGetValue(email, out var userBoards);
+            if (userHasBoards && userBoards.ContainsKey(boardName))
             {
-                boards.Add(email, new Dictionary<string, BoardBL>(StringComparer.OrdinalIgnoreCase));
-            }
-            Dictionary<string, BoardBL> userBoards = boards[email];
-
-            if (userBoards.ContainsKey(boardName))
-            {
-                log.Warn("Failed board creation attempt. Reason: Board name taken.");
+                log.WarnFormat("Failed board creation attempt. Reason: Board name '{0}' taken.", boardName);
                 throw new InvalidOperationException("Board name taken.");
+            }
+
+            if (!userHasBoards)
+            {
+                userBoards = new Dictionary<string, BoardBL>(StringComparer.OrdinalIgnoreCase);
+                boards.Add(email, userBoards);
             }
 
             BoardBL newBoard = new BoardBL(boardName);
             userBoards.Add(boardName, newBoard);
             log.InfoFormat("New board '{0}' for user '{1}' created successfully", boardName, email);
             return newBoard;
-
         }
 
         /// <summary>
