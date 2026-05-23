@@ -37,10 +37,10 @@ namespace IntroSE.Kanban.BackendTests
             runner.RunTest(boardTests.CreateBoard_UserNotLoggedIn_Failure);
             runner.RunTest(boardTests.CreateBoard_BoardNameTaken_Failure);
 
-            runner.RunTest(boardTests.CreateBoard_ValidNewBoard_Success);
-            runner.RunTest(boardTests.CreateBoard_NullName_Failure);
-            runner.RunTest(boardTests.CreateBoard_UserNotLoggedIn_Failure);
-            runner.RunTest(boardTests.CreateBoard_BoardNameTaken_Failure);
+            runner.RunTest(boardTests.DeleteBoard_ValidBoard_Success);
+            runner.RunTest(boardTests.DeleteBoard_BoardDoesNotExist_Failure);
+            runner.RunTest(boardTests.DeleteBoard_NullName_Failure);
+            runner.RunTest(boardTests.DeleteBoard_UserNotLoggedIn_Failure);
 
             runner.RunTest(boardTests.LimitTasksInColumn_ValidLimit_Success);
             runner.RunTest(boardTests.LimitTasksInColumn_NullBoardName_Success);

@@ -48,7 +48,15 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <returns>A JSON representation of the deleted board</returns>
         public string DeleteBoard(string email, string boardName)
         {
-            throw new NotImplementedException();
+            try
+            {
+                BoardSL board = new BoardSL(this.boardFacade.DeleteBoard(email, boardName));
+                return new Response<BoardSL>(board).ToJson();
+            }
+            catch (Exception ex)
+            {
+                return new Response<UserSL>(ex.Message).ToJson();
+            }
         }
 
         /// <summary>
