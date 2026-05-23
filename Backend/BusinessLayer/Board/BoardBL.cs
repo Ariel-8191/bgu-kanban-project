@@ -10,6 +10,10 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
+        private const string BacklogColumnName = "backlog";
+        private const string InProgressColumnName = "in progress";
+        private const string DoneColumnName = "done";
+
         public string BoardName { get; }
         private Dictionary<long, TaskBL> tasks;
         private List<ColumnBL> columns;
@@ -23,8 +27,12 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         {
             this.BoardName = boardName;
             this.tasks = new Dictionary<long, TaskBL>();
-            this.columns = new List<ColumnBL>();
             this.nextTaskID = 0;
+
+            this.columns = new List<ColumnBL>();
+            columns.Add(new ColumnBL(BacklogColumnName));
+            columns.Add(new ColumnBL(InProgressColumnName));
+            columns.Add(new ColumnBL(DoneColumnName));
         }
 
         /// <summary>
