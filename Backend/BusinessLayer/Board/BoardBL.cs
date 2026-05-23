@@ -30,9 +30,9 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             this.nextTaskID = 0;
 
             this.columns = new List<ColumnBL>();
-            columns.Add(new ColumnBL(BacklogColumnName));
-            columns.Add(new ColumnBL(InProgressColumnName));
-            columns.Add(new ColumnBL(DoneColumnName));
+            //columns.Add(new ColumnBL(BacklogColumnName));
+            //columns.Add(new ColumnBL(InProgressColumnName));
+            //columns.Add(new ColumnBL(DoneColumnName));
         }
 
         /// <summary>
