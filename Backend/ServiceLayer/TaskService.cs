@@ -32,7 +32,15 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <returns>Returns a JSON representation of the added task</returns>
         public string AddTask(string email, string boardName, string title, DateTime dueDate, string description)
         {
-            throw new NotImplementedException();
+            try
+            {
+                TaskSL task = new TaskSL(this.boardFacade.AddTask(email, boardName, title, dueDate, description));
+                return new Response<TaskSL>(task).ToJson();
+            }
+            catch (Exception ex)
+            {
+                return new Response<TaskSL>(ex.Message).ToJson();
+            }
         }
 
         /// <summary>
