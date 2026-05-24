@@ -10,6 +10,9 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
+        internal const int BacklogColumnIndex = 0;
+        internal const int InProgressColumnIndex = 1;
+        internal const int DoneColumnIndex = 2;
         private const string BacklogColumnName = "backlog";
         private const string InProgressColumnName = "in progress";
         private const string DoneColumnName = "done";
@@ -46,10 +49,9 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         {
             TaskBL newTask = new TaskBL(this.nextTaskID, title, dueDate, description);
             nextTaskID++;
-            this.tasks.Add(newTask.TaskID, newTask);
 
-            ColumnBL backlog = columns[0];
-            backlog.AddTask(newTask);
+            tasks.Add(newTask.TaskID, newTask);
+            columns[BacklogColumnIndex].AddTask(newTask);
 
             return newTask;
         }

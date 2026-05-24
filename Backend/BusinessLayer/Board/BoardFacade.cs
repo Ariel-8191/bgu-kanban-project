@@ -158,7 +158,31 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <returns>A list of in-progress <see cref="TaskBL"/> objects.</returns>
         public List<TaskBL> GetInProgressTasks(string email)
         {
-            throw new NotImplementedException();
+            if (email == null)
+            {
+                log.Warn("Failed in-progress tasks retrieval attempt. Reason: Email is null.");
+                throw new ArgumentNullException(nameof(email), "Email cannot be null.");
+            }
+            if (!authenticationFacade.IsLoggedIn(email))
+            {
+                log.WarnFormat("Failed in-progress tasks retrieval attempt. Reason: User '{0}' isn't logged in.", email);
+                throw new InvalidOperationException("User isn't logged in.");
+            }
+            
+
+            List<TaskBL> inProgressTasks = new List<TaskBL>();
+
+            Dictionary<string, BoardBL> userBoards;
+            if (boards.TryGetValue(email, out userBoards))
+            {
+                foreach (BoardBL board in userBoards.Values)
+                {
+                    inProgressTasks.AddRange(board.GetColumnTasks(BoardBL.InProgressColumnIndex));
+                }
+            }
+
+            log.InfoFormat("Succesfully retrieved all in-progress tasks of user '{0}'", email);
+            return inProgressTasks;
         }
 
         /// <summary>

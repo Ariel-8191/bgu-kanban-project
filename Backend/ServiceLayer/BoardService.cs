@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using IntroSE.Kanban.Backend.BusinessLayer.Board;
 
 namespace IntroSE.Kanban.Backend.ServiceLayer
@@ -79,7 +81,16 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <returns>A response with a list of the in-progress tasks of the user</returns>
         public string GetInProgressTasks(string email)
         {
-            throw new NotImplementedException();
+            try
+            {
+                List<TaskBL> inProgressTasksBL = this.boardFacade.GetInProgressTasks(email);
+                List<TaskSL> inProgressTasksSL = inProgressTasksBL.Select(task => new TaskSL(task)).ToList();
+                return new Response<List<TaskSL>>(inProgressTasksSL).ToJson();
+            }
+            catch (Exception ex)
+            {
+                return new Response<List<TaskSL>>(ex.Message).ToJson();
+            }
         }
     }
 }
