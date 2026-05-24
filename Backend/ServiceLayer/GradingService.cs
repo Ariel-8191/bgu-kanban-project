@@ -127,7 +127,14 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <returns>An empty response, unless an error occurs (see <see cref="GradingService"/>)</returns>
         public string LimitColumn(string email, string boardName, int columnOrdinal, int limit)
         {
-            throw new NotImplementedException();
+            // no limit is represented by null, but this method receives -1 to represent no limit
+            int? newLimit = limit;
+            if (newLimit == -1)
+            {
+                newLimit = null;
+            }
+
+            return serviceFactory.BoardService.LimitTasksInColumn(email, boardName, columnOrdinal, newLimit);
         }
 
         /// <summary>

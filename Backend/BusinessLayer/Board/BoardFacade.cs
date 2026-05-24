@@ -182,7 +182,10 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <param name="limit">The new limit value. Provide null to indicate no limit.</param>
         public void LimitTasksInColumn(string email, string boardName, int columnIndex, int? limit)
         {
-            throw new NotImplementedException();
+            BoardBL board = GetBoard(email, boardName);
+            board.LimitTasksInColumn(columnIndex, limit);
+
+            log.InfoFormat("Successfully set new limit to column with index {0} in the board '{1}' belonging to user '{2}'", columnIndex, boardName, email);
         }
 
         /// <summary>
