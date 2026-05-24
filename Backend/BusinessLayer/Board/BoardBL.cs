@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Xml.Linq;
 
 namespace IntroSE.Kanban.Backend.BusinessLayer.Board
 {
@@ -124,7 +125,13 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <param name="limit">The maximum number of tasks allowed, or null to remove the limit.</param>
         public void LimitTasksInColumn(int columnIndex, int? limit)
         {
-            throw new NotImplementedException();
+            if (columnIndex < 0 || columnIndex >= columns.Count)
+            {
+                log.WarnFormat("Failed setting task limit of column in board '{0}'. Reason: column index is invalid.", BoardName);
+                throw new InvalidOperationException("Column index is invalid.");
+            }
+
+            columns[columnIndex].TaskLimit = limit;
         }
     }
 }
