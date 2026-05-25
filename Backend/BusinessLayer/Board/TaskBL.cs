@@ -73,6 +73,12 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <returns>The updated <see cref="TaskBL"/> object.</returns>
         public TaskBL EditTask(string title, DateTime dueDate, string description)
         {
+            if (title == null && dueDate == default && description == null)
+            {
+                log.WarnFormat("Failed editing task with ID {0}. Reason: No changes were given.", TaskID);
+                throw new InvalidOperationException("No changes were given.");
+            }
+
             if (title != null)
             {
                 Title = title;

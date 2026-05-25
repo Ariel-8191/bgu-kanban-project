@@ -142,5 +142,26 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
             }
 
         }
+
+        /// <summary>
+        /// This method returns the column name within a specific board for a user.
+        /// </summary>
+        /// <param name="email">Email of the user. Must be logged in</param>
+        /// <param name="boardName">The name of the board containing the column</param>
+        /// <param name="columnIndex">The index of the column to retrieve the name of</param>
+        /// <returns>A response with a string of the specified column</returns>
+        public string GetColumnName(string email, string boardName, int columnIndex)
+        {
+            try
+            {
+                string columnName = this.boardFacade.GetColumnName(email, boardName, columnIndex);
+                return new Response<string>(null, columnName).ToJson();
+            }
+            catch (Exception ex)
+            {
+                return new Response<string>(ex.Message).ToJson();
+            }
+        }
+
     }
 }
