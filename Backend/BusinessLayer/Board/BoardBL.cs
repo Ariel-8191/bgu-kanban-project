@@ -135,9 +135,15 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// </summary>
         /// <param name="columnIndex">The zero-based index of the column to query.</param>
         /// <returns>An integer representing the task limit, or null if there is no limit set.</returns>
-        public int? getColumnLimit(int columnIndex)
+        public int? GetColumnLimit(int columnIndex)
         {
-            throw new NotImplementedException();
+            if (columnIndex < 0 || columnIndex >= columns.Count)
+            {
+                log.WarnFormat("Failed getting task limit of column in board '{0}'. Reason: column index is invalid.", BoardName);
+                throw new InvalidOperationException("Column index is invalid.");
+            }
+
+            return columns[columnIndex].TaskLimit;
         }
 
         /// <summary>

@@ -122,5 +122,25 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
             }
         }
 
+        /// <summary>
+        /// This method returns the task limit for a specific column of a board for a user.
+        /// </summary>
+        /// <param name="email">Email of the user. Must be logged in</param>
+        /// <param name="boardName">The name of the board containing the column</param>
+        /// <param name="columnIndex">The index of the column to retrieve the limit for</param>
+        /// <returns>A response with the task limit for the specified column, or null if there is no limit</returns>
+        public string GetColumnLimit(string email, string boardName, int columnIndex)
+        {
+            try
+            {
+                int? limit = this.boardFacade.GetColumnLimit(email, boardName, columnIndex);
+                return new Response<int?>(limit).ToJson();
+            }
+            catch (Exception ex)
+            {
+                return new Response<int?>(ex.Message).ToJson();
+            }
+
+        }
     }
 }
