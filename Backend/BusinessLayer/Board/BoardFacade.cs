@@ -151,7 +151,11 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <returns>A list of <see cref="TaskBL"/> objects present in the column.</returns>
         public List<TaskBL> GetColumnTasks(string email, string boardName, int columnIndex)
         {
-            throw new NotImplementedException();
+            BoardBL board = GetBoard(email, boardName);
+            List<TaskBL> columnTasks = board.GetColumnTasks(columnIndex);
+            log.InfoFormat("Retrieved {0} tasks from column index {1} in board '{2}' for user '{3}'",
+                    columnTasks.Count, columnIndex, boardName, email);
+            return columnTasks;
         }
 
         /// <summary>
