@@ -148,7 +148,17 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <returns>A response with the column's limit, unless an error occurs (see <see cref="GradingService"/>)</returns>
         public string GetColumnLimit(string email, string boardName, int columnOrdinal)
         {
-            throw new NotImplementedException();
+            Response<int?> response = JsonSerializer.Deserialize<Response<int?>>(serviceFactory.BoardService.GetColumnLimit(email, boardName, columnOrdinal));
+            if (response.ErrorMessage == null)
+            {
+                // no limit is represented by null, but this method should return -1 to represent no limit
+                int limit = response.ReturnValue ?? -1;
+                return new Response<int?>(limit).ToJson();
+            }
+            else
+            {
+                return response.ToJson();
+            }
         }
 
 
