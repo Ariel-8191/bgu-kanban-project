@@ -38,7 +38,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             get { return _description; }
             private set
             {
-                if (value.Length > 300)
+                if (value?.Length > 300)
                 {
                     log.WarnFormat("Invalid description: Length of '{0}' exceeds maximum of 300 characters.", nameof(value));
                     throw new ArgumentException("Description cannot exceed 300 characters.", nameof(value));
@@ -73,7 +73,20 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <returns>The updated <see cref="TaskBL"/> object.</returns>
         public TaskBL EditTask(string title, DateTime dueDate, string description)
         {
-            throw new NotImplementedException();
+            if (title != null)
+            {
+                Title = title;
+            }
+            if (dueDate != default)
+            {
+                DueDate = dueDate;
+            }
+            if (description != null)
+            {
+                Description = description;
+            }
+
+            return this;
         }
     }
 }
