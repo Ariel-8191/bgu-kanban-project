@@ -96,7 +96,13 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <returns>A list of <see cref="TaskBL"/> objects present in the specified column.</returns>
         public List<TaskBL> GetColumnTasks(int columnIndex)
         {
-            throw new NotImplementedException();
+            if (columnIndex < 0 || columnIndex >= columns.Count)
+            {
+                log.WarnFormat("Failed setting task limit of column in board '{0}'. Reason: column index is invalid.", BoardName);
+                throw new InvalidOperationException("Column index is invalid.");
+            }
+
+            return columns[columnIndex].GetTasks();
         }
 
         /// <summary>
