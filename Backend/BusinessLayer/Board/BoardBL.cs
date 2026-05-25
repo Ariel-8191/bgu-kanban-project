@@ -74,7 +74,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             }
 
             TaskBL taskToEdit = tasks[taskID];
-            if (!columns[DoneColumnIndex].GetTasks().Contains(taskToEdit))
+            if (columns[DoneColumnIndex].GetTasks().Contains(taskToEdit))
             {
                 log.WarnFormat("Failed editing task with ID {0} in board '{1}'. Reason: task is in done column.", taskID, BoardName);
                 throw new InvalidOperationException("Cannot edit a task that is in the done column.");
