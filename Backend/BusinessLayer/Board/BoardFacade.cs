@@ -139,7 +139,11 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <returns>The name of the column as a string.</returns>
         public string GetColumnName(string email, string boardName, int columnIndex)
         {
-            throw new NotImplementedException();
+            BoardBL board = GetBoard(email, boardName);
+            string columnName = board.GetColumnName(columnIndex);
+            log.InfoFormat("Retrieved name '{0}' for column index {1} in board '{2}' for user '{3}'", 
+                columnName, columnIndex, boardName, email);
+            return columnName;
         }
 
         /// <summary>

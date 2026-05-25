@@ -161,7 +161,15 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <returns>A response with the column's name, unless an error occurs (see <see cref="GradingService"/>)</returns>
         public string GetColumnName(string email, string boardName, int columnOrdinal)
         {
-            throw new NotImplementedException();
+            Response<string> response = JsonSerializer.Deserialize<Response<string>>(serviceFactory.BoardService.GetColumnName(email, boardName, columnOrdinal));
+            if (response.ErrorMessage == null)
+            {
+                return new Response<string>().ToJson();
+            }
+            else
+            {
+                return response.ToJson();
+            }
         }
 
 

@@ -102,7 +102,12 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <returns>The name of the column as a string.</returns>
         public string GetColumnName(int columnIndex)
         {
-            throw new NotImplementedException();
+            if (columnIndex < 0 || columnIndex >= columns.Count)
+            {
+                log.WarnFormat("Failed getting column name in board '{0}'. Reason: column index is invalid.", BoardName);
+                throw new InvalidOperationException("Column index is invalid.");
+            }
+            return columns[columnIndex].Name;
         }
 
         /// <summary>
@@ -114,7 +119,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         {
             if (columnIndex < 0 || columnIndex >= columns.Count)
             {
-                log.WarnFormat("Failed setting task limit of column in board '{0}'. Reason: column index is invalid.", BoardName);
+                log.WarnFormat("Failed getting tasks in board '{0}'. Reason: column index is invalid.", BoardName);
                 throw new InvalidOperationException("Column index is invalid.");
             }
 
