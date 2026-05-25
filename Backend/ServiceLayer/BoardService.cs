@@ -1,5 +1,7 @@
-﻿using System;
-using IntroSE.Kanban.Backend.BusinessLayer.Board;
+﻿using IntroSE.Kanban.Backend.BusinessLayer.Board;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace IntroSE.Kanban.Backend.ServiceLayer
 {
@@ -89,5 +91,27 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         {
             throw new NotImplementedException();
         }
+
+        /// <summary>
+        /// This method returns all tasks within a specific column of a board for a user.
+        /// </summary>
+        /// <param name="email">Email of the user. Must be logged in</param>
+        /// <param name="boardName">The name of the board containing the column</param>
+        /// <param name="columnIndex">The index of the column to retrieve tasks from</param>
+        /// <returns>A response with a list of the tasks in the specified column</returns>
+        public string GetColumnTasks(string email, string boardName, int columnIndex)
+        {
+            try
+            {
+                List<TaskBL> columnTasksBL = this.boardFacade.GetColumnTasks(email, boardName, columnIndex);
+                List<TaskSL> columnTasksSL = columnTasksBL.Select(task => new TaskSL(task)).ToList();
+                return new Response<List<TaskSL>>(columnTasksSL).ToJson();
+            }
+            catch (Exception ex)
+            {
+                return new Response<List<TaskSL>>(ex.Message).ToJson();
+            }
+        }
+
     }
 }

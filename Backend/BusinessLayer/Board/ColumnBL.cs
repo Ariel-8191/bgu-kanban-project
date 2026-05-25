@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace IntroSE.Kanban.Backend.BusinessLayer.Board
 {
@@ -76,7 +77,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <returns>A <see cref="List{TaskBL}"/> containing all tasks in the column.</returns>
         public List<TaskBL> GetTasks()
         {
-            throw new NotImplementedException();
+            return tasks.Values.ToList();
         }
     }
 }
