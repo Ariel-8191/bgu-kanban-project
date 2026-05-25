@@ -1,6 +1,7 @@
-﻿using System;
+﻿using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
+using Microsoft.VisualBasic;
+using System;
 using System.Collections.Generic;
-using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
 
 namespace IntroSE.Kanban.Backend.BusinessLayer.Board
 {
@@ -127,7 +128,10 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <returns>The advanced <see cref="TaskBL"/> object.</returns>
         public TaskBL AdvanceTask(string email, string boardName, int columnIndex, long taskID)
         {
-            throw new NotImplementedException();
+            BoardBL board = GetBoard(email, boardName);
+            TaskBL advancedTask = board.AdvanceTask(columnIndex, taskID);
+            log.InfoFormat("Task with ID '{0}' in board '{1}' for user '{2}' advanced successfully", taskID, boardName, email);
+            return advancedTask;
         }
 
         /// <summary>
