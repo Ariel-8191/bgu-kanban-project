@@ -18,6 +18,17 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             get { return _taskLimit; }
             set
             {
+                if (value < 0)
+                {
+                    log.WarnFormat("Failed setting task limit in column '{0}'. Reason: new limit is negative.", Name);
+                    throw new InvalidOperationException("New limit is negative.");
+                }
+                if (tasks.Count > value)
+                {
+                    log.WarnFormat("Failed setting task limit in column '{0}'. Reason: new limit ({1}) is lower than current task count ({2}).", Name, value, tasks.Count);
+                    throw new InvalidOperationException("New limit is lower than current task count.");
+                }
+
                 _taskLimit = value;
             }
         }
