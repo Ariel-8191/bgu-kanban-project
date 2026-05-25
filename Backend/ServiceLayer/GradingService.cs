@@ -199,7 +199,15 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <returns>An empty response, unless an error occurs (see <see cref="GradingService"/>)</returns>
         public string UpdateTaskDueDate(string email, string boardName, int columnOrdinal, int taskId, DateTime dueDate)
         {
-            throw new NotImplementedException();
+            Response<TaskSL> response = JsonSerializer.Deserialize<Response<TaskSL>>(serviceFactory.TaskService.EditTask(email, boardName, taskId, null, dueDate, null));
+            if (response.ErrorMessage == null)
+            {
+                return new Response<TaskSL>().ToJson();
+            }
+            else
+            {
+                return response.ToJson();
+            }
         }
 
 
@@ -214,7 +222,15 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <returns>An empty response, unless an error occurs (see <see cref="GradingService"/>)</returns>
         public string UpdateTaskTitle(string email, string boardName, int columnOrdinal, int taskId, string title)
         {
-            throw new NotImplementedException();
+            Response<TaskSL> response = JsonSerializer.Deserialize<Response<TaskSL>>(serviceFactory.TaskService.EditTask(email, boardName, taskId, title, default, null));
+            if (response.ErrorMessage == null)
+            {
+                return new Response<TaskSL>().ToJson();
+            }
+            else
+            {
+                return response.ToJson();
+            }
         }
 
 
@@ -229,7 +245,15 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <returns>An empty response, unless an error occurs (see <see cref="GradingService"/>)</returns>
         public string UpdateTaskDescription(string email, string boardName, int columnOrdinal, int taskId, string description)
         {
-            throw new NotImplementedException();
+            Response<TaskSL> response = JsonSerializer.Deserialize<Response<TaskSL>>(serviceFactory.TaskService.EditTask(email, boardName, taskId, null, default, description));
+            if (response.ErrorMessage == null)
+            {
+                return new Response<TaskSL>().ToJson();
+            }
+            else
+            {
+                return response.ToJson();
+            }
         }
 
 
@@ -256,7 +280,7 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <returns>A response with a list of the column's tasks, unless an error occurs (see <see cref="GradingService"/>)</returns>
         public string GetColumn(string email, string boardName, int columnOrdinal)
         {
-            throw new NotImplementedException();
+            return serviceFactory.BoardService.GetColumnTasks(email, boardName, columnOrdinal);
         }
 
 

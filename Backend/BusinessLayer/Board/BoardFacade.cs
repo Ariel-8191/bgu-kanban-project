@@ -111,7 +111,10 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <returns>The edited <see cref="TaskBL"/> object.</returns>
         public TaskBL EditTask(string email, string boardName, long taskID, string title, DateTime dueDate, string description)
         {
-            throw new NotImplementedException();
+            BoardBL board = GetBoard(email, boardName);
+            TaskBL editedTask = board.EditTask(taskID, title, dueDate, description);
+            log.InfoFormat("Task with ID '{0}' in board '{1}' for user '{2}' edited successfully", taskID, boardName, email);
+            return editedTask;
         }
 
         /// <summary>
@@ -148,7 +151,11 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <returns>A list of <see cref="TaskBL"/> objects present in the column.</returns>
         public List<TaskBL> GetColumnTasks(string email, string boardName, int columnIndex)
         {
-            throw new NotImplementedException();
+            BoardBL board = GetBoard(email, boardName);
+            List<TaskBL> columnTasks = board.GetColumnTasks(columnIndex);
+            log.InfoFormat("Retrieved {0} tasks from column index {1} in board '{2}' for user '{3}'",
+                    columnTasks.Count, columnIndex, boardName, email);
+            return columnTasks;
         }
 
         /// <summary>

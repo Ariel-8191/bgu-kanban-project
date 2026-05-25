@@ -14,9 +14,9 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         internal const int BacklogColumnIndex = 0;
         internal const int InProgressColumnIndex = 1;
         internal const int DoneColumnIndex = 2;
-        private const string BacklogColumnName = "backlog";
-        private const string InProgressColumnName = "in progress";
-        private const string DoneColumnName = "done";
+        internal const string BacklogColumnName = "backlog";
+        internal const string InProgressColumnName = "in progress";
+        internal const string DoneColumnName = "done";
 
         public string BoardName { get; }
         private Dictionary<long, TaskBL> tasks;
@@ -67,7 +67,21 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <returns>The updated <see cref="TaskBL"/> object.</returns>
         public TaskBL EditTask(long taskID, string title, DateTime dueDate, string description)
         {
-            throw new NotImplementedException();
+            if (!tasks.ContainsKey(taskID))
+            {
+                log.WarnFormat("Failed editing task with ID {0} in board '{1}'. Reason: task does not exist.", taskID, BoardName);
+                throw new InvalidOperationException("Task does not exist.");
+            }
+
+            TaskBL taskToEdit = tasks[taskID];
+            if (columns[DoneColumnIndex].GetTasks().Contains(taskToEdit))
+            {
+                log.WarnFormat("Failed editing task with ID {0} in board '{1}'. Reason: task is in done column.", taskID, BoardName);
+                throw new InvalidOperationException("Cannot edit a task that is in the done column.");
+            }
+
+            taskToEdit.EditTask(title, dueDate, description);
+            return taskToEdit;
         }
 
         /// <summary>
@@ -98,7 +112,13 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <returns>A list of <see cref="TaskBL"/> objects present in the specified column.</returns>
         public List<TaskBL> GetColumnTasks(int columnIndex)
         {
-            throw new NotImplementedException();
+            if (columnIndex < 0 || columnIndex >= columns.Count)
+            {
+                log.WarnFormat("Failed setting task limit of column in board '{0}'. Reason: column index is invalid.", BoardName);
+                throw new InvalidOperationException("Column index is invalid.");
+            }
+
+            return columns[columnIndex].GetTasks();
         }
 
         /// <summary>
