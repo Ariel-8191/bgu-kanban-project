@@ -92,7 +92,34 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <returns>The updated <see cref="TaskBL"/> object reflecting its new state/column.</returns>
         public TaskBL AdvanceTask(int columnIndex, long taskID)
         {
-            throw new NotImplementedException();
+            if (!tasks.ContainsKey(taskID))
+            {
+                log.WarnFormat("Failed editing task with ID {0} in board '{1}'. Reason: task does not exist.", taskID, BoardName);
+                throw new InvalidOperationException("Task does not exist.");
+            }
+
+            if (columnIndex < 0 || columnIndex >= columns.Count)
+            {
+                log.WarnFormat("Failed advancing task in board '{0}'. Reason: column index is invalid.", BoardName);
+                throw new InvalidOperationException("Column index is invalid.");
+            }
+
+            TaskBL taskToAdvance = tasks[taskID];
+            if (!columns[columnIndex].GetTasks().Contains(taskToAdvance))
+            {
+                log.WarnFormat("Failed advancing task with ID {0} in board '{1}'. Reason: wrong column index.", taskID, BoardName);
+                throw new InvalidOperationException("Wrong column index.");
+            }
+
+            if (columnIndex +1 >= columns.Count)
+            {
+                log.WarnFormat("Failed advancing task with ID {0} in board '{1}'. Reason: Nowhere to advance task.", taskID, BoardName);
+                throw new InvalidOperationException("Nowhere to advance task.");
+            }
+
+            columns[columnIndex].RemoveTask(taskToAdvance);
+            columns[columnIndex+1].AddTask(taskToAdvance);
+            return taskToAdvance;
         }
 
         /// <summary>
