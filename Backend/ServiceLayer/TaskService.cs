@@ -1,5 +1,6 @@
-﻿using System;
-using IntroSE.Kanban.Backend.BusinessLayer.Board;
+﻿using IntroSE.Kanban.Backend.BusinessLayer.Board;
+using Microsoft.VisualBasic;
+using System;
 
 namespace IntroSE.Kanban.Backend.ServiceLayer
 {
@@ -76,7 +77,15 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <returns>Returns a JSON representation of the advanced task</returns>
         public string AdvanceTask(string email, string boardName, int columnIndex, long taskID)
         {
-            throw new NotImplementedException();
+            try
+            {
+                TaskSL task = new TaskSL(this.boardFacade.AdvanceTask(email, boardName, columnIndex, taskID));
+                return new Response<TaskSL>(task).ToJson();
+            }
+            catch (Exception ex)
+            {
+                return new Response<TaskSL>(ex.Message).ToJson();
+            }
         }
 
     }

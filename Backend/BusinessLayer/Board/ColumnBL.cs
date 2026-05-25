@@ -67,8 +67,9 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <param name="task">The task object to be removed.</param>
         /// <returns>The removed <see cref="TaskBL"/> object.</returns>
         public TaskBL RemoveTask(TaskBL task)
-        {
-            throw new NotImplementedException();
+        {        
+            tasks.Remove(task.TaskID);
+            return task;
         }
 
         /// <summary>
