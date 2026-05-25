@@ -55,7 +55,15 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <returns>Returns a JSON representation of the edited task</returns>
         public string EditTask(string email, string boardName, long taskID, string title, DateTime dueDate, string description)
         {
-            throw new NotImplementedException();
+            try
+            {
+                TaskSL task = new TaskSL(this.boardFacade.EditTask(email, boardName, taskID, title, dueDate, description));
+                return new Response<TaskSL>(task).ToJson();
+            }
+            catch (Exception ex)
+            {
+                return new Response<TaskSL>(ex.Message).ToJson();
+            }
         }
 
         /// <summary>

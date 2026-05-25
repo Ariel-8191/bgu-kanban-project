@@ -111,7 +111,10 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <returns>The edited <see cref="TaskBL"/> object.</returns>
         public TaskBL EditTask(string email, string boardName, long taskID, string title, DateTime dueDate, string description)
         {
-            throw new NotImplementedException();
+            BoardBL board = GetBoard(email, boardName);
+            TaskBL editedTask = board.EditTask(taskID, title, dueDate, description);
+            log.InfoFormat("Task with ID '{0}' in board '{1}' for user '{2}' edited successfully", taskID, boardName, email);
+            return editedTask;
         }
 
         /// <summary>
