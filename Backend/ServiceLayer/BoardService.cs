@@ -27,7 +27,7 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// This method creates a board for the given user.
         /// </summary>
         /// <param name="email">Email of the user, must be logged in</param>
-        /// <param name="name">The name of the new board</param>
+        /// <param name="boardName">The name of the new board</param>
         /// <returns>A JSON representation of the new board</returns>
         public string CreateBoard(string email, string boardName)
         {
@@ -46,7 +46,7 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// This method deletes a board.
         /// </summary>
         /// <param name="email">Email of the user. Must be logged in and an owner of the board.</param>
-        /// <param name="name">The name of the board</param>
+        /// <param name="boardName">The name of the board</param>
         /// <returns>A JSON representation of the deleted board</returns>
         public string DeleteBoard(string email, string boardName)
         {
@@ -66,12 +66,20 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// </summary>
         /// <param name="email">The email address of the user, must be logged in</param>
         /// <param name="boardName">The name of the board</param>
-        /// <param name="columnOrdinal">The column ID. The first column is identified by 0, the ID increases by 1 for each column</param>
-        /// <param name="limit">The new limit value. A value of -1 indicates no limit.</param>
+        /// <param name="columnIndex">The column ID. The first column is identified by 0, the ID increases by 1 for each column</param>
+        /// <param name="limit">The new limit value. A value of null indicates no limit.</param>
         /// <returns>An empty response</returns>
         public string LimitTasksInColumn(string email, string boardName, int columnIndex, int? limit)
         {
-            throw new NotImplementedException();
+            try
+            {
+                this.boardFacade.LimitTasksInColumn(email, boardName, columnIndex, limit);
+                return new Response<object>().ToJson();
+            }
+            catch (Exception ex)
+            {
+                return new Response<object>(ex.Message).ToJson();
+            }
         }
 
         /// <summary>
