@@ -254,7 +254,7 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <returns>A response with a list of the column's tasks, unless an error occurs (see <see cref="GradingService"/>)</returns>
         public string GetColumn(string email, string boardName, int columnOrdinal)
         {
-            throw new NotImplementedException();
+            return serviceFactory.BoardService.GetColumnTasks(email, boardName, columnOrdinal);
         }
 
 
