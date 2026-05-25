@@ -205,7 +205,11 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <returns>The integer limit of the column, or null if no limit is set.</returns>
         public int? GetColumnLimit(string email, string boardName, int columnIndex)
         {
-            throw new NotImplementedException();
+            BoardBL board = GetBoard(email, boardName);
+            int? limit = board.GetColumnLimit(columnIndex);
+            log.InfoFormat("Retrieved task limit of column index {0} in board '{1}' for user '{2}'. Limit: {3}",
+                    columnIndex, boardName, email, limit.HasValue ? limit.Value.ToString() : "No limit");
+            return limit;
         }
 
         /// <summary>
