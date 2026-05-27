@@ -12,7 +12,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
 
         public long TaskID { get; }
         public DateTime CreationTime { get; }
-        public string _title;
+        private string _title;
         public string Title
         {
             get => _title;
@@ -35,7 +35,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             }
         }
         public DateTime DueDate { get; private set; }
-        public string _description;
+        private string _description;
         public string Description
         {
             get => _description;
