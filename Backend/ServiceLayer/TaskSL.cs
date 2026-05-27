@@ -1,4 +1,5 @@
 ﻿using System;
+using IntroSE.Kanban.Backend.BusinessLayer.Board;
 
 namespace IntroSE.Kanban.Backend.ServiceLayer
 {
@@ -7,11 +8,11 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
     /// </summary>
     public class TaskSL
     {
-        public long TaskID { get; }
-        public DateTime CreationTime { get; }
-        public string Title { get; }
-        public DateTime DueDate { get; }
-        public string Description { get; }
+        public long TaskID { get; set; }
+        public DateTime CreationTime { get; set; }
+        public string Title { get; set; }
+        public DateTime DueDate { get; set; }
+        public string Description { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskSL"/> class.
@@ -25,5 +26,8 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
             this.DueDate = taskBL.DueDate;
             this.Description = taskBL.Description;
         }
+
+        // Required by System.Text.Json for deserialization
+        public TaskSL() { }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using System;
+using IntroSE.Kanban.Backend.BusinessLayer.Board;
+using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
 
 namespace IntroSE.Kanban.Backend.ServiceLayer
 {
@@ -7,13 +9,15 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
     /// </summary>
     public class TaskService
     {
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         private BoardFacade boardFacade;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskService"/> class.
         /// </summary>
         /// <param name="boardFacade">The board facade instance that will handle the core logic.</param>
-        public TaskService(BoardFacade boardFacade)
+        internal TaskService(BoardFacade boardFacade)
         {
             this.boardFacade = boardFacade;
         }
@@ -29,7 +33,21 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <returns>Returns a JSON representation of the added task</returns>
         public string AddTask(string email, string boardName, string title, DateTime dueDate, string description)
         {
-            throw new NotImplementedException();
+            try
+            {
+                TaskSL task = new TaskSL(this.boardFacade.AddTask(email, boardName, title, dueDate, description));
+                log.Info($"Successfully added task '{task.TaskID}' in board '{boardName}' (User: '{email}').");
+                return new Response<TaskSL>(task).ToJson();
+            }
+            catch (KanbanException ex)
+            {
+                return new Response<TaskSL>(ex.Message).ToJson();
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An unexpected system error occurred in AddTask(email='{email}', board='{boardName}', title='{title}'): {ex.Message}");
+                return new Response<TaskSL>("An unexpected system error occurred").ToJson();
+            }
         }
 
         /// <summary>
@@ -42,9 +60,23 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <param name="dueDate">New Due date of the task</param>
         /// <param name="description">New description of the task</param>
         /// <returns>Returns a JSON representation of the edited task</returns>
-        public string EditTask(string email, string boardName, long taskID, string title, DateTime dueDate, string description)
+        public string EditTask(string email, string boardName, long taskID, string title, DateTime? dueDate, string description)
         {
-            throw new NotImplementedException();
+            try
+            {
+                TaskSL task = new TaskSL(this.boardFacade.EditTask(email, boardName, taskID, title, dueDate, description));
+                log.Info($"Successfully edited task '{taskID}' in board '{boardName}' (User: '{email}').");
+                return new Response<TaskSL>(task).ToJson();
+            }
+            catch (KanbanException ex)
+            {
+                return new Response<TaskSL>(ex.Message).ToJson();
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An unexpected system error occurred in EditTask(email='{email}', board='{boardName}', taskID={taskID}): {ex.Message}");
+                return new Response<TaskSL>("An unexpected system error occurred").ToJson();
+            }
         }
 
         /// <summary>
@@ -57,8 +89,21 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <returns>Returns a JSON representation of the advanced task</returns>
         public string AdvanceTask(string email, string boardName, int columnIndex, long taskID)
         {
-            throw new NotImplementedException();
+            try
+            {
+                TaskSL task = new TaskSL(this.boardFacade.AdvanceTask(email, boardName, columnIndex, taskID));
+                log.Info($"Successfully advanced task '{taskID}' to column with index {columnIndex} in board '{boardName}' (User: '{email}').");
+                return new Response<TaskSL>(task).ToJson();
+            }
+            catch (KanbanException ex)
+            {
+                return new Response<TaskSL>(ex.Message).ToJson();
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An unexpected system error occurred in AdvanceTask(email='{email}', board='{boardName}', taskID={taskID}): {ex.Message}");
+                return new Response<TaskSL>("An unexpected system error occurred").ToJson();
+            }
         }
-
     }
 }

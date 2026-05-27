@@ -1,4 +1,6 @@
 ﻿using System;
+using IntroSE.Kanban.Backend.BusinessLayer.User;
+using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
 
 namespace IntroSE.Kanban.Backend.ServiceLayer
 {
@@ -7,13 +9,15 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
     /// </summary>
     public class UserService
     {
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         private UserFacade userFacade;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UserService"/> class.
         /// </summary>
         /// <param name="userFacade">The user facade instance that will handle the core logic.</param>
-        public UserService(UserFacade userFacade)
+        internal UserService(UserFacade userFacade)
         {
             this.userFacade = userFacade;
         }
@@ -26,9 +30,22 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <returns>A JSON representation of the new user</returns>
         public string Register(string email, string password)
         {
-            throw new NotImplementedException();
+            try
+            {
+                UserSL user = new UserSL(this.userFacade.Register(email, password));
+                log.Info($"Successfully registered user '{email}'.");
+                return new Response<UserSL>(user).ToJson();
+            }
+            catch (KanbanException ex)
+            {
+                return new Response<UserSL>(ex.Message).ToJson();
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An unexpected system error occurred in Register(email='{email}'): {ex.Message}");
+                return new Response<UserSL>("An unexpected system error occurred").ToJson();
+            }
         }
-
 
         /// <summary>
         ///  This method logs in an existing user.
@@ -38,9 +55,27 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <returns>A JSON representation of the logged-in user</returns>
         public string Login(string email, string password)
         {
-            throw new NotImplementedException();
+            try
+            {
+                UserSL user = new UserSL(this.userFacade.Login(email, password));
+                log.Info($"Successfully logged in user '{email}'.");
+                return new Response<UserSL>(user).ToJson();
+            }
+            // The user shouldn't know which part of the login failed
+            catch (KanbanAuthenticationException)
+            {
+                return new Response<UserSL>("Invalid username or password").ToJson();
+            }
+            catch (KanbanException ex)
+            {
+                return new Response<UserSL>(ex.Message).ToJson();
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An unexpected system error occurred in Login(email='{email}'): {ex.Message}");
+                return new Response<UserSL>("An unexpected system error occurred").ToJson();
+            }
         }
-
 
         /// <summary>
         /// This method logs out a logged in user. 
@@ -49,8 +84,21 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <returns>A JSON representation of the logged-out user</returns>
         public string Logout(string email)
         {
-            throw new NotImplementedException();
+            try
+            {
+                UserSL user = new UserSL(this.userFacade.Logout(email));
+                log.Info($"Successfully logged out user '{email}'.");
+                return new Response<UserSL>(user).ToJson();
+            }
+            catch (KanbanException ex)
+            {
+                return new Response<UserSL>(ex.Message).ToJson();
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An unexpected system error occurred in Logout(email='{email}'): {ex.Message}");
+                return new Response<UserSL>("An unexpected system error occurred").ToJson();
+            }
         }
-
     }
 }

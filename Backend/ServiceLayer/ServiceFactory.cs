@@ -1,4 +1,12 @@
-﻿namespace IntroSE.Kanban.Backend.ServiceLayer
+﻿using log4net;
+using log4net.Config;
+using System.IO;
+using System.Reflection;
+using IntroSE.Kanban.Backend.BusinessLayer.User;
+using IntroSE.Kanban.Backend.BusinessLayer.Board;
+using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
+
+namespace IntroSE.Kanban.Backend.ServiceLayer
 {
     /// <summary>
     /// Provides a factory for creating and resolving service instances.
@@ -14,6 +22,9 @@
         /// </summary>
         public ServiceFactory()
         {
+            var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
+            XmlConfigurator.Configure(logRepository, new FileInfo("log4net.config"));
+
             AuthenticationFacade authenticationFacade = new AuthenticationFacade();
             UserFacade userFacade = new UserFacade(authenticationFacade);
             BoardFacade boardFacade = new BoardFacade(authenticationFacade);

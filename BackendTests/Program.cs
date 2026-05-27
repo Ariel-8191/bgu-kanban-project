@@ -37,10 +37,10 @@ namespace IntroSE.Kanban.BackendTests
             runner.RunTest(boardTests.CreateBoard_UserNotLoggedIn_Failure);
             runner.RunTest(boardTests.CreateBoard_BoardNameTaken_Failure);
 
-            runner.RunTest(boardTests.CreateBoard_ValidNewBoard_Success);
-            runner.RunTest(boardTests.CreateBoard_NullName_Failure);
-            runner.RunTest(boardTests.CreateBoard_UserNotLoggedIn_Failure);
-            runner.RunTest(boardTests.CreateBoard_BoardNameTaken_Failure);
+            runner.RunTest(boardTests.DeleteBoard_ValidBoard_Success);
+            runner.RunTest(boardTests.DeleteBoard_BoardDoesNotExist_Failure);
+            runner.RunTest(boardTests.DeleteBoard_NullName_Failure);
+            runner.RunTest(boardTests.DeleteBoard_UserNotLoggedIn_Failure);
 
             runner.RunTest(boardTests.LimitTasksInColumn_ValidLimit_Success);
             runner.RunTest(boardTests.LimitTasksInColumn_NullBoardName_Success);
@@ -52,6 +52,30 @@ namespace IntroSE.Kanban.BackendTests
 
             runner.RunTest(boardTests.GetInProgressTasks_ValidEmptyList_Success);
             runner.RunTest(boardTests.GetInProgressTasks_UserNotLoggedIn_Failure);
+
+
+            // TaskService Tests
+            TaskServiceTests taskTests = new TaskServiceTests();
+
+            runner.RunTest(taskTests.AddTask_ValidTask_Success);
+            runner.RunTest(taskTests.AddTask_UserNotLoggedIn_Failure);
+            runner.RunTest(taskTests.AddTask_BoardDoesNotExist_Failure);
+            runner.RunTest(taskTests.AddTask_InvalidTitle_Failure);
+            runner.RunTest(taskTests.AddTask_DescriptionTooLong_Failure);
+            runner.RunTest(taskTests.AddTask_BacklogIsFull_Failure);
+
+            runner.RunTest(taskTests.EditTask_ValidEdit_Success);
+            runner.RunTest(taskTests.EditTask_TaskIsDone_Failure);
+            runner.RunTest(taskTests.EditTask_UserNotLoggedIn_Failure);
+            runner.RunTest(taskTests.EditTask_TaskDoesNotExist_Failure);
+
+            runner.RunTest(taskTests.AdvanceTask_ValidAdvance_Success);
+            runner.RunTest(taskTests.AdvanceTask_TaskIsDone_Failure);
+            runner.RunTest(taskTests.AdvanceTask_TaskDoesNotExist_Failure);
+            runner.RunTest(taskTests.AdvanceTask_InvalidColumnIndex_Failure);
+            runner.RunTest(taskTests.AdvanceTask_UserNotLoggedIn_Failure);
+            runner.RunTest(taskTests.AdvanceTask_NextColumnIsFull_Failure);
+
 
             runner.PrintSummary();
         }
