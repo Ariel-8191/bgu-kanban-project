@@ -1,7 +1,7 @@
-﻿using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
-using System;
+﻿using System;
 using System.Linq;
 using System.Text.RegularExpressions;
+using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
 
 namespace IntroSE.Kanban.Backend.BusinessLayer.User
 {
