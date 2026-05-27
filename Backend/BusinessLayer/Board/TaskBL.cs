@@ -55,10 +55,10 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskBL"/> class with the specified details.
         /// </summary>
-        /// param name="taskID">The unique identifier for the task.</param>
-        /// param name="title">The title of the task.</param>
-        /// param name="dueDate">The deadline/due date for the task.</param>
-        /// param name="description">A detailed description of the task.</param>
+        /// <param name="taskID">The unique identifier for the task.</param>
+        /// <param name="title">The title of the task.</param>
+        /// <param name="dueDate">The deadline/due date for the task.</param>
+        /// <param name="description">A detailed description of the task.</param>
         public TaskBL(long taskID, string title, DateTime dueDate, string description)
         {
             this.TaskID = taskID;
