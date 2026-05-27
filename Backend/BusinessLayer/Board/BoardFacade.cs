@@ -44,7 +44,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
                 log.Warn(message);
                 throw new KanbanAuthenticationException(message);
             }
-            if (string.IsNullOrEmpty(boardName))
+            if (string.IsNullOrWhiteSpace(boardName))
             {
                 string message = $"Cannot create a board for the user '{email}' because the given board name is null or whitespace.";
                 log.Warn(message);
@@ -91,7 +91,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
                 log.Warn(message);
                 throw new KanbanAuthenticationException(message);
             }
-            if (string.IsNullOrEmpty(boardName))
+            if (string.IsNullOrWhiteSpace(boardName))
             {
                 string message = $"Cannot get a board of the user '{email}' because the given board name is null or whitespace.";
                 log.Warn(message);
@@ -244,7 +244,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <param name="dueDate">The new due date for the task.</param>
         /// <param name="description">The new description for the task.</param>
         /// <returns>The edited <see cref="TaskBL"/> object.</returns>
-        public TaskBL EditTask(string email, string boardName, long taskID, string title, DateTime dueDate, string description)
+        public TaskBL EditTask(string email, string boardName, long taskID, string title, DateTime? dueDate, string description)
         {
             BoardBL board = GetBoard(email, boardName);
             TaskBL editedTask = board.EditTask(taskID, title, dueDate, description);
