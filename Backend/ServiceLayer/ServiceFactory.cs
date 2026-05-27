@@ -1,10 +1,10 @@
-﻿using IntroSE.Kanban.Backend.BusinessLayer.Board;
-using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
-using IntroSE.Kanban.Backend.BusinessLayer.User;
-using log4net;
+﻿using log4net;
 using log4net.Config;
 using System.IO;
 using System.Reflection;
+using IntroSE.Kanban.Backend.BusinessLayer.User;
+using IntroSE.Kanban.Backend.BusinessLayer.Board;
+using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
 
 namespace IntroSE.Kanban.Backend.ServiceLayer
 {

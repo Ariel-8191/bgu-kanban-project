@@ -1,7 +1,6 @@
-﻿using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
-using Microsoft.VisualBasic;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
 
 namespace IntroSE.Kanban.Backend.BusinessLayer.Board
 {
