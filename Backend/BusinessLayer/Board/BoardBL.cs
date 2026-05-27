@@ -118,8 +118,8 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             TaskBL newTask = new TaskBL(nextTaskID, title, dueDate, description);
             nextTaskID++;
 
-            tasks.Add(newTask.TaskID, newTask);
             columns[BacklogColumnIndex].AddTask(newTask);
+            tasks.Add(newTask.TaskID, newTask);
 
             return newTask;
         }
