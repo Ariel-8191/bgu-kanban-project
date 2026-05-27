@@ -190,8 +190,10 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             }
 
             TaskBL taskToAdvance = tasks[taskID];
-            columns[columnIndex].RemoveTask(taskToAdvance);
+
+            // Adding the task to the next column before removing it from the current one ensures that the task won't disapper if the next column is full
             columns[columnIndex+1].AddTask(taskToAdvance);
+            columns[columnIndex].RemoveTask(taskToAdvance);
             return taskToAdvance;
         }
     }
