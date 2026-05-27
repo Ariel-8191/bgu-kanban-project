@@ -36,6 +36,7 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
             try
             {
                 TaskSL task = new TaskSL(this.boardFacade.AddTask(email, boardName, title, dueDate, description));
+                log.Info($"Successfully added task '{task.TaskID}' in board '{boardName}' (User: '{email}').");
                 return new Response<TaskSL>(task).ToJson();
             }
             catch (KanbanException ex)
@@ -64,6 +65,7 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
             try
             {
                 TaskSL task = new TaskSL(this.boardFacade.EditTask(email, boardName, taskID, title, dueDate, description));
+                log.Info($"Successfully edited task '{taskID}' in board '{boardName}' (User: '{email}').");
                 return new Response<TaskSL>(task).ToJson();
             }
             catch (KanbanException ex)
@@ -90,6 +92,7 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
             try
             {
                 TaskSL task = new TaskSL(this.boardFacade.AdvanceTask(email, boardName, columnIndex, taskID));
+                log.Info($"Successfully advanced task '{taskID}' to column with index {columnIndex} in board '{boardName}' (User: '{email}').");
                 return new Response<TaskSL>(task).ToJson();
             }
             catch (KanbanException ex)
