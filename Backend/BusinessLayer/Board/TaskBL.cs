@@ -15,7 +15,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         public string _title;
         public string Title
         {
-            get { return _title; }
+            get => _title;
             private set
             {
                 if (string.IsNullOrWhiteSpace(value))
@@ -38,7 +38,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         public string _description;
         public string Description
         {
-            get { return _description; }
+            get => _description;
             private set
             {
                 if (value?.Length > 300)
