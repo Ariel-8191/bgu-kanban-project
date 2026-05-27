@@ -11,7 +11,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        private Dictionary<string, Dictionary<string, BoardBL>> boards;
+        private Dictionary<string, Dictionary<string, BoardBL>> boardsByUser;
         private AuthenticationFacade authenticationFacade;
 
         /// <summary>
@@ -20,7 +20,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <param name="authenticationFacade">The authentication facade used to verify users.</param>
         public BoardFacade(AuthenticationFacade authenticationFacade)
         {
-            this.boards = new Dictionary<string, Dictionary<string, BoardBL>>(StringComparer.OrdinalIgnoreCase);
+            this.boardsByUser = new Dictionary<string, Dictionary<string, BoardBL>>(StringComparer.OrdinalIgnoreCase);
             this.authenticationFacade = authenticationFacade;
         }
 
@@ -52,7 +52,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             }
 
             Dictionary<string, BoardBL> userBoards;
-            bool userHasBoards = boards.TryGetValue(email, out userBoards);
+            bool userHasBoards = boardsByUser.TryGetValue(email, out userBoards);
             if (userHasBoards && userBoards.ContainsKey(boardName))
             {
                 string message = $"Cannot create a board for the user '{email}' because he already has a board with the name '{boardName}'.";
@@ -63,7 +63,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             if (!userHasBoards)
             {
                 userBoards = new Dictionary<string, BoardBL>(StringComparer.OrdinalIgnoreCase);
-                boards.Add(email, userBoards);
+                boardsByUser.Add(email, userBoards);
             }
 
             BoardBL newBoard = new BoardBL(boardName);
@@ -98,7 +98,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
                 throw new KanbanValidationException(message);
             }
             Dictionary<string, BoardBL> userBoards;
-            bool userHasBoards = boards.TryGetValue(email, out userBoards);
+            bool userHasBoards = boardsByUser.TryGetValue(email, out userBoards);
             if (!userHasBoards || !userBoards.ContainsKey(boardName))
             {
                 string message = $"Cannot get the board '{boardName}' belonging to the user '{email}' because there is no such board.";
@@ -118,7 +118,13 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         public BoardBL DeleteBoard(string email, string boardName)
         {
             BoardBL board = GetBoard(email, boardName);
-            boards[email].Remove(boardName); // the call to 'GetBoard' in the previous line ensures the input is valid
+            boardsByUser[email].Remove(boardName); // the call to 'GetBoard' in the previous line ensures the input is valid
+
+            // If the user doesn't have any boards after the deletion, don't store an empty dictionary
+            if (boardsByUser[email].Count == 0)
+            {
+                boardsByUser.Remove(email);
+            }
             return board;
         }
 
@@ -146,7 +152,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             List<TaskBL> inProgressTasks = new List<TaskBL>();
 
             Dictionary<string, BoardBL> userBoards;
-            if (boards.TryGetValue(email, out userBoards))
+            if (boardsByUser.TryGetValue(email, out userBoards))
             {
                 foreach (BoardBL board in userBoards.Values)
                 {
