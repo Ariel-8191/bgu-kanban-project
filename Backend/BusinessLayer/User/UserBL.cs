@@ -52,7 +52,6 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.User
         /// A valid password must be between 6 and 20 characters and contain at least one uppercase letter, one lowercase letter, and one number.
         /// </summary>
         /// <param name="password">The plaintext password string to validate.</param>
-        /// <exception cref="ArgumentException">Thrown when the password is null, whitespace, or fails any complexity constraint.</exception>
         private void ValidatePasswordStructure(string password)
         {
             if (string.IsNullOrWhiteSpace(password))
@@ -95,7 +94,6 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.User
         /// Validates that an email string conforms to a standard structural format.
         /// </summary>
         /// <param name="email">The raw email string to validate.</param>
-        /// <exception cref="ArgumentException">Thrown when the email is null, whitespace, or fails regular expression pattern matching.</exception>
         private void ValidateEmailStructure(string email)
         {
             if (string.IsNullOrWhiteSpace(email))
