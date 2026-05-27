@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
 
 namespace IntroSE.Kanban.Backend.BusinessLayer.Board
 {
@@ -21,13 +22,15 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             {
                 if (value < 0)
                 {
-                    log.WarnFormat("Failed setting task limit in column '{0}'. Reason: new limit is negative.", Name);
-                    throw new InvalidOperationException("New limit is negative.");
+                    string message = $"Cannot set new task limit in column '{Name}' because the given value is negative.";
+                    log.Warn(message);
+                    throw new KanbanValidationException(message);
                 }
                 if (tasks.Count > value)
                 {
-                    log.WarnFormat("Failed setting task limit in column '{0}'. Reason: new limit ({1}) is lower than current task count ({2}).", Name, value, tasks.Count);
-                    throw new InvalidOperationException("New limit is lower than current task count.");
+                    string message = $"Cannot set new task limit in column '{Name}' because the given limit ({value}) is lower than current task count ({tasks.Count}).";
+                    log.Warn(message);
+                    throw new KanbanValidationException(message);
                 }
 
                 _taskLimit = value;
@@ -53,8 +56,9 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         {
             if (TaskLimit.HasValue && tasks.Count >= TaskLimit.Value)
             {
-                log.WarnFormat("Failed adding task to column '{0}'. Reason: task limit of {1} reached.", Name, TaskLimit.Value);
-                throw new InvalidOperationException("Cannot add task: column has reached its task limit.");
+                string message = $"Cannot add task to column '{Name}' because the task limit ({TaskLimit.Value}) has been reached.";
+                log.Warn(message);
+                throw new KanbanInvalidStateException(message);
             }
 
             tasks.Add(task.TaskID, task);

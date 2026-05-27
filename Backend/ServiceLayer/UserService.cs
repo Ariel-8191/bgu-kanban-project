@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Security.Authentication;
-
 using IntroSE.Kanban.Backend.BusinessLayer.User;
+using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
 
 namespace IntroSE.Kanban.Backend.ServiceLayer
 {
@@ -36,11 +35,15 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
                 UserSL user = new UserSL(this.userFacade.Register(email, password));
                 return new Response<UserSL>(user).ToJson();
             }
-            catch (Exception ex)
+            catch (KanbanException ex)
             {
                 return new Response<UserSL>(ex.Message).ToJson();
             }
-
+            catch (Exception ex)
+            {
+                log.Error($"An unexpected system error occurred in Register(email='{email}'): {ex.Message}");
+                return new Response<UserSL>("An unexpected system error occurred").ToJson();
+            }
         }
 
 
@@ -58,13 +61,18 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
                 return new Response<UserSL>(user).ToJson();
             }
             // The user shouldn't know which part of the login failed
-            catch (AuthenticationException)
+            catch (KanbanAuthenticationException)
             {
                 return new Response<UserSL>("Invalid username or password").ToJson();
             }
-            catch (Exception ex)
+            catch (KanbanException ex)
             {
                 return new Response<UserSL>(ex.Message).ToJson();
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An unexpected system error occurred in Login(email='{email}'): {ex.Message}");
+                return new Response<UserSL>("An unexpected system error occurred").ToJson();
             }
         }
 
@@ -81,9 +89,14 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
                 UserSL user = new UserSL(this.userFacade.Logout(email));
                 return new Response<UserSL>(user).ToJson();
             }
-            catch (Exception ex)
+            catch (KanbanException ex)
             {
                 return new Response<UserSL>(ex.Message).ToJson();
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An unexpected system error occurred in Logout(email='{email}'): {ex.Message}");
+                return new Response<UserSL>("An unexpected system error occurred").ToJson();
             }
         }
 
