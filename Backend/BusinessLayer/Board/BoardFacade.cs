@@ -35,26 +35,30 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         {
             if (email == null)
             {
-                log.Warn("Failed board creation attempt. Reason: Email is null.");
-                throw new ArgumentNullException(nameof(email), "Email cannot be null.");
+                string message = $"Cannot create the board '{boardName}' because the given email is null.";
+                log.Warn(message);
+                throw new KanbanValidationException(message);
             }
             if (!authenticationFacade.IsLoggedIn(email))
             {
-                log.WarnFormat("Failed board creation attempt. Reason: User '{0}' isn't logged in.", email);
-                throw new InvalidOperationException("User isn't logged in.");
+                string message = $"Cannot create the board '{boardName}' because the user '{email}' is not currently logged in.";
+                log.Warn(message);
+                throw new KanbanAuthenticationException(message);
             }
             if (string.IsNullOrEmpty(boardName))
             {
-                log.Warn("Failed board creation attempt. Reason: Invalid board name.");
-                throw new InvalidOperationException("Invalid board name.");
+                string message = $"Cannot create a board for the user '{email}' because the given board name is null or whitespace.";
+                log.Warn(message);
+                throw new KanbanValidationException(message);
             }
 
             Dictionary<string, BoardBL> userBoards;
             bool userHasBoards = boards.TryGetValue(email, out userBoards);
             if (userHasBoards && userBoards.ContainsKey(boardName))
             {
-                log.WarnFormat("Failed board creation attempt. Reason: Board name '{0}' taken.", boardName);
-                throw new InvalidOperationException("Board name taken.");
+                string message = $"Cannot create a board for the user '{email}' because he already has a board with the name '{boardName}'.";
+                log.Warn(message);
+                throw new KanbanConflictException(message);
             }
 
             if (!userHasBoards)
@@ -175,13 +179,15 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         {
             if (email == null)
             {
-                log.Warn("Failed in-progress tasks retrieval attempt. Reason: Email is null.");
-                throw new ArgumentNullException(nameof(email), "Email cannot be null.");
+                string message = "Cannot get the \"in progress\" tasks of a user because the given email is null.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
             }
             if (!authenticationFacade.IsLoggedIn(email))
             {
-                log.WarnFormat("Failed in-progress tasks retrieval attempt. Reason: User '{0}' isn't logged in.", email);
-                throw new InvalidOperationException("User isn't logged in.");
+                string message = $"Cannot get the \"in progress\" tasks of the user '{email}' because he is not currently logged in.";
+                log.Warn(message);
+                throw new KanbanAuthenticationException(message);
             }
             
 
@@ -241,25 +247,29 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         {
             if (email == null)
             {
-                log.Warn("Failed board retrieval attempt. Reason: Email is null.");
-                throw new ArgumentNullException(nameof(email), "Email cannot be null.");
+                string message = $"Cannot get the board '{boardName}' because the given email is null.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
             }
             if (!authenticationFacade.IsLoggedIn(email))
             {
-                log.WarnFormat("Failed board retrieval attempt. Reason: User '{0}' isn't logged in.", email);
-                throw new InvalidOperationException("User isn't logged in.");
+                string message = $"Cannot get the board '{boardName}' because the user '{email}' is not currently logged in.";
+                log.Warn(message);
+                throw new KanbanAuthenticationException(message);
             }
             if (string.IsNullOrEmpty(boardName))
             {
-                log.Warn("Failed board retrieval attempt. Reason: Invalid board name.");
-                throw new InvalidOperationException("Invalid board name.");
+                string message = $"Cannot get a board of the user '{email}' because the given board name is null or whitespace.";
+                log.Warn(message);
+                throw new KanbanValidationException(message);
             }
             Dictionary<string, BoardBL> userBoards;
             bool userHasBoards = boards.TryGetValue(email, out userBoards);
             if (!userHasBoards || !userBoards.ContainsKey(boardName))
             {
-                log.WarnFormat("Failed board retrieval attempt. Reason: Board '{0}' doesn't exist.", boardName);
-                throw new InvalidOperationException("Board doesn't exist.");
+                string message = $"Cannot get the board '{boardName}' belonging to the user '{email}' because there is no such board.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
             }
 
             return userBoards[boardName];
