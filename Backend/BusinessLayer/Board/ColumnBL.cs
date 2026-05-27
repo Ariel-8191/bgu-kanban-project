@@ -83,5 +83,15 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         {
             return tasks.Values.ToList();
         }
+
+        /// <summary>
+        /// Determines whether a task with the specified ID exists in the column.
+        /// </summary>
+        /// <param name="taskID">The ID of the task to locate.</param>
+        /// <returns><c>true</c> if the collection contains a task with the specified ID; otherwise, <c>false</c>.</returns>
+        internal bool ContainsTask(long taskID)
+        {
+            return tasks.ContainsKey(taskID);
+        }
     }
 }

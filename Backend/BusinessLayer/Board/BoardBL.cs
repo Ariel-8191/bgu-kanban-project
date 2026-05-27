@@ -141,14 +141,14 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
                 throw new KanbanNotFoundException(message);
             }
 
-            TaskBL taskToEdit = tasks[taskID];
-            if (columns[DoneColumnIndex].GetTasks().Contains(taskToEdit))
+            if (columns[DoneColumnIndex].ContainsTask(taskID))
             {
                 string message = $"Cannot edit task '{taskID}' in the board '{BoardName}' because it is in the \"Done\" column";
                 log.Warn(message);
                 throw new KanbanInvalidStateException(message);
             }
 
+            TaskBL taskToEdit = tasks[taskID];
             taskToEdit.EditTask(title, dueDate, description);
             return taskToEdit;
         }
@@ -182,14 +182,14 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
                 throw new KanbanInvalidStateException(message);
             }
 
-            TaskBL taskToAdvance = tasks[taskID];
-            if (!columns[columnIndex].GetTasks().Contains(taskToAdvance))
+            if (!columns[columnIndex].ContainsTask(taskID))
             {
                 string message = $"Cannot advance task '{taskID}' in the board '{BoardName}' from column {columnIndex} because the task is not in the column.";
                 log.Warn(message);
                 throw new KanbanNotFoundException(message);
             }
 
+            TaskBL taskToAdvance = tasks[taskID];
             columns[columnIndex].RemoveTask(taskToAdvance);
             columns[columnIndex+1].AddTask(taskToAdvance);
             return taskToAdvance;
