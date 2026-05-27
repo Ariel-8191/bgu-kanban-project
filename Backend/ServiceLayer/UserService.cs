@@ -33,6 +33,7 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
             try
             {
                 UserSL user = new UserSL(this.userFacade.Register(email, password));
+                log.Info($"Successfully registered user '{email}'.");
                 return new Response<UserSL>(user).ToJson();
             }
             catch (KanbanException ex)
@@ -46,7 +47,6 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
             }
         }
 
-
         /// <summary>
         ///  This method logs in an existing user.
         /// </summary>
@@ -58,6 +58,7 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
             try
             {
                 UserSL user = new UserSL(this.userFacade.Login(email, password));
+                log.Info($"Successfully logged in user '{email}'.");
                 return new Response<UserSL>(user).ToJson();
             }
             // The user shouldn't know which part of the login failed
@@ -76,7 +77,6 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
             }
         }
 
-
         /// <summary>
         /// This method logs out a logged in user. 
         /// </summary>
@@ -87,6 +87,7 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
             try
             {
                 UserSL user = new UserSL(this.userFacade.Logout(email));
+                log.Info($"Successfully logged out user '{email}'.");
                 return new Response<UserSL>(user).ToJson();
             }
             catch (KanbanException ex)
@@ -99,6 +100,5 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
                 return new Response<UserSL>("An unexpected system error occurred").ToJson();
             }
         }
-
     }
 }

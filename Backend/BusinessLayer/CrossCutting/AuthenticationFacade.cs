@@ -17,7 +17,6 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.CrossCutting
         /// Initializes a new instance of the <see cref="AuthenticationFacade"/> class.
         /// Sets up the internal data structures required to track user sessions.
         /// </summary>
-        /// <exception cref="NotImplementedException">Thrown because the method is not yet implemented.</exception>
         public AuthenticationFacade()
         {
             this.loggedInUsers = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -45,7 +44,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.CrossCutting
         /// <summary>
         /// Terminates a user's active session and removes them from the logged-in state.
         /// </summary>
-        /// <param name="email">The email address of the user to log in.</param>
+        /// <param name="email">The email address of the user to log out.</param>
         public void Logout(string email)
         {
             if (!IsLoggedIn(email))

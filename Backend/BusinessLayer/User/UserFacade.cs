@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Security.Authentication;
 
 using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
 
@@ -50,7 +49,6 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.User
             UserBL user = new UserBL(email, password);
             users.Add(email, user);
             authenticationFacade.Login(email);
-            log.InfoFormat("User '{0}' successfully created", email);
 
             return user;
         }
@@ -80,7 +78,6 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.User
             if (user.CheckPassword(password))
             {
                 authenticationFacade.Login(email);
-                log.InfoFormat("User '{0}' successfully logged in.", email);
                 return user;
             }
             else
@@ -113,7 +110,6 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.User
 
             UserBL user = users[email];
             authenticationFacade.Logout(email);
-            log.InfoFormat("User '{0}' successfully logged out.", email);
             return user;
         }
     }
