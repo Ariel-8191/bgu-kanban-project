@@ -45,7 +45,7 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
             catch (Exception ex)
             {
                 log.Error($"An unexpected system error occurred in CreateBoard(email='{email}', board='{boardName}'): {ex.Message}");
-                return new Response<BoardBL>("An unexpected system error occurred").ToJson();
+                return new Response<BoardSL>("An unexpected system error occurred").ToJson();
             }
         }
 
@@ -70,7 +70,7 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
             catch (Exception ex)
             {
                 log.Error($"An unexpected system error occurred in DeleteBoard(email='{email}', board='{boardName}'): {ex.Message}");
-                return new Response<BoardBL>("An unexpected system error occurred").ToJson();
+                return new Response<BoardSL>("An unexpected system error occurred").ToJson();
             }
         }
 
