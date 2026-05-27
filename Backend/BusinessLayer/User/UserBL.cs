@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
+using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -56,32 +57,37 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.User
         {
             if (string.IsNullOrWhiteSpace(password))
             {
-                log.Warn("Invalid password: Value is null or whitespace.");
-                throw new ArgumentException("Password cannot be null or whitespace.", nameof(password));
+                string message = "Password cannot be null or whitespace.";
+                log.Warn(message);
+                throw new KanbanValidationException(message);
             }
 
             if (password.Length < 6 || password.Length > 20)
             {
-                log.Warn($"Invalid password: Invalid length ({password?.Length}).");
-                throw new ArgumentException("Password length must be between 6 and 20 characters.", nameof(password));
+                string message = $"Password must be between 6 and 20 characters. Attempted password length: {password.Length}";
+                log.Warn(message);
+                throw new KanbanValidationException(message);
             }
 
             if (!password.Any(char.IsUpper))
             {
-                log.Warn("Invalid password: Missing uppercase letter.");
-                throw new ArgumentException("Password must contain at least one uppercase letter.", nameof(password));
+                string message = "Password must contain at least one uppercase letter.";
+                log.Warn(message);
+                throw new KanbanValidationException(message);
             }
 
             if (!password.Any(char.IsLower))
             {
-                log.Warn("Invalid password: Missing lowercase letter.");
-                throw new ArgumentException("Password must contain at least one lowercase letter.", nameof(password));
+                string message = "Password must contain at least one lowercase letter.";
+                log.Warn(message);
+                throw new KanbanValidationException(message);
             }
 
             if (!password.Any(char.IsDigit))
             {
-                log.Warn("Invalid password: Missing number.");
-                throw new ArgumentException("Password must contain at least one number.", nameof(password));
+                string message = "Password must contain at least one number.";
+                log.Warn(message);
+                throw new KanbanValidationException(message);
             }
         }
 
@@ -94,16 +100,18 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.User
         {
             if (string.IsNullOrWhiteSpace(email))
             {
-                log.Warn("Invalid email: Email is null or whitespace.");
-                throw new ArgumentException("Email cannot be null or whitespace.", nameof(email));
+                string message = "Email cannot be null or whitespace.";
+                log.Warn(message);
+                throw new KanbanValidationException(message);
             }
 
             string emailPattern = @"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$";
 
             if (!Regex.IsMatch(email, emailPattern))
             {
-                log.Warn($"Invalid email: Invalid email structure.");
-                throw new ArgumentException("Invalid email structure.", nameof(email));
+                string message = "Email must have a valid email structure.";
+                log.Warn(message);
+                throw new KanbanValidationException(message);
             }
         }
 

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Xml.Linq;
+using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
 
 namespace IntroSE.Kanban.Backend.BusinessLayer.Board
 {
@@ -69,15 +69,17 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         {
             if (!tasks.ContainsKey(taskID))
             {
-                log.WarnFormat("Failed editing task with ID {0} in board '{1}'. Reason: task does not exist.", taskID, BoardName);
-                throw new InvalidOperationException("Task does not exist.");
+                string message = $"Cannot edit task '{taskID}' in the board '{BoardName}' because it does not exist.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
             }
 
             TaskBL taskToEdit = tasks[taskID];
             if (columns[DoneColumnIndex].GetTasks().Contains(taskToEdit))
             {
-                log.WarnFormat("Failed editing task with ID {0} in board '{1}'. Reason: task is in done column.", taskID, BoardName);
-                throw new InvalidOperationException("Cannot edit a task that is in the done column.");
+                string message = $"Cannot edit task '{taskID}' in the board '{BoardName}' because it is in the \"Done\" column";
+                log.Warn(message);
+                throw new KanbanInvalidStateException(message);
             }
 
             taskToEdit.EditTask(title, dueDate, description);
@@ -94,27 +96,31 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         {
             if (!tasks.ContainsKey(taskID))
             {
-                log.WarnFormat("Failed editing task with ID {0} in board '{1}'. Reason: task does not exist.", taskID, BoardName);
-                throw new InvalidOperationException("Task does not exist.");
+                string message = $"Cannot advance task '{taskID}' in the board '{BoardName}' because it does not exist.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
             }
 
             if (columnIndex < 0 || columnIndex >= columns.Count)
             {
-                log.WarnFormat("Failed advancing task in board '{0}'. Reason: column index is invalid.", BoardName);
-                throw new InvalidOperationException("Column index is invalid.");
+                string message = $"Cannot advance task '{taskID}' in the board '{BoardName}' from column {columnIndex} because the column index is out of bounds.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
+            }
+
+            if (columnIndex + 1 >= columns.Count)
+            {
+                string message = $"Cannot advance task '{taskID}' in the board '{BoardName}' from column {columnIndex} because there is nowhere to advance.";
+                log.Warn(message);
+                throw new KanbanInvalidStateException(message);
             }
 
             TaskBL taskToAdvance = tasks[taskID];
             if (!columns[columnIndex].GetTasks().Contains(taskToAdvance))
             {
-                log.WarnFormat("Failed advancing task with ID {0} in board '{1}'. Reason: wrong column index.", taskID, BoardName);
-                throw new InvalidOperationException("Wrong column index.");
-            }
-
-            if (columnIndex +1 >= columns.Count)
-            {
-                log.WarnFormat("Failed advancing task with ID {0} in board '{1}'. Reason: Nowhere to advance task.", taskID, BoardName);
-                throw new InvalidOperationException("Nowhere to advance task.");
+                string message = $"Cannot advance task '{taskID}' in the board '{BoardName}' from column {columnIndex} because the task is not in the column.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
             }
 
             columns[columnIndex].RemoveTask(taskToAdvance);
@@ -131,8 +137,9 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         {
             if (columnIndex < 0 || columnIndex >= columns.Count)
             {
-                log.WarnFormat("Failed getting column name in board '{0}'. Reason: column index is invalid.", BoardName);
-                throw new InvalidOperationException("Column index is invalid.");
+                string message = $"Cannot get the name of a column in the board '{BoardName}' because the column index is out of bounds.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
             }
             return columns[columnIndex].Name;
         }
@@ -146,8 +153,9 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         {
             if (columnIndex < 0 || columnIndex >= columns.Count)
             {
-                log.WarnFormat("Failed getting tasks in board '{0}'. Reason: column index is invalid.", BoardName);
-                throw new InvalidOperationException("Column index is invalid.");
+                string message = $"Cannot get the tasks of a column in the board '{BoardName}' because the column index is out of bounds.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
             }
 
             return columns[columnIndex].GetTasks();
@@ -171,8 +179,9 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         {
             if (columnIndex < 0 || columnIndex >= columns.Count)
             {
-                log.WarnFormat("Failed getting task limit of column in board '{0}'. Reason: column index is invalid.", BoardName);
-                throw new InvalidOperationException("Column index is invalid.");
+                string message = $"Cannot get the task limit of a column in the board '{BoardName}' because the column index is out of bounds.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
             }
 
             return columns[columnIndex].TaskLimit;
@@ -187,8 +196,9 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         {
             if (columnIndex < 0 || columnIndex >= columns.Count)
             {
-                log.WarnFormat("Failed setting task limit of column in board '{0}'. Reason: column index is invalid.", BoardName);
-                throw new InvalidOperationException("Column index is invalid.");
+                string message = $"Cannot set the task limit of a column in the board '{BoardName}' because the column index is out of bounds.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
             }
 
             columns[columnIndex].TaskLimit = limit;

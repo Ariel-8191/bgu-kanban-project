@@ -1,4 +1,5 @@
 ﻿using System;
+using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
 
 namespace IntroSE.Kanban.Backend.BusinessLayer.Board
 {
@@ -19,13 +20,15 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             {
                 if (string.IsNullOrWhiteSpace(value))
                 {
-                    log.Warn("Invalid title: Value is null or whitespace.");
-                    throw new ArgumentException("Title cannot be null or whitespace.", nameof(value));
+                    string message = "Task title cannot be null or whitespace.";
+                    log.Warn(message);
+                    throw new KanbanValidationException(message);
                 }
                 if (value.Length > 50)
                 {
-                    log.WarnFormat("Invalid title: Length of '{0}' exceeds maximum of 50 characters.", nameof(value));
-                    throw new ArgumentException("Title cannot exceed 50 characters.", nameof(value));
+                    string message = $"Task title cannot exceed 50 characters. Attempted title length: {value.Length}.";
+                    log.Warn(message);
+                    throw new KanbanValidationException(message);
                 }
 
                 _title = value;
@@ -40,8 +43,9 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             {
                 if (value?.Length > 300)
                 {
-                    log.WarnFormat("Invalid description: Length of '{0}' exceeds maximum of 300 characters.", nameof(value));
-                    throw new ArgumentException("Description cannot exceed 300 characters.", nameof(value));
+                    string message = $"Task description cannot exceed 300 characters. Attempted description length: {value.Length}.";
+                    log.Warn(message);
+                    throw new KanbanValidationException(message);
                 }
 
                 _description = value;
@@ -75,8 +79,9 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         {
             if (title == null && dueDate == default && description == null)
             {
-                log.WarnFormat("Failed editing task with ID {0}. Reason: No changes were given.", TaskID);
-                throw new InvalidOperationException("No changes were given.");
+                string message = $"Cannot edit task '{TaskID}' because no new values were provided.";
+                log.Warn(message);
+                throw new KanbanValidationException(message);
             }
 
             if (title != null)

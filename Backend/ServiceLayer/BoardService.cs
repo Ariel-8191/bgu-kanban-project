@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using IntroSE.Kanban.Backend.BusinessLayer.Board;
+using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
 
 namespace IntroSE.Kanban.Backend.ServiceLayer
 {
@@ -36,9 +37,14 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
                 BoardSL board = new BoardSL(this.boardFacade.CreateBoard(email, boardName));
                 return new Response<BoardSL>(board).ToJson();
             }
-            catch (Exception ex)
+            catch (KanbanException ex)
             {
                 return new Response<BoardSL>(ex.Message).ToJson();
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An unexpected system error occurred in CreateBoard(email='{email}', board='{boardName}'): {ex.Message}");
+                return new Response<BoardBL>("An unexpected system error occurred").ToJson();
             }
         }
 
@@ -55,9 +61,14 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
                 BoardSL board = new BoardSL(this.boardFacade.DeleteBoard(email, boardName));
                 return new Response<BoardSL>(board).ToJson();
             }
-            catch (Exception ex)
+            catch (KanbanException ex)
             {
                 return new Response<BoardSL>(ex.Message).ToJson();
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An unexpected system error occurred in DeleteBoard(email='{email}', board='{boardName}'): {ex.Message}");
+                return new Response<BoardBL>("An unexpected system error occurred").ToJson();
             }
         }
 
@@ -76,9 +87,14 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
                 this.boardFacade.LimitTasksInColumn(email, boardName, columnIndex, limit);
                 return new Response<object>().ToJson();
             }
-            catch (Exception ex)
+            catch (KanbanException ex)
             {
                 return new Response<object>(ex.Message).ToJson();
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An unexpected system error occurred in LimitTasksInColumn(email='{email}', board='{boardName}', column={columnIndex}, limit={limit}): {ex.Message}");
+                return new Response<object>("An unexpected system error occurred").ToJson();
             }
         }
 
@@ -95,9 +111,14 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
                 List<TaskSL> inProgressTasksSL = inProgressTasksBL.Select(task => new TaskSL(task)).ToList();
                 return new Response<List<TaskSL>>(inProgressTasksSL).ToJson();
             }
-            catch (Exception ex)
+            catch (KanbanException ex)
             {
                 return new Response<List<TaskSL>>(ex.Message).ToJson();
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An unexpected system error occurred in GetInProgressTasks(email='{email}'): {ex.Message}");
+                return new Response<List<TaskSL>>("An unexpected system error occurred").ToJson();
             }
         }
 
@@ -116,9 +137,14 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
                 List<TaskSL> columnTasksSL = columnTasksBL.Select(task => new TaskSL(task)).ToList();
                 return new Response<List<TaskSL>>(columnTasksSL).ToJson();
             }
-            catch (Exception ex)
+            catch (KanbanException ex)
             {
                 return new Response<List<TaskSL>>(ex.Message).ToJson();
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An unexpected system error occurred in GetColumnTasks(email='{email}', board='{boardName}', column={columnIndex}): {ex.Message}");
+                return new Response<List<TaskSL>>("An unexpected system error occurred").ToJson();
             }
         }
 
@@ -136,11 +162,15 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
                 int? limit = this.boardFacade.GetColumnLimit(email, boardName, columnIndex);
                 return new Response<int?>(limit).ToJson();
             }
-            catch (Exception ex)
+            catch (KanbanException ex)
             {
                 return new Response<int?>(ex.Message).ToJson();
             }
-
+            catch (Exception ex)
+            {
+                log.Error($"An unexpected system error occurred in GetColumnLimit(email='{email}', board='{boardName}', column={columnIndex}): {ex.Message}");
+                return new Response<int?>("An unexpected system error occurred").ToJson();
+            }
         }
 
         /// <summary>
@@ -157,9 +187,14 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
                 string columnName = this.boardFacade.GetColumnName(email, boardName, columnIndex);
                 return new Response<string>(null, columnName).ToJson();
             }
-            catch (Exception ex)
+            catch (KanbanException ex)
             {
                 return new Response<string>(ex.Message).ToJson();
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An unexpected system error occurred in GetColumnName(email='{email}', board='{boardName}', column={columnIndex}): {ex.Message}");
+                return new Response<string>("An unexpected system error occurred").ToJson();
             }
         }
 
