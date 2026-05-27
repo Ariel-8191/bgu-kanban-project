@@ -69,7 +69,6 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
 
             BoardBL newBoard = new BoardBL(boardName);
             userBoards.Add(boardName, newBoard);
-            log.InfoFormat("New board '{0}' for user '{1}' created successfully", boardName, email);
             return newBoard;
         }
 
@@ -83,7 +82,6 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         {
             BoardBL board = GetBoard(email, boardName);
             boards[email].Remove(boardName); // the call to 'GetBoard' in the previous line ensures the input is valid
-            log.InfoFormat("Board '{0}' belonging to user '{1}' deleted successfully", boardName, email);
             return board;
         }
 
@@ -100,7 +98,6 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         {
             BoardBL board = GetBoard(email, boardName);
             TaskBL newTask = board.AddTask(title, dueDate, description);
-            log.InfoFormat("New task with ID '{0}' added to board '{1}' for user '{2}'", newTask.TaskID, boardName, email);
             return newTask;
         }
 
@@ -118,7 +115,6 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         {
             BoardBL board = GetBoard(email, boardName);
             TaskBL editedTask = board.EditTask(taskID, title, dueDate, description);
-            log.InfoFormat("Task with ID '{0}' in board '{1}' for user '{2}' edited successfully", taskID, boardName, email);
             return editedTask;
         }
 
@@ -134,7 +130,6 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         {
             BoardBL board = GetBoard(email, boardName);
             TaskBL advancedTask = board.AdvanceTask(columnIndex, taskID);
-            log.InfoFormat("Task with ID '{0}' in board '{1}' for user '{2}' advanced successfully", taskID, boardName, email);
             return advancedTask;
         }
 
@@ -149,8 +144,6 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         {
             BoardBL board = GetBoard(email, boardName);
             string columnName = board.GetColumnName(columnIndex);
-            log.InfoFormat("Retrieved name '{0}' for column index {1} in board '{2}' for user '{3}'", 
-                columnName, columnIndex, boardName, email);
             return columnName;
         }
 
@@ -165,8 +158,6 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         {
             BoardBL board = GetBoard(email, boardName);
             List<TaskBL> columnTasks = board.GetColumnTasks(columnIndex);
-            log.InfoFormat("Retrieved {0} tasks from column index {1} in board '{2}' for user '{3}'",
-                    columnTasks.Count, columnIndex, boardName, email);
             return columnTasks;
         }
 
@@ -202,7 +193,6 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
                 }
             }
 
-            log.InfoFormat("Succesfully retrieved all in-progress tasks of user '{0}'", email);
             return inProgressTasks;
         }
 
@@ -217,8 +207,6 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         {
             BoardBL board = GetBoard(email, boardName);
             int? limit = board.GetColumnLimit(columnIndex);
-            log.InfoFormat("Retrieved task limit of column index {0} in board '{1}' for user '{2}'. Limit: {3}",
-                    columnIndex, boardName, email, limit.HasValue ? limit.Value.ToString() : "No limit");
             return limit;
         }
 
@@ -233,8 +221,6 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         {
             BoardBL board = GetBoard(email, boardName);
             board.LimitTasksInColumn(columnIndex, limit);
-
-            log.InfoFormat("Successfully set new limit to column with index {0} in the board '{1}' belonging to user '{2}'", columnIndex, boardName, email);
         }
 
         /// <summary>
