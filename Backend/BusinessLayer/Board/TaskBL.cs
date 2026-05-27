@@ -75,9 +75,9 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <param name="dueDate">The new due date for the task.</param>
         /// <param name="description">The new description for the task.</param>
         /// <returns>The updated <see cref="TaskBL"/> object.</returns>
-        public TaskBL EditTask(string title, DateTime dueDate, string description)
+        public TaskBL EditTask(string title, DateTime? dueDate, string description)
         {
-            if (title == null && dueDate == default && description == null)
+            if (title == null && dueDate == null && description == null)
             {
                 string message = $"Cannot edit task '{TaskID}' because no new values were provided.";
                 log.Warn(message);
@@ -88,9 +88,9 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             {
                 Title = title;
             }
-            if (dueDate != default)
+            if (dueDate.HasValue)
             {
-                DueDate = dueDate;
+                DueDate = dueDate.Value;
             }
             if (description != null)
             {

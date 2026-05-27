@@ -60,7 +60,7 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <param name="dueDate">New Due date of the task</param>
         /// <param name="description">New description of the task</param>
         /// <returns>Returns a JSON representation of the edited task</returns>
-        public string EditTask(string email, string boardName, long taskID, string title, DateTime dueDate, string description)
+        public string EditTask(string email, string boardName, long taskID, string title, DateTime? dueDate, string description)
         {
             try
             {

@@ -132,7 +132,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <param name="dueDate">The new due date for the task.</param>
         /// <param name="description">The new description for the task.</param>
         /// <returns>The updated <see cref="TaskBL"/> object.</returns>
-        public TaskBL EditTask(long taskID, string title, DateTime dueDate, string description)
+        public TaskBL EditTask(long taskID, string title, DateTime? dueDate, string description)
         {
             if (!tasks.ContainsKey(taskID))
             {
