@@ -50,8 +50,9 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.CrossCutting
         {
             if (!IsLoggedIn(email))
             {
-                log.WarnFormat("Failed logout attempt for email '{0}'. Reason: User is not currently logged in.", email);
-                throw new InvalidOperationException("User is not currently logged in.");
+                string message = $"Cannot logout the user '{email}' because he is not currently logged in.";
+                log.Warn(message);
+                throw new KanbanAuthenticationException(message);
             }
             loggedInUsers.Remove(email);
         }

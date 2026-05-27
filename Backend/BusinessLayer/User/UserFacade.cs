@@ -36,13 +36,15 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.User
         {
             if (email == null) 
             {
-                log.Warn("Failed registration attempt. Reason: Email is null.");
-                throw new ArgumentNullException(nameof(email), "Email cannot be null.");
+                string message = "Cannot register a new user because the given email is null.";
+                log.Warn(message);
+                throw new KanbanValidationException(message);
             }
             if (users.ContainsKey(email))
             {
-                log.WarnFormat("Failed registration attempt. Reason: The email '{0}' already exists.", email);
-                throw new InvalidOperationException("Email already exists in the system.");
+                string message = $"Cannot register a new user because the email '{email}' already exists in the system.";
+                log.Warn(message);
+                throw new KanbanConflictException(message);
             }
 
             UserBL user = new UserBL(email, password);
@@ -63,13 +65,15 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.User
         {
             if (email == null)
             {
-                log.Warn("Failed login attempt. Reason: Email is null.");
-                throw new ArgumentNullException(nameof(email), "Email cannot be null.");
+                string message = "Cannot log in a user because the given email is null.";
+                log.Warn(message);
+                throw new KanbanValidationException(message);
             }
             if (!users.ContainsKey(email))
             {
-                log.WarnFormat("Failed login attempt for email '{0}'. Reason: There is no user with that email.", email);
-                throw new AuthenticationException("Email doesn't exist in the system.");
+                string message = $"Cannot log in the user '{email}' because there is no user with that email.";
+                log.Warn(message);
+                throw new KanbanAuthenticationException(message);
             }
 
             UserBL user = users[email];
@@ -81,8 +85,9 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.User
             }
             else
             {
-                log.WarnFormat("Failed login attempt for email '{0}'. Reason: Incorrect password.", email);
-                throw new AuthenticationException("Password is incorrect.");
+                string message = $"Cannot log in the user '{email}' because the password is incorrect.";
+                log.Warn(message);
+                throw new KanbanAuthenticationException(message);
             }
         }
 
@@ -95,13 +100,15 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.User
         {
             if (email == null)
             {
-                log.Warn("Failed logout attempt. Reason: Email is null.");
-                throw new ArgumentNullException(nameof(email), "Email cannot be null.");
+                string message = "Cannot log out a user because the given email is null.";
+                log.Warn(message);
+                throw new KanbanValidationException(message);
             }
             if (!users.ContainsKey(email))
             {
-                log.WarnFormat("Failed logout attempt for email '{0}'. Reason: There is no user with that email.", email);
-                throw new AuthenticationException("Email doesn't exist in the system.");
+                string message = $"Cannot log out the user '{email}' because there is no user with that email.";
+                log.Warn(message);
+                throw new KanbanAuthenticationException(message);
             }
 
             UserBL user = users[email];
