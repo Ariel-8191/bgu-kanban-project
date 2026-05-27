@@ -1,0 +1,200 @@
+﻿using System;
+using System.Collections.Generic;
+using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
+
+namespace IntroSE.Kanban.Backend.BusinessLayer.Board
+{
+    /// <summary>
+    /// Represents a Kanban board in the business layer, managing its columns, tasks, and properties.
+    /// </summary>
+    internal class BoardBL
+    {
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+        internal const int BacklogColumnIndex = 0;
+        internal const int InProgressColumnIndex = 1;
+        internal const int DoneColumnIndex = 2;
+        internal const string BacklogColumnName = "backlog";
+        internal const string InProgressColumnName = "in progress";
+        internal const string DoneColumnName = "done";
+
+        public string BoardName { get; }
+        private Dictionary<long, TaskBL> tasks;
+        private List<ColumnBL> columns;
+        private long nextTaskID;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BoardBL"/> class with the specified board name.
+        /// </summary>
+        /// <param name="boardName">The name to be assigned to the new board.</param>
+        public BoardBL(string boardName)
+        {
+            this.BoardName = boardName;
+            this.tasks = new Dictionary<long, TaskBL>();
+            this.nextTaskID = 0;
+
+            this.columns = new List<ColumnBL>();
+            columns.Add(new ColumnBL(BacklogColumnName));
+            columns.Add(new ColumnBL(InProgressColumnName));
+            columns.Add(new ColumnBL(DoneColumnName));
+        }
+
+        /// <summary>
+        /// Sets or removes the maximum limit on the number of tasks allowed in a specific column.
+        /// </summary>
+        /// <param name="columnIndex">The zero-based index of the column to modify.</param>
+        /// <param name="limit">The maximum number of tasks allowed, or null to remove the limit.</param>
+        public void LimitTasksInColumn(int columnIndex, int? limit)
+        {
+            if (columnIndex < 0 || columnIndex >= columns.Count)
+            {
+                string message = $"Cannot set the task limit of a column in the board '{BoardName}' because the column index is out of bounds.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
+            }
+
+            columns[columnIndex].TaskLimit = limit;
+        }
+
+        /// <summary>
+        /// Retrieves a list of all tasks currently located in a specific column.
+        /// </summary>
+        /// <param name="columnIndex">The zero-based index of the column.</param>
+        /// <returns>A list of <see cref="TaskBL"/> objects present in the specified column.</returns>
+        public List<TaskBL> GetColumnTasks(int columnIndex)
+        {
+            if (columnIndex < 0 || columnIndex >= columns.Count)
+            {
+                string message = $"Cannot get the tasks of a column in the board '{BoardName}' because the column index is out of bounds.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
+            }
+
+            return columns[columnIndex].GetTasks();
+        }
+
+        /// <summary>
+        /// Retrieves the name of a specific column on the board.
+        /// </summary>
+        /// <param name="columnIndex">The zero-based index of the column.</param>
+        /// <returns>The name of the column as a string.</returns>
+        public string GetColumnName(int columnIndex)
+        {
+            if (columnIndex < 0 || columnIndex >= columns.Count)
+            {
+                string message = $"Cannot get the name of a column in the board '{BoardName}' because the column index is out of bounds.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
+            }
+            return columns[columnIndex].Name;
+        }
+
+        /// <summary>
+        /// Gets the maximum number of tasks allowed in a specific column.
+        /// </summary>
+        /// <param name="columnIndex">The zero-based index of the column to query.</param>
+        /// <returns>An integer representing the task limit, or null if there is no limit set.</returns>
+        public int? GetColumnLimit(int columnIndex)
+        {
+            if (columnIndex < 0 || columnIndex >= columns.Count)
+            {
+                string message = $"Cannot get the task limit of a column in the board '{BoardName}' because the column index is out of bounds.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
+            }
+
+            return columns[columnIndex].TaskLimit;
+        }
+
+        /// <summary>
+        /// Creates and adds a new task to the board. 
+        /// </summary>
+        /// <param name="title">The title of the new task.</param>
+        /// <param name="dueDate">The deadline/due date for the task.</param>
+        /// <param name="description">A detailed description of the task.</param>
+        /// <returns>The newly created <see cref="TaskBL"/> object.</returns>
+        public TaskBL AddTask(string title, DateTime dueDate, string description)
+        {
+            TaskBL newTask = new TaskBL(nextTaskID, title, dueDate, description);
+            nextTaskID++;
+
+            columns[BacklogColumnIndex].AddTask(newTask);
+            tasks.Add(newTask.TaskID, newTask);
+
+            return newTask;
+        }
+
+        /// <summary>
+        /// Edits the details of an existing task on the board.
+        /// </summary>
+        /// <param name="taskID">The unique identifier of the task to edit.</param>
+        /// <param name="title">The new title for the task.</param>
+        /// <param name="dueDate">The new due date for the task.</param>
+        /// <param name="description">The new description for the task.</param>
+        /// <returns>The updated <see cref="TaskBL"/> object.</returns>
+        public TaskBL EditTask(long taskID, string title, DateTime? dueDate, string description)
+        {
+            if (!tasks.ContainsKey(taskID))
+            {
+                string message = $"Cannot edit task '{taskID}' in the board '{BoardName}' because it does not exist.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
+            }
+
+            if (columns[DoneColumnIndex].ContainsTask(taskID))
+            {
+                string message = $"Cannot edit task '{taskID}' in the board '{BoardName}' because it is in the \"Done\" column";
+                log.Warn(message);
+                throw new KanbanInvalidStateException(message);
+            }
+
+            TaskBL taskToEdit = tasks[taskID];
+            taskToEdit.EditTask(title, dueDate, description);
+            return taskToEdit;
+        }
+
+        /// <summary>
+        /// Advances a specific task from its current column to the next column on the board.
+        /// </summary>
+        /// <param name="columnIndex">The index of the column where the task is currently located.</param>
+        /// <param name="taskID">The unique identifier of the task to advance.</param>
+        /// <returns>The updated <see cref="TaskBL"/> object reflecting its new state/column.</returns>
+        public TaskBL AdvanceTask(int columnIndex, long taskID)
+        {
+            if (!tasks.ContainsKey(taskID))
+            {
+                string message = $"Cannot advance task '{taskID}' in the board '{BoardName}' because it does not exist.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
+            }
+
+            if (columnIndex < 0 || columnIndex >= columns.Count)
+            {
+                string message = $"Cannot advance task '{taskID}' in the board '{BoardName}' from column {columnIndex} because the column index is out of bounds.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
+            }
+
+            if (columnIndex + 1 >= columns.Count)
+            {
+                string message = $"Cannot advance task '{taskID}' in the board '{BoardName}' from column {columnIndex} because there is nowhere to advance.";
+                log.Warn(message);
+                throw new KanbanInvalidStateException(message);
+            }
+
+            if (!columns[columnIndex].ContainsTask(taskID))
+            {
+                string message = $"Cannot advance task '{taskID}' in the board '{BoardName}' from column {columnIndex} because the task is not in the column.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
+            }
+
+            TaskBL taskToAdvance = tasks[taskID];
+
+            // Adding the task to the next column before removing it from the current one ensures that the task won't disapper if the next column is full
+            columns[columnIndex+1].AddTask(taskToAdvance);
+            columns[columnIndex].RemoveTask(taskToAdvance);
+            return taskToAdvance;
+        }
+    }
+}
