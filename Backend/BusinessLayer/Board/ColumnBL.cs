@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
 
@@ -14,10 +13,10 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
 
         private Dictionary<long, TaskBL> tasks;
         public string Name { get; }
-        public int? _taskLimit;
+        private int? _taskLimit;
         public int? TaskLimit
         {
-            get { return _taskLimit; }
+            get => _taskLimit;
             set
             {
                 if (value < 0)
@@ -52,7 +51,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// </summary>
         /// <param name="task">The task object to be added.</param>
         /// <returns>The added <see cref="TaskBL"/> object.</returns>
-        public TaskBL AddTask (TaskBL task)
+        public TaskBL AddTask(TaskBL task)
         {
             if (TaskLimit.HasValue && tasks.Count >= TaskLimit.Value)
             {
@@ -83,6 +82,16 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         public List<TaskBL> GetTasks()
         {
             return tasks.Values.ToList();
+        }
+
+        /// <summary>
+        /// Determines whether a task with the specified ID exists in the column.
+        /// </summary>
+        /// <param name="taskID">The ID of the task to locate.</param>
+        /// <returns><c>true</c> if the collection contains a task with the specified ID; otherwise, <c>false</c>.</returns>
+        internal bool ContainsTask(long taskID)
+        {
+            return tasks.ContainsKey(taskID);
         }
     }
 }
