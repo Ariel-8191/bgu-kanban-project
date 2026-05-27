@@ -85,7 +85,7 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
             {
                 List<TaskBL> inProgressTasksBL = this.boardFacade.GetInProgressTasks(email);
                 List<TaskSL> inProgressTasksSL = inProgressTasksBL.Select(task => new TaskSL(task)).ToList();
-                log.Info($"Succesfully retrieved all in-progress tasks of user '{email}'");
+                log.Info($"Successfully retrieved all in-progress tasks of user '{email}'");
                 return new Response<List<TaskSL>>(inProgressTasksSL).ToJson();
             }
             catch (KanbanException ex)
@@ -139,7 +139,7 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
             {
                 List<TaskBL> columnTasksBL = this.boardFacade.GetColumnTasks(email, boardName, columnIndex);
                 List<TaskSL> columnTasksSL = columnTasksBL.Select(task => new TaskSL(task)).ToList();
-                log.Info($"Succesfully retrieved {columnTasksSL.Count} tasks from column with index {columnIndex} in board '{boardName}' (User: '{email}').");
+                log.Info($"Successfully retrieved {columnTasksSL.Count} tasks from column with index {columnIndex} in board '{boardName}' (User: '{email}').");
                 return new Response<List<TaskSL>>(columnTasksSL).ToJson();
             }
             catch (KanbanException ex)
@@ -165,7 +165,7 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
             try
             {
                 string columnName = this.boardFacade.GetColumnName(email, boardName, columnIndex);
-                log.Info($"Succesfully retrieved name of column with index {columnIndex} in board '{boardName}' (User: '{email}').");
+                log.Info($"Successfully retrieved name of column with index {columnIndex} in board '{boardName}' (User: '{email}').");
                 return new Response<string>(null, columnName).ToJson();
             }
             catch (KanbanException ex)
@@ -191,7 +191,7 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
             try
             {
                 int? limit = this.boardFacade.GetColumnLimit(email, boardName, columnIndex);
-                log.Info($"Succesfully retrieved task limit of column with index {columnIndex} in board '{boardName}' (User: '{email}').");
+                log.Info($"Successfully retrieved task limit of column with index {columnIndex} in board '{boardName}' (User: '{email}').");
                 return new Response<int?>(limit).ToJson();
             }
             catch (KanbanException ex)
