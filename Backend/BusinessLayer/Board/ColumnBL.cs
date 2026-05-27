@@ -51,7 +51,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// </summary>
         /// <param name="task">The task object to be added.</param>
         /// <returns>The added <see cref="TaskBL"/> object.</returns>
-        public TaskBL AddTask (TaskBL task)
+        public TaskBL AddTask(TaskBL task)
         {
             if (TaskLimit.HasValue && tasks.Count >= TaskLimit.Value)
             {

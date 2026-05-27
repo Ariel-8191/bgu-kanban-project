@@ -72,6 +72,44 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         }
 
         /// <summary>
+        /// Retrieves a user's board. Used as a helper method in the rest of the facade.
+        /// </summary>
+        /// <param name="email">The email address of the user the board belongs to.</param>
+        /// <param name="boardName">The name of the board.</param>
+        /// <returns>The <see cref="BoardBL"/> object.</returns>
+        private BoardBL GetBoard(string email, string boardName)
+        {
+            if (email == null)
+            {
+                string message = $"Cannot get the board '{boardName}' because the given email is null.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
+            }
+            if (!authenticationFacade.IsLoggedIn(email))
+            {
+                string message = $"Cannot get the board '{boardName}' because the user '{email}' is not currently logged in.";
+                log.Warn(message);
+                throw new KanbanAuthenticationException(message);
+            }
+            if (string.IsNullOrEmpty(boardName))
+            {
+                string message = $"Cannot get a board of the user '{email}' because the given board name is null or whitespace.";
+                log.Warn(message);
+                throw new KanbanValidationException(message);
+            }
+            Dictionary<string, BoardBL> userBoards;
+            bool userHasBoards = boards.TryGetValue(email, out userBoards);
+            if (!userHasBoards || !userBoards.ContainsKey(boardName))
+            {
+                string message = $"Cannot get the board '{boardName}' belonging to the user '{email}' because there is no such board.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
+            }
+
+            return userBoards[boardName];
+        }
+
+        /// <summary>
         /// Deletes an existing board for the specified user.
         /// </summary>
         /// <param name="email">The email address of the user deleting the board.</param>
@@ -82,6 +120,96 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             BoardBL board = GetBoard(email, boardName);
             boards[email].Remove(boardName); // the call to 'GetBoard' in the previous line ensures the input is valid
             return board;
+        }
+
+        /// <summary>
+        /// Retrieves all in-progress tasks for a specific user across their boards.
+        /// </summary>
+        /// <param name="email">The email address of the user.</param>
+        /// <returns>A list of in-progress <see cref="TaskBL"/> objects.</returns>
+        public List<TaskBL> GetInProgressTasks(string email)
+        {
+            if (email == null)
+            {
+                string message = "Cannot get the \"in progress\" tasks of a user because the given email is null.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
+            }
+            if (!authenticationFacade.IsLoggedIn(email))
+            {
+                string message = $"Cannot get the \"in progress\" tasks of the user '{email}' because he is not currently logged in.";
+                log.Warn(message);
+                throw new KanbanAuthenticationException(message);
+            }
+
+
+            List<TaskBL> inProgressTasks = new List<TaskBL>();
+
+            Dictionary<string, BoardBL> userBoards;
+            if (boards.TryGetValue(email, out userBoards))
+            {
+                foreach (BoardBL board in userBoards.Values)
+                {
+                    inProgressTasks.AddRange(board.GetColumnTasks(BoardBL.InProgressColumnIndex));
+                }
+            }
+
+            return inProgressTasks;
+        }
+
+        /// <summary>
+        /// Sets a maximum limit of tasks allowed in a specific column.
+        /// </summary>
+        /// <param name="email">The email address of the user setting the limit.</param>
+        /// <param name="boardName">The name of the board.</param>
+        /// <param name="columnIndex">The index of the column to limit.</param>
+        /// <param name="limit">The new limit value. Provide null to indicate no limit.</param>
+        public void LimitTasksInColumn(string email, string boardName, int columnIndex, int? limit)
+        {
+            BoardBL board = GetBoard(email, boardName);
+            board.LimitTasksInColumn(columnIndex, limit);
+        }
+
+        /// <summary>
+        /// Retrieves all tasks located in a specific column.
+        /// </summary>
+        /// <param name="email">The email address of the user requesting the tasks.</param>
+        /// <param name="boardName">The name of the board.</param>
+        /// <param name="columnIndex">The index of the column.</param>
+        /// <returns>A list of <see cref="TaskBL"/> objects present in the column.</returns>
+        public List<TaskBL> GetColumnTasks(string email, string boardName, int columnIndex)
+        {
+            BoardBL board = GetBoard(email, boardName);
+            List<TaskBL> columnTasks = board.GetColumnTasks(columnIndex);
+            return columnTasks;
+        }
+
+        /// <summary>
+        /// Retrieves the name of a specific column.
+        /// </summary>
+        /// <param name="email">The email address of the user requesting the column name.</param>
+        /// <param name="boardName">The name of the board.</param>
+        /// <param name="columnIndex">The index of the column.</param>
+        /// <returns>The name of the column as a string.</returns>
+        public string GetColumnName(string email, string boardName, int columnIndex)
+        {
+            BoardBL board = GetBoard(email, boardName);
+            string columnName = board.GetColumnName(columnIndex);
+            return columnName;
+        }
+
+        /// <summary>
+        /// Retrieves the task limit for a specific column.
+        /// </summary>
+        /// <param name="email">The email address of the user.</param>
+        /// <param name="boardName">The name of the board.</param>
+        /// <param name="columnIndex">The index of the column.</param>
+        /// <returns>The integer limit of the column, or null if no limit is set.</returns>
+        public int? GetColumnLimit(string email, string boardName, int columnIndex)
+        {
+            BoardBL board = GetBoard(email, boardName);
+            int? limit = board.GetColumnLimit(columnIndex);
+            return limit;
         }
 
         /// <summary>
@@ -130,134 +258,6 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             BoardBL board = GetBoard(email, boardName);
             TaskBL advancedTask = board.AdvanceTask(columnIndex, taskID);
             return advancedTask;
-        }
-
-        /// <summary>
-        /// Retrieves the name of a specific column.
-        /// </summary>
-        /// <param name="email">The email address of the user requesting the column name.</param>
-        /// <param name="boardName">The name of the board.</param>
-        /// <param name="columnIndex">The index of the column.</param>
-        /// <returns>The name of the column as a string.</returns>
-        public string GetColumnName(string email, string boardName, int columnIndex)
-        {
-            BoardBL board = GetBoard(email, boardName);
-            string columnName = board.GetColumnName(columnIndex);
-            return columnName;
-        }
-
-        /// <summary>
-        /// Retrieves all tasks located in a specific column.
-        /// </summary>
-        /// <param name="email">The email address of the user requesting the tasks.</param>
-        /// <param name="boardName">The name of the board.</param>
-        /// <param name="columnIndex">The index of the column.</param>
-        /// <returns>A list of <see cref="TaskBL"/> objects present in the column.</returns>
-        public List<TaskBL> GetColumnTasks(string email, string boardName, int columnIndex)
-        {
-            BoardBL board = GetBoard(email, boardName);
-            List<TaskBL> columnTasks = board.GetColumnTasks(columnIndex);
-            return columnTasks;
-        }
-
-        /// <summary>
-        /// Retrieves all in-progress tasks for a specific user across their boards.
-        /// </summary>
-        /// <param name="email">The email address of the user.</param>
-        /// <returns>A list of in-progress <see cref="TaskBL"/> objects.</returns>
-        public List<TaskBL> GetInProgressTasks(string email)
-        {
-            if (email == null)
-            {
-                string message = "Cannot get the \"in progress\" tasks of a user because the given email is null.";
-                log.Warn(message);
-                throw new KanbanNotFoundException(message);
-            }
-            if (!authenticationFacade.IsLoggedIn(email))
-            {
-                string message = $"Cannot get the \"in progress\" tasks of the user '{email}' because he is not currently logged in.";
-                log.Warn(message);
-                throw new KanbanAuthenticationException(message);
-            }
-            
-
-            List<TaskBL> inProgressTasks = new List<TaskBL>();
-
-            Dictionary<string, BoardBL> userBoards;
-            if (boards.TryGetValue(email, out userBoards))
-            {
-                foreach (BoardBL board in userBoards.Values)
-                {
-                    inProgressTasks.AddRange(board.GetColumnTasks(BoardBL.InProgressColumnIndex));
-                }
-            }
-
-            return inProgressTasks;
-        }
-
-        /// <summary>
-        /// Retrieves the task limit for a specific column.
-        /// </summary>
-        /// <param name="email">The email address of the user.</param>
-        /// <param name="boardName">The name of the board.</param>
-        /// <param name="columnIndex">The index of the column.</param>
-        /// <returns>The integer limit of the column, or null if no limit is set.</returns>
-        public int? GetColumnLimit(string email, string boardName, int columnIndex)
-        {
-            BoardBL board = GetBoard(email, boardName);
-            int? limit = board.GetColumnLimit(columnIndex);
-            return limit;
-        }
-
-        /// <summary>
-        /// Sets a maximum limit of tasks allowed in a specific column.
-        /// </summary>
-        /// <param name="email">The email address of the user setting the limit.</param>
-        /// <param name="boardName">The name of the board.</param>
-        /// <param name="columnIndex">The index of the column to limit.</param>
-        /// <param name="limit">The new limit value. Provide null to indicate no limit.</param>
-        public void LimitTasksInColumn(string email, string boardName, int columnIndex, int? limit)
-        {
-            BoardBL board = GetBoard(email, boardName);
-            board.LimitTasksInColumn(columnIndex, limit);
-        }
-
-        /// <summary>
-        /// Retrieves a user's board.
-        /// </summary>
-        /// <param name="email">The email address of the user the board belongs to.</param>
-        /// <param name="boardName">The name of the board.</param>
-        /// <returns>The <see cref="BoardBL"/> object.</returns>
-        private BoardBL GetBoard(string email, string boardName)
-        {
-            if (email == null)
-            {
-                string message = $"Cannot get the board '{boardName}' because the given email is null.";
-                log.Warn(message);
-                throw new KanbanNotFoundException(message);
-            }
-            if (!authenticationFacade.IsLoggedIn(email))
-            {
-                string message = $"Cannot get the board '{boardName}' because the user '{email}' is not currently logged in.";
-                log.Warn(message);
-                throw new KanbanAuthenticationException(message);
-            }
-            if (string.IsNullOrEmpty(boardName))
-            {
-                string message = $"Cannot get a board of the user '{email}' because the given board name is null or whitespace.";
-                log.Warn(message);
-                throw new KanbanValidationException(message);
-            }
-            Dictionary<string, BoardBL> userBoards;
-            bool userHasBoards = boards.TryGetValue(email, out userBoards);
-            if (!userHasBoards || !userBoards.ContainsKey(boardName))
-            {
-                string message = $"Cannot get the board '{boardName}' belonging to the user '{email}' because there is no such board.";
-                log.Warn(message);
-                throw new KanbanNotFoundException(message);
-            }
-
-            return userBoards[boardName];
         }
     }
 }

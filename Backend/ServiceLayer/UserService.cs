@@ -47,7 +47,6 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
             }
         }
 
-
         /// <summary>
         ///  This method logs in an existing user.
         /// </summary>
@@ -78,7 +77,6 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
             }
         }
 
-
         /// <summary>
         /// This method logs out a logged in user. 
         /// </summary>
@@ -102,6 +100,5 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
                 return new Response<UserSL>("An unexpected system error occurred").ToJson();
             }
         }
-
     }
 }
