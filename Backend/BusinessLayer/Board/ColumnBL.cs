@@ -16,7 +16,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         public int? _taskLimit;
         public int? TaskLimit
         {
-            get { return _taskLimit; }
+            get => _taskLimit;
             set
             {
                 if (value < 0)

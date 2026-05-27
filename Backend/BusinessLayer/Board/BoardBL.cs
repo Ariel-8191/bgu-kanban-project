@@ -115,7 +115,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <returns>The newly created <see cref="TaskBL"/> object.</returns>
         public TaskBL AddTask(string title, DateTime dueDate, string description)
         {
-            TaskBL newTask = new TaskBL(this.nextTaskID, title, dueDate, description);
+            TaskBL newTask = new TaskBL(nextTaskID, title, dueDate, description);
             nextTaskID++;
 
             tasks.Add(newTask.TaskID, newTask);
