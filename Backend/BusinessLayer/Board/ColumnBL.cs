@@ -13,7 +13,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
 
         private Dictionary<long, TaskBL> tasks;
         public string Name { get; }
-        public int? _taskLimit;
+        private int? _taskLimit;
         public int? TaskLimit
         {
             get => _taskLimit;
