@@ -232,7 +232,7 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <returns>An empty response, unless an error occurs (see <see cref="GradingService"/>)</returns>
         public string UpdateTaskTitle(string email, string boardName, int columnOrdinal, int taskId, string title)
         {
-            Response<TaskSL> response = JsonSerializer.Deserialize<Response<TaskSL>>(serviceFactory.TaskService.EditTask(email, boardName, taskId, title, default, null));
+            Response<TaskSL> response = JsonSerializer.Deserialize<Response<TaskSL>>(serviceFactory.TaskService.EditTask(email, boardName, taskId, title, null, null));
             if (response.ErrorMessage == null)
             {
                 return new Response<TaskSL>().ToJson();
@@ -255,7 +255,7 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <returns>An empty response, unless an error occurs (see <see cref="GradingService"/>)</returns>
         public string UpdateTaskDescription(string email, string boardName, int columnOrdinal, int taskId, string description)
         {
-            Response<TaskSL> response = JsonSerializer.Deserialize<Response<TaskSL>>(serviceFactory.TaskService.EditTask(email, boardName, taskId, null, default, description));
+            Response<TaskSL> response = JsonSerializer.Deserialize<Response<TaskSL>>(serviceFactory.TaskService.EditTask(email, boardName, taskId, null, null, description));
             if (response.ErrorMessage == null)
             {
                 return new Response<TaskSL>().ToJson();
