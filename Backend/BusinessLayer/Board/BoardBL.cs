@@ -40,6 +40,73 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         }
 
         /// <summary>
+        /// Sets or removes the maximum limit on the number of tasks allowed in a specific column.
+        /// </summary>
+        /// <param name="columnIndex">The zero-based index of the column to modify.</param>
+        /// <param name="limit">The maximum number of tasks allowed, or null to remove the limit.</param>
+        public void LimitTasksInColumn(int columnIndex, int? limit)
+        {
+            if (columnIndex < 0 || columnIndex >= columns.Count)
+            {
+                string message = $"Cannot set the task limit of a column in the board '{BoardName}' because the column index is out of bounds.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
+            }
+
+            columns[columnIndex].TaskLimit = limit;
+        }
+
+        /// <summary>
+        /// Retrieves a list of all tasks currently located in a specific column.
+        /// </summary>
+        /// <param name="columnIndex">The zero-based index of the column.</param>
+        /// <returns>A list of <see cref="TaskBL"/> objects present in the specified column.</returns>
+        public List<TaskBL> GetColumnTasks(int columnIndex)
+        {
+            if (columnIndex < 0 || columnIndex >= columns.Count)
+            {
+                string message = $"Cannot get the tasks of a column in the board '{BoardName}' because the column index is out of bounds.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
+            }
+
+            return columns[columnIndex].GetTasks();
+        }
+
+        /// <summary>
+        /// Retrieves the name of a specific column on the board.
+        /// </summary>
+        /// <param name="columnIndex">The zero-based index of the column.</param>
+        /// <returns>The name of the column as a string.</returns>
+        public string GetColumnName(int columnIndex)
+        {
+            if (columnIndex < 0 || columnIndex >= columns.Count)
+            {
+                string message = $"Cannot get the name of a column in the board '{BoardName}' because the column index is out of bounds.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
+            }
+            return columns[columnIndex].Name;
+        }
+
+        /// <summary>
+        /// Gets the maximum number of tasks allowed in a specific column.
+        /// </summary>
+        /// <param name="columnIndex">The zero-based index of the column to query.</param>
+        /// <returns>An integer representing the task limit, or null if there is no limit set.</returns>
+        public int? GetColumnLimit(int columnIndex)
+        {
+            if (columnIndex < 0 || columnIndex >= columns.Count)
+            {
+                string message = $"Cannot get the task limit of a column in the board '{BoardName}' because the column index is out of bounds.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
+            }
+
+            return columns[columnIndex].TaskLimit;
+        }
+
+        /// <summary>
         /// Creates and adds a new task to the board. 
         /// </summary>
         /// <param name="title">The title of the new task.</param>
@@ -126,82 +193,6 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             columns[columnIndex].RemoveTask(taskToAdvance);
             columns[columnIndex+1].AddTask(taskToAdvance);
             return taskToAdvance;
-        }
-
-        /// <summary>
-        /// Retrieves the name of a specific column on the board.
-        /// </summary>
-        /// <param name="columnIndex">The zero-based index of the column.</param>
-        /// <returns>The name of the column as a string.</returns>
-        public string GetColumnName(int columnIndex)
-        {
-            if (columnIndex < 0 || columnIndex >= columns.Count)
-            {
-                string message = $"Cannot get the name of a column in the board '{BoardName}' because the column index is out of bounds.";
-                log.Warn(message);
-                throw new KanbanNotFoundException(message);
-            }
-            return columns[columnIndex].Name;
-        }
-
-        /// <summary>
-        /// Retrieves a list of all tasks currently located in a specific column.
-        /// </summary>
-        /// <param name="columnIndex">The zero-based index of the column.</param>
-        /// <returns>A list of <see cref="TaskBL"/> objects present in the specified column.</returns>
-        public List<TaskBL> GetColumnTasks(int columnIndex)
-        {
-            if (columnIndex < 0 || columnIndex >= columns.Count)
-            {
-                string message = $"Cannot get the tasks of a column in the board '{BoardName}' because the column index is out of bounds.";
-                log.Warn(message);
-                throw new KanbanNotFoundException(message);
-            }
-
-            return columns[columnIndex].GetTasks();
-        }
-
-        /// <summary>
-        /// Retrieves all tasks on the board that are currently marked as "in progress".
-        /// </summary>
-        /// <returns>A list of <see cref="TaskBL"/> objects that are in progress.</returns>
-        public List<TaskBL> GetInProgressTasks()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Gets the maximum number of tasks allowed in a specific column.
-        /// </summary>
-        /// <param name="columnIndex">The zero-based index of the column to query.</param>
-        /// <returns>An integer representing the task limit, or null if there is no limit set.</returns>
-        public int? GetColumnLimit(int columnIndex)
-        {
-            if (columnIndex < 0 || columnIndex >= columns.Count)
-            {
-                string message = $"Cannot get the task limit of a column in the board '{BoardName}' because the column index is out of bounds.";
-                log.Warn(message);
-                throw new KanbanNotFoundException(message);
-            }
-
-            return columns[columnIndex].TaskLimit;
-        }
-
-        /// <summary>
-        /// Sets or removes the maximum limit on the number of tasks allowed in a specific column.
-        /// </summary>
-        /// <param name="columnIndex">The zero-based index of the column to modify.</param>
-        /// <param name="limit">The maximum number of tasks allowed, or null to remove the limit.</param>
-        public void LimitTasksInColumn(int columnIndex, int? limit)
-        {
-            if (columnIndex < 0 || columnIndex >= columns.Count)
-            {
-                string message = $"Cannot set the task limit of a column in the board '{BoardName}' because the column index is out of bounds.";
-                log.Warn(message);
-                throw new KanbanNotFoundException(message);
-            }
-
-            columns[columnIndex].TaskLimit = limit;
         }
     }
 }

@@ -105,6 +105,5 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
                 return new Response<TaskSL>("An unexpected system error occurred").ToJson();
             }
         }
-
     }
 }

@@ -75,6 +75,31 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         }
 
         /// <summary>
+        /// This method returns all in-progress tasks of a user.
+        /// </summary>
+        /// <param name="email">Email of the user. Must be logged in</param>
+        /// <returns>A response with a list of the in-progress tasks of the user</returns>
+        public string GetInProgressTasks(string email)
+        {
+            try
+            {
+                List<TaskBL> inProgressTasksBL = this.boardFacade.GetInProgressTasks(email);
+                List<TaskSL> inProgressTasksSL = inProgressTasksBL.Select(task => new TaskSL(task)).ToList();
+                log.Info($"Succesfully retrieved all in-progress tasks of user '{email}'");
+                return new Response<List<TaskSL>>(inProgressTasksSL).ToJson();
+            }
+            catch (KanbanException ex)
+            {
+                return new Response<List<TaskSL>>(ex.Message).ToJson();
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An unexpected system error occurred in GetInProgressTasks(email='{email}'): {ex.Message}");
+                return new Response<List<TaskSL>>("An unexpected system error occurred").ToJson();
+            }
+        }
+
+        /// <summary>
         /// This method limits the number of tasks in a specific column.
         /// </summary>
         /// <param name="email">The email address of the user, must be logged in</param>
@@ -98,31 +123,6 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
             {
                 log.Error($"An unexpected system error occurred in LimitTasksInColumn(email='{email}', board='{boardName}', column={columnIndex}, limit={limit}): {ex.Message}");
                 return new Response<object>("An unexpected system error occurred").ToJson();
-            }
-        }
-
-        /// <summary>
-        /// This method returns all in-progress tasks of a user.
-        /// </summary>
-        /// <param name="email">Email of the user. Must be logged in</param>
-        /// <returns>A response with a list of the in-progress tasks of the user</returns>
-        public string GetInProgressTasks(string email)
-        {
-            try
-            {
-                List<TaskBL> inProgressTasksBL = this.boardFacade.GetInProgressTasks(email);
-                List<TaskSL> inProgressTasksSL = inProgressTasksBL.Select(task => new TaskSL(task)).ToList();
-                log.Info($"Succesfully retrieved all in-progress tasks of user '{email}'");
-                return new Response<List<TaskSL>>(inProgressTasksSL).ToJson();
-            }
-            catch (KanbanException ex)
-            {
-                return new Response<List<TaskSL>>(ex.Message).ToJson();
-            }
-            catch (Exception ex)
-            {
-                log.Error($"An unexpected system error occurred in GetInProgressTasks(email='{email}'): {ex.Message}");
-                return new Response<List<TaskSL>>("An unexpected system error occurred").ToJson();
             }
         }
 
@@ -154,32 +154,6 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         }
 
         /// <summary>
-        /// This method returns the task limit for a specific column of a board for a user.
-        /// </summary>
-        /// <param name="email">Email of the user. Must be logged in</param>
-        /// <param name="boardName">The name of the board containing the column</param>
-        /// <param name="columnIndex">The index of the column to retrieve the limit for</param>
-        /// <returns>A response with the task limit for the specified column, or null if there is no limit</returns>
-        public string GetColumnLimit(string email, string boardName, int columnIndex)
-        {
-            try
-            {
-                int? limit = this.boardFacade.GetColumnLimit(email, boardName, columnIndex);
-                log.Info($"Succesfully retrieved task limit of column with index {columnIndex} in board '{boardName}' (User: '{email}').");
-                return new Response<int?>(limit).ToJson();
-            }
-            catch (KanbanException ex)
-            {
-                return new Response<int?>(ex.Message).ToJson();
-            }
-            catch (Exception ex)
-            {
-                log.Error($"An unexpected system error occurred in GetColumnLimit(email='{email}', board='{boardName}', column={columnIndex}): {ex.Message}");
-                return new Response<int?>("An unexpected system error occurred").ToJson();
-            }
-        }
-
-        /// <summary>
         /// This method returns the column name within a specific board for a user.
         /// </summary>
         /// <param name="email">Email of the user. Must be logged in</param>
@@ -205,5 +179,30 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
             }
         }
 
+        /// <summary>
+        /// This method returns the task limit for a specific column of a board for a user.
+        /// </summary>
+        /// <param name="email">Email of the user. Must be logged in</param>
+        /// <param name="boardName">The name of the board containing the column</param>
+        /// <param name="columnIndex">The index of the column to retrieve the limit for</param>
+        /// <returns>A response with the task limit for the specified column, or null if there is no limit</returns>
+        public string GetColumnLimit(string email, string boardName, int columnIndex)
+        {
+            try
+            {
+                int? limit = this.boardFacade.GetColumnLimit(email, boardName, columnIndex);
+                log.Info($"Succesfully retrieved task limit of column with index {columnIndex} in board '{boardName}' (User: '{email}').");
+                return new Response<int?>(limit).ToJson();
+            }
+            catch (KanbanException ex)
+            {
+                return new Response<int?>(ex.Message).ToJson();
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An unexpected system error occurred in GetColumnLimit(email='{email}', board='{boardName}', column={columnIndex}): {ex.Message}");
+                return new Response<int?>("An unexpected system error occurred").ToJson();
+            }
+        }
     }
 }
