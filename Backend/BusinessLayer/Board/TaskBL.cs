@@ -10,6 +10,9 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
+        private const int maxTitleLength = 50;
+        private const int maxDescriptionLength = 300;
+
         public long TaskID { get; }
         public DateTime CreationTime { get; }
         private string _title;
@@ -24,9 +27,9 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
                     log.Warn(message);
                     throw new KanbanValidationException(message);
                 }
-                if (value.Length > 50)
+                if (value.Length > maxTitleLength)
                 {
-                    string message = $"Task title cannot exceed 50 characters. Attempted title length: {value.Length}.";
+                    string message = $"Task title cannot exceed {maxTitleLength} characters. Attempted title length: {value.Length}.";
                     log.Warn(message);
                     throw new KanbanValidationException(message);
                 }
@@ -41,9 +44,9 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             get => _description;
             private set
             {
-                if (value?.Length > 300)
+                if (value?.Length > maxDescriptionLength)
                 {
-                    string message = $"Task description cannot exceed 300 characters. Attempted description length: {value.Length}.";
+                    string message = $"Task description cannot exceed {maxDescriptionLength} characters. Attempted description length: {value.Length}.";
                     log.Warn(message);
                     throw new KanbanValidationException(message);
                 }
