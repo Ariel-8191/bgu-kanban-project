@@ -85,6 +85,16 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         }
 
         /// <summary>
+        /// Retrieves a task from the column.
+        /// </summary>
+        /// <param name="taskID">the ID of the task.</param>
+        /// <returns>The <see cref="TaskBL"/> object.</returns>
+        internal TaskBL GetTask(long taskID)
+        {
+            return tasks[taskID];
+        }
+
+        /// <summary>
         /// Determines whether a task with the specified ID exists in the column.
         /// </summary>
         /// <param name="taskID">The ID of the task to locate.</param>
