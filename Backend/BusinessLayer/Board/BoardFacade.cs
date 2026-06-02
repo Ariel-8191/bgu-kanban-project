@@ -244,10 +244,10 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <param name="dueDate">The new due date for the task.</param>
         /// <param name="description">The new description for the task.</param>
         /// <returns>The edited <see cref="TaskBL"/> object.</returns>
-        public TaskBL EditTask(string email, string boardName, long taskID, string title, DateTime? dueDate, string description)
+        public TaskBL EditTask(string email, string boardName, int columnIndex, long taskID, string title, DateTime? dueDate, string description)
         {
             BoardBL board = GetBoard(email, boardName);
-            TaskBL editedTask = board.EditTask(taskID, title, dueDate, description);
+            TaskBL editedTask = board.EditTask(columnIndex, taskID, title, dueDate, description);
             return editedTask;
         }
 
