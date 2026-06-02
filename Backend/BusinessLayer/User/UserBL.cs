@@ -12,6 +12,9 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.User
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
+        private const int minPasswordLength = 6;
+        private const int maxPasswordLength = 20;
+
         public string Email { get; }
 
         private string _password;
@@ -61,9 +64,9 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.User
                 throw new KanbanValidationException(message);
             }
 
-            if (password.Length < 6 || password.Length > 20)
+            if (password.Length < minPasswordLength || password.Length > maxPasswordLength)
             {
-                string message = $"Password must be between 6 and 20 characters. Attempted password length: {password.Length}";
+                string message = $"Password must be between {minPasswordLength} and {maxPasswordLength} characters. Attempted password length: {password.Length}";
                 log.Warn(message);
                 throw new KanbanValidationException(message);
             }
