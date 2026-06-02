@@ -60,11 +60,11 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <param name="dueDate">New Due date of the task</param>
         /// <param name="description">New description of the task</param>
         /// <returns>Returns a JSON representation of the edited task</returns>
-        public string EditTask(string email, string boardName, long taskID, string title, DateTime? dueDate, string description)
+        public string EditTask(string email, string boardName, int columnIndex, long taskID, string title, DateTime? dueDate, string description)
         {
             try
             {
-                TaskSL task = new TaskSL(this.boardFacade.EditTask(email, boardName, taskID, title, dueDate, description));
+                TaskSL task = new TaskSL(this.boardFacade.EditTask(email, boardName, columnIndex, taskID, title, dueDate, description));
                 log.Info($"Successfully edited task '{taskID}' in board '{boardName}' (User: '{email}').");
                 return new Response<TaskSL>(task).ToJson();
             }
