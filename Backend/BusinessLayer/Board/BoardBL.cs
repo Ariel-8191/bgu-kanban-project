@@ -19,7 +19,6 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         internal const string DoneColumnName = "done";
 
         public string BoardName { get; }
-        private Dictionary<long, TaskBL> tasks;
         private List<ColumnBL> columns;
         private long nextTaskID;
 
@@ -30,7 +29,6 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         public BoardBL(string boardName)
         {
             this.BoardName = boardName;
-            this.tasks = new Dictionary<long, TaskBL>();
             this.nextTaskID = 0;
 
             this.columns = new List<ColumnBL>();
@@ -119,7 +117,6 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             nextTaskID++;
 
             columns[BacklogColumnIndex].AddTask(newTask);
-            tasks.Add(newTask.TaskID, newTask);
 
             return newTask;
         }
@@ -132,23 +129,29 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <param name="dueDate">The new due date for the task.</param>
         /// <param name="description">The new description for the task.</param>
         /// <returns>The updated <see cref="TaskBL"/> object.</returns>
-        public TaskBL EditTask(long taskID, string title, DateTime? dueDate, string description)
+        public TaskBL EditTask(int columnIndex, long taskID, string title, DateTime? dueDate, string description)
         {
-            if (!tasks.ContainsKey(taskID))
+            if (columnIndex < 0 || columnIndex >= columns.Count)
             {
-                string message = $"Cannot edit task '{taskID}' in the board '{BoardName}' because it does not exist.";
+                string message = $"Cannot edit task '{taskID}' in the board '{BoardName}' in column {columnIndex} because the column index is out of bounds.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
+            }
+            if (!columns[columnIndex].ContainsTask(taskID))
+            {
+                string message = $"Cannot edit task '{taskID}' in the board '{BoardName}' in column {columnIndex} because it does not exist.";
                 log.Warn(message);
                 throw new KanbanNotFoundException(message);
             }
 
-            if (columns[DoneColumnIndex].ContainsTask(taskID))
+            if (columnIndex == DoneColumnIndex)
             {
                 string message = $"Cannot edit task '{taskID}' in the board '{BoardName}' because it is in the \"Done\" column";
                 log.Warn(message);
                 throw new KanbanInvalidStateException(message);
             }
 
-            TaskBL taskToEdit = tasks[taskID];
+            TaskBL taskToEdit = columns[columnIndex].GetTask(taskID);
             taskToEdit.EditTask(title, dueDate, description);
             return taskToEdit;
         }
@@ -161,19 +164,19 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <returns>The updated <see cref="TaskBL"/> object reflecting its new state/column.</returns>
         public TaskBL AdvanceTask(int columnIndex, long taskID)
         {
-            if (!tasks.ContainsKey(taskID))
-            {
-                string message = $"Cannot advance task '{taskID}' in the board '{BoardName}' because it does not exist.";
-                log.Warn(message);
-                throw new KanbanNotFoundException(message);
-            }
-
             if (columnIndex < 0 || columnIndex >= columns.Count)
             {
                 string message = $"Cannot advance task '{taskID}' in the board '{BoardName}' from column {columnIndex} because the column index is out of bounds.";
                 log.Warn(message);
                 throw new KanbanNotFoundException(message);
             }
+            if (!columns[columnIndex].ContainsTask(taskID))
+            {
+                string message = $"Cannot advance task '{taskID}' in the board '{BoardName}' in column {columnIndex} because it does not exist.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
+            }
+
 
             if (columnIndex + 1 >= columns.Count)
             {
@@ -182,14 +185,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
                 throw new KanbanInvalidStateException(message);
             }
 
-            if (!columns[columnIndex].ContainsTask(taskID))
-            {
-                string message = $"Cannot advance task '{taskID}' in the board '{BoardName}' from column {columnIndex} because the task is not in the column.";
-                log.Warn(message);
-                throw new KanbanNotFoundException(message);
-            }
-
-            TaskBL taskToAdvance = tasks[taskID];
+            TaskBL taskToAdvance = columns[columnIndex].GetTask(taskID);
 
             // Adding the task to the next column before removing it from the current one ensures that the task won't disapper if the next column is full
             columns[columnIndex+1].AddTask(taskToAdvance);
