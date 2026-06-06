@@ -1,10 +1,11 @@
-﻿using log4net;
+﻿using IntroSE.Kanban.Backend.BusinessLayer.Board;
+using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
+using IntroSE.Kanban.Backend.BusinessLayer.User;
+using log4net;
 using log4net.Config;
+using System;
 using System.IO;
 using System.Reflection;
-using IntroSE.Kanban.Backend.BusinessLayer.User;
-using IntroSE.Kanban.Backend.BusinessLayer.Board;
-using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
 
 namespace IntroSE.Kanban.Backend.ServiceLayer
 {
@@ -32,6 +33,18 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
             this.UserService = new UserService(userFacade);
             this.BoardService = new BoardService(boardFacade);
             this.TaskService = new TaskService(boardFacade);
+        }
+
+        ///<summary>This method loads all persisted data.</summary>
+        public void LoadData()
+        {
+            throw new NotImplementedException();
+        }
+
+        ///<summary>This method deletes all persisted data.</summary>
+        public void DeleteData()
+        {
+            throw new NotImplementedException();
         }
     }
 }
