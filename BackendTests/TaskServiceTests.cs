@@ -372,5 +372,135 @@ namespace BackendTests
             Response<TaskSL> response = JsonSerializer.Deserialize<Response<TaskSL>>(assignJson)!;
             return !string.IsNullOrEmpty(response.ErrorMessage);
         }
+
+        // =========================================================================
+        // JoinBoard Tests
+        // =========================================================================
+
+        /// <summary>
+        /// Tests that a logged-in user can successfully join an existing board.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool JoinBoard_ValidJoin_Success()
+        {
+            SetUp();
+            string boardJson = _boardService.CreateBoard(_testEmail, _testBoardName);
+            BoardSL board = JsonSerializer.Deserialize<Response<BoardSL>>(boardJson)!.ReturnValue!;
+
+            // Register a second user to join the board
+            string otherEmail = "other@example.com";
+            _userService.Register(otherEmail, "Password123");
+
+            string joinJson = _boardService.JoinBoard(otherEmail, board.BoardID);
+            Response<BoardSL> response = JsonSerializer.Deserialize<Response<BoardSL>>(joinJson)!;
+            return string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to join a board while not logged in.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool JoinBoard_UserNotLoggedIn_Failure()
+        {
+            SetUp();
+            string boardJson = _boardService.CreateBoard(_testEmail, _testBoardName);
+            BoardSL board = JsonSerializer.Deserialize<Response<BoardSL>>(boardJson)!.ReturnValue!;
+
+            string otherEmail = "other@example.com";
+            _userService.Register(otherEmail, "Password123");
+            _userService.Logout(otherEmail);
+
+            string joinJson = _boardService.JoinBoard(otherEmail, board.BoardID);
+            Response<BoardSL> response = JsonSerializer.Deserialize<Response<BoardSL>>(joinJson)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to join a board ID that does not exist.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool JoinBoard_BoardDoesNotExist_Failure()
+        {
+            SetUp();
+            // _testEmail is already logged in from SetUp()
+            string joinJson = _boardService.JoinBoard(_testEmail, 9999);
+            Response<BoardSL> response = JsonSerializer.Deserialize<Response<BoardSL>>(joinJson)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+
+        // =========================================================================
+        // LeaveBoard Tests
+        // =========================================================================
+
+        /// <summary>
+        /// Tests that a logged-in member can successfully leave a board they joined.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool LeaveBoard_ValidLeave_Success()
+        {
+            SetUp();
+            string boardJson = _boardService.CreateBoard(_testEmail, _testBoardName);
+            BoardSL board = JsonSerializer.Deserialize<Response<BoardSL>>(boardJson)!.ReturnValue!;
+
+            string otherEmail = "other@example.com";
+            _userService.Register(otherEmail, "Password123");
+            _boardService.JoinBoard(otherEmail, board.BoardID);
+
+            // The other user leaves the board
+            string leaveJson = _boardService.LeaveBoard(otherEmail, board.BoardID);
+            Response<BoardSL> response = JsonSerializer.Deserialize<Response<BoardSL>>(leaveJson)!;
+            return string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to leave a board while not logged in.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool LeaveBoard_UserNotLoggedIn_Failure()
+        {
+            SetUp();
+            string boardJson = _boardService.CreateBoard(_testEmail, _testBoardName);
+            BoardSL board = JsonSerializer.Deserialize<Response<BoardSL>>(boardJson)!.ReturnValue!;
+
+            string otherEmail = "other@example.com";
+            _userService.Register(otherEmail, "Password123");
+            _boardService.JoinBoard(otherEmail, board.BoardID);
+
+            _userService.Logout(otherEmail);
+
+            string leaveJson = _boardService.LeaveBoard(otherEmail, board.BoardID);
+            Response<BoardSL> response = JsonSerializer.Deserialize<Response<BoardSL>>(leaveJson)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to leave a board ID that does not exist.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool LeaveBoard_BoardDoesNotExist_Failure()
+        {
+            SetUp();
+            string leaveJson = _boardService.LeaveBoard(_testEmail, 9999);
+            Response<BoardSL> response = JsonSerializer.Deserialize<Response<BoardSL>>(leaveJson)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Tests the logic error where the owner of a board attempts to leave it.
+        /// The owner should not be allowed to leave without transferring ownership first.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool LeaveBoard_UserIsOwner_Failure()
+        {
+            SetUp();
+            string boardJson = _boardService.CreateBoard(_testEmail, _testBoardName);
+            BoardSL board = JsonSerializer.Deserialize<Response<BoardSL>>(boardJson)!.ReturnValue!;
+
+            // _testEmail is the owner who created the board
+            string leaveJson = _boardService.LeaveBoard(_testEmail, board.BoardID);
+            Response<BoardSL> response = JsonSerializer.Deserialize<Response<BoardSL>>(leaveJson)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
     }
 }
