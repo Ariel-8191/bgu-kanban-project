@@ -131,7 +131,7 @@ namespace BackendTests
             string taskJson = _taskService.AddTask(_testEmail, _testBoardName, "Initial Title", DateTime.Now.AddDays(1), "Initial Desc");
             TaskSL task = JsonSerializer.Deserialize<Response<TaskSL>>(taskJson)!.ReturnValue!;
 
-            string editJson = _taskService.EditTask(_testEmail, _testBoardName, task.TaskID, "New Title", DateTime.Now.AddDays(2), "New Desc");
+            string editJson = _taskService.EditTask(_testEmail, _testBoardName, 0, task.TaskID, "New Title", DateTime.Now.AddDays(2), "New Desc");
             Response<TaskSL> response = JsonSerializer.Deserialize<Response<TaskSL>>(editJson)!;
             return string.IsNullOrEmpty(response.ErrorMessage);
         }
@@ -150,7 +150,7 @@ namespace BackendTests
             _taskService.AdvanceTask(_testEmail, _testBoardName, 0, task.TaskID);
             _taskService.AdvanceTask(_testEmail, _testBoardName, 1, task.TaskID);
 
-            string editJson = _taskService.EditTask(_testEmail, _testBoardName, task.TaskID, "New Title", DateTime.Now.AddDays(2), "New Desc");
+            string editJson = _taskService.EditTask(_testEmail, _testBoardName, 2, task.TaskID, "New Title", DateTime.Now.AddDays(2), "New Desc");
             Response<TaskSL> response = JsonSerializer.Deserialize<Response<TaskSL>>(editJson)!;
             return !string.IsNullOrEmpty(response.ErrorMessage);
         }
@@ -167,7 +167,7 @@ namespace BackendTests
             string taskJson = _taskService.AddTask(_testEmail, _testBoardName, "Initial Title", DateTime.Now.AddDays(1), "Initial Description");
             TaskSL task = JsonSerializer.Deserialize<Response<TaskSL>>(taskJson)!.ReturnValue!;
             _userService.Logout(_testEmail);
-            string jsonResponse = _taskService.EditTask(_testEmail, _testBoardName, task.TaskID, "Other Title", DateTime.Now.AddDays(2), "Other Description");
+            string jsonResponse = _taskService.EditTask(_testEmail, _testBoardName, 0, task.TaskID, "Other Title", DateTime.Now.AddDays(2), "Other Description");
             Response<TaskSL> response = JsonSerializer.Deserialize<Response<TaskSL>>(jsonResponse)!;
             return !string.IsNullOrEmpty(response.ErrorMessage);
         }
@@ -180,7 +180,7 @@ namespace BackendTests
         public bool EditTask_TaskDoesNotExist_Failure()
         {
             SetUp();
-            string editJson = _taskService.EditTask(_testEmail, _testBoardName, 9999, "New Title", DateTime.Now.AddDays(2), "New Desc");
+            string editJson = _taskService.EditTask(_testEmail, _testBoardName, 0, 9999, "New Title", DateTime.Now.AddDays(2), "New Desc");
             Response<TaskSL> response = JsonSerializer.Deserialize<Response<TaskSL>>(editJson)!;
             return !string.IsNullOrEmpty(response.ErrorMessage);
         }
@@ -286,6 +286,220 @@ namespace BackendTests
             _boardService.LimitTasksInColumn(_testEmail, _testBoardName, 1, 0);
             string advanceJson = _taskService.AdvanceTask(_testEmail, _testBoardName, 0, task.TaskID);
             Response<TaskSL> response = JsonSerializer.Deserialize<Response<TaskSL>>(advanceJson)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        // =========================================================================
+        // AssignTask Tests
+        // =========================================================================
+
+        /// <summary>
+        /// Tests that a logged-in user can successfully assign a task to a user.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool AssignTask_ValidAssign_Success()
+        {
+            SetUp();
+            string taskJson = _taskService.AddTask(_testEmail, _testBoardName, "Title", DateTime.Now.AddDays(1), "Desc");
+            TaskSL task = JsonSerializer.Deserialize<Response<TaskSL>>(taskJson)!.ReturnValue!;
+
+            // Note: AssignTask takes an int for taskID based on the signature in TaskService.cs
+            string assignJson = _taskService.AssignTask(_testEmail, _testBoardName, 0, (int)task.TaskID, _testEmail);
+            Response<TaskSL> response = JsonSerializer.Deserialize<Response<TaskSL>>(assignJson)!;
+            return string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to assign a task while they are not logged in.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool AssignTask_UserNotLoggedIn_Failure()
+        {
+            SetUp();
+            string taskJson = _taskService.AddTask(_testEmail, _testBoardName, "Title", DateTime.Now.AddDays(1), "Desc");
+            TaskSL task = JsonSerializer.Deserialize<Response<TaskSL>>(taskJson)!.ReturnValue!;
+
+            _userService.Logout(_testEmail);
+
+            string assignJson = _taskService.AssignTask(_testEmail, _testBoardName, 0, (int)task.TaskID, _testEmail);
+            Response<TaskSL> response = JsonSerializer.Deserialize<Response<TaskSL>>(assignJson)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to assign a task ID that does not exist.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool AssignTask_TaskDoesNotExist_Failure()
+        {
+            SetUp();
+            string assignJson = _taskService.AssignTask(_testEmail, _testBoardName, 0, 9999, _testEmail);
+            Response<TaskSL> response = JsonSerializer.Deserialize<Response<TaskSL>>(assignJson)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to assign a task to a user email that doesn't exist.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool AssignTask_AssigneeDoesNotExist_Failure()
+        {
+            SetUp();
+            string taskJson = _taskService.AddTask(_testEmail, _testBoardName, "Title", DateTime.Now.AddDays(1), "Desc");
+            TaskSL task = JsonSerializer.Deserialize<Response<TaskSL>>(taskJson)!.ReturnValue!;
+
+            string fakeEmail = "fake.assignee@example.com";
+            string assignJson = _taskService.AssignTask(_testEmail, _testBoardName, 0, (int)task.TaskID, fakeEmail);
+            Response<TaskSL> response = JsonSerializer.Deserialize<Response<TaskSL>>(assignJson)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to assign a task that is already in the 'done' column.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool AssignTask_TaskIsDone_Failure()
+        {
+            SetUp();
+            string taskJson = _taskService.AddTask(_testEmail, _testBoardName, "Title", DateTime.Now.AddDays(1), "Desc");
+            TaskSL task = JsonSerializer.Deserialize<Response<TaskSL>>(taskJson)!.ReturnValue!;
+
+            // Advance to "In Progress" then to "Done" (Assuming index 2 is Done)
+            _taskService.AdvanceTask(_testEmail, _testBoardName, 0, task.TaskID);
+            _taskService.AdvanceTask(_testEmail, _testBoardName, 1, task.TaskID);
+
+            string assignJson = _taskService.AssignTask(_testEmail, _testBoardName, 2, (int)task.TaskID, _testEmail);
+            Response<TaskSL> response = JsonSerializer.Deserialize<Response<TaskSL>>(assignJson)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        // =========================================================================
+        // JoinBoard Tests
+        // =========================================================================
+
+        /// <summary>
+        /// Tests that a logged-in user can successfully join an existing board.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool JoinBoard_ValidJoin_Success()
+        {
+            SetUp();
+            string boardJson = _boardService.CreateBoard(_testEmail, _testBoardName);
+            BoardSL board = JsonSerializer.Deserialize<Response<BoardSL>>(boardJson)!.ReturnValue!;
+
+            // Register a second user to join the board
+            string otherEmail = "other@example.com";
+            _userService.Register(otherEmail, "Password123");
+
+            string joinJson = _boardService.JoinBoard(otherEmail, board.BoardID);
+            Response<BoardSL> response = JsonSerializer.Deserialize<Response<BoardSL>>(joinJson)!;
+            return string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to join a board while not logged in.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool JoinBoard_UserNotLoggedIn_Failure()
+        {
+            SetUp();
+            string boardJson = _boardService.CreateBoard(_testEmail, _testBoardName);
+            BoardSL board = JsonSerializer.Deserialize<Response<BoardSL>>(boardJson)!.ReturnValue!;
+
+            string otherEmail = "other@example.com";
+            _userService.Register(otherEmail, "Password123");
+            _userService.Logout(otherEmail);
+
+            string joinJson = _boardService.JoinBoard(otherEmail, board.BoardID);
+            Response<BoardSL> response = JsonSerializer.Deserialize<Response<BoardSL>>(joinJson)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to join a board ID that does not exist.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool JoinBoard_BoardDoesNotExist_Failure()
+        {
+            SetUp();
+            // _testEmail is already logged in from SetUp()
+            string joinJson = _boardService.JoinBoard(_testEmail, 9999);
+            Response<BoardSL> response = JsonSerializer.Deserialize<Response<BoardSL>>(joinJson)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+
+        // =========================================================================
+        // LeaveBoard Tests
+        // =========================================================================
+
+        /// <summary>
+        /// Tests that a logged-in member can successfully leave a board they joined.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool LeaveBoard_ValidLeave_Success()
+        {
+            SetUp();
+            string boardJson = _boardService.CreateBoard(_testEmail, _testBoardName);
+            BoardSL board = JsonSerializer.Deserialize<Response<BoardSL>>(boardJson)!.ReturnValue!;
+
+            string otherEmail = "other@example.com";
+            _userService.Register(otherEmail, "Password123");
+            _boardService.JoinBoard(otherEmail, board.BoardID);
+
+            // The other user leaves the board
+            string leaveJson = _boardService.LeaveBoard(otherEmail, board.BoardID);
+            Response<BoardSL> response = JsonSerializer.Deserialize<Response<BoardSL>>(leaveJson)!;
+            return string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to leave a board while not logged in.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool LeaveBoard_UserNotLoggedIn_Failure()
+        {
+            SetUp();
+            string boardJson = _boardService.CreateBoard(_testEmail, _testBoardName);
+            BoardSL board = JsonSerializer.Deserialize<Response<BoardSL>>(boardJson)!.ReturnValue!;
+
+            string otherEmail = "other@example.com";
+            _userService.Register(otherEmail, "Password123");
+            _boardService.JoinBoard(otherEmail, board.BoardID);
+
+            _userService.Logout(otherEmail);
+
+            string leaveJson = _boardService.LeaveBoard(otherEmail, board.BoardID);
+            Response<BoardSL> response = JsonSerializer.Deserialize<Response<BoardSL>>(leaveJson)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to leave a board ID that does not exist.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool LeaveBoard_BoardDoesNotExist_Failure()
+        {
+            SetUp();
+            string leaveJson = _boardService.LeaveBoard(_testEmail, 9999);
+            Response<BoardSL> response = JsonSerializer.Deserialize<Response<BoardSL>>(leaveJson)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Tests the logic error where the owner of a board attempts to leave it.
+        /// The owner should not be allowed to leave without transferring ownership first.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool LeaveBoard_UserIsOwner_Failure()
+        {
+            SetUp();
+            string boardJson = _boardService.CreateBoard(_testEmail, _testBoardName);
+            BoardSL board = JsonSerializer.Deserialize<Response<BoardSL>>(boardJson)!.ReturnValue!;
+
+            // _testEmail is the owner who created the board
+            string leaveJson = _boardService.LeaveBoard(_testEmail, board.BoardID);
+            Response<BoardSL> response = JsonSerializer.Deserialize<Response<BoardSL>>(leaveJson)!;
             return !string.IsNullOrEmpty(response.ErrorMessage);
         }
     }
