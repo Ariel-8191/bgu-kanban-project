@@ -279,5 +279,302 @@ namespace BackendTests
             Response<object> response = JsonSerializer.Deserialize<Response<object>>(jsonResponse)!;
             return !string.IsNullOrEmpty(response.ErrorMessage);
         }
+
+        // =========================================================================
+        // TransferOwnership Tests
+        // =========================================================================
+
+        /// <summary>
+        /// Tests that the owner of a board can successfully transfer ownership to another registered user.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool TransferOwnership_ValidTransfer_Success()
+        {
+            SetUp();
+            _boardService.CreateBoard(_testEmail, _testBoardName);
+
+            // Register the new owner
+            string newOwnerEmail = "newowner@example.com";
+            _userService.Register(newOwnerEmail, "Password123");
+
+            string transferJson = _boardService.TransferOwnership(_testEmail, newOwnerEmail, _testBoardName);
+            Response<BoardSL> response = JsonSerializer.Deserialize<Response<BoardSL>>(transferJson)!;
+            return string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to transfer ownership of a board while not logged in.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool TransferOwnership_UserNotLoggedIn_Failure()
+        {
+            SetUp();
+            _boardService.CreateBoard(_testEmail, _testBoardName);
+
+            string newOwnerEmail = "newowner@example.com";
+            _userService.Register(newOwnerEmail, "Password123");
+
+            _userService.Logout(_testEmail);
+
+            string transferJson = _boardService.TransferOwnership(_testEmail, newOwnerEmail, _testBoardName);
+            Response<BoardSL> response = JsonSerializer.Deserialize<Response<BoardSL>>(transferJson)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to transfer ownership to a user that does not exist.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool TransferOwnership_NewOwnerDoesNotExist_Failure()
+        {
+            SetUp();
+            _boardService.CreateBoard(_testEmail, _testBoardName);
+
+            string fakeEmail = "fakeuser@example.com";
+
+            string transferJson = _boardService.TransferOwnership(_testEmail, fakeEmail, _testBoardName);
+            Response<BoardSL> response = JsonSerializer.Deserialize<Response<BoardSL>>(transferJson)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to transfer ownership of a board that does not exist.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool TransferOwnership_BoardDoesNotExist_Failure()
+        {
+            SetUp();
+            string newOwnerEmail = "newowner@example.com";
+            _userService.Register(newOwnerEmail, "Password123");
+
+            string transferJson = _boardService.TransferOwnership(_testEmail, newOwnerEmail, "NonExistentBoard");
+            Response<BoardSL> response = JsonSerializer.Deserialize<Response<BoardSL>>(transferJson)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user who is not the current owner attempts to transfer ownership.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool TransferOwnership_UserIsNotOwner_Failure()
+        {
+            SetUp();
+            string boardJson = _boardService.CreateBoard(_testEmail, _testBoardName);
+            BoardSL board = JsonSerializer.Deserialize<Response<BoardSL>>(boardJson)!.ReturnValue!;
+
+            string otherUser = "otheruser@example.com";
+            _userService.Register(otherUser, "Password123");
+            _boardService.JoinBoard(otherUser, board.BoardID);
+
+            // otherUser tries to transfer the board they do not own to a third user
+            string thirdUser = "thirduser@example.com";
+            _userService.Register(thirdUser, "Password123");
+
+            string transferJson = _boardService.TransferOwnership(otherUser, thirdUser, _testBoardName);
+            Response<BoardSL> response = JsonSerializer.Deserialize<Response<BoardSL>>(transferJson)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        // =========================================================================
+        // GetBoardName Tests
+        // =========================================================================
+
+        /// <summary>
+        /// Tests that the name of a board can be successfully retrieved using a valid board ID.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool GetBoardName_ValidId_Success()
+        {
+            SetUp();
+            string boardJson = _boardService.CreateBoard(_testEmail, _testBoardName);
+            BoardSL board = JsonSerializer.Deserialize<Response<BoardSL>>(boardJson)!.ReturnValue!;
+
+            string nameJson = _boardService.GetBoardName(board.BoardID);
+            Response<string> response = JsonSerializer.Deserialize<Response<string>>(nameJson)!;
+
+            // Verifies there are no errors and that the retrieved name matches the created board name
+            return string.IsNullOrEmpty(response.ErrorMessage) && response.ReturnValue == _testBoardName;
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to get the name of a board ID that does not exist.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool GetBoardName_BoardDoesNotExist_Failure()
+        {
+            SetUp();
+            string nameJson = _boardService.GetBoardName(9999);
+            Response<string> response = JsonSerializer.Deserialize<Response<string>>(nameJson)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        // =========================================================================
+        // GetUserBoards Tests
+        // =========================================================================
+
+        /// <summary>
+        /// Tests that a logged-in user can successfully retrieve a list of their boards.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool GetUserBoards_ValidUser_Success()
+        {
+            SetUp();
+            _boardService.CreateBoard(_testEmail, _testBoardName);
+            string jsonResponse = _boardService.GetUserBoards(_testEmail);
+
+            // Assuming board IDs are integers
+            Response<List<int>> response = JsonSerializer.Deserialize<Response<List<int>>>(jsonResponse)!;
+            return string.IsNullOrEmpty(response.ErrorMessage) && response.ReturnValue != null;
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to retrieve their boards while not logged in.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool GetUserBoards_UserNotLoggedIn_Failure()
+        {
+            SetUp();
+            _userService.Logout(_testEmail);
+            string jsonResponse = _boardService.GetUserBoards(_testEmail);
+            Response<List<int>> response = JsonSerializer.Deserialize<Response<List<int>>>(jsonResponse)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        // =========================================================================
+        // GetColumnName Tests
+        // =========================================================================
+
+        /// <summary>
+        /// Tests that a logged-in user can successfully retrieve the name of a valid column.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool GetColumnName_ValidColumn_Success()
+        {
+            SetUp();
+            _boardService.CreateBoard(_testEmail, _testBoardName);
+            string jsonResponse = _boardService.GetColumnName(_testEmail, _testBoardName, 0);
+            Response<string> response = JsonSerializer.Deserialize<Response<string>>(jsonResponse)!;
+            return string.IsNullOrEmpty(response.ErrorMessage) && !string.IsNullOrEmpty(response.ReturnValue);
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to retrieve the name of a column index that does not exist.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool GetColumnName_InvalidColumnIndex_Failure()
+        {
+            SetUp();
+            _boardService.CreateBoard(_testEmail, _testBoardName);
+            string jsonResponse = _boardService.GetColumnName(_testEmail, _testBoardName, 9999);
+            Response<string> response = JsonSerializer.Deserialize<Response<string>>(jsonResponse)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to retrieve a column name while not logged in.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool GetColumnName_UserNotLoggedIn_Failure()
+        {
+            SetUp();
+            _boardService.CreateBoard(_testEmail, _testBoardName);
+            _userService.Logout(_testEmail);
+            string jsonResponse = _boardService.GetColumnName(_testEmail, _testBoardName, 0);
+            Response<string> response = JsonSerializer.Deserialize<Response<string>>(jsonResponse)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+
+        // =========================================================================
+        // GetColumnLimit Tests
+        // =========================================================================
+
+        /// <summary>
+        /// Tests that a logged-in user can successfully retrieve the limit of a valid column.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool GetColumnLimit_ValidColumn_Success()
+        {
+            SetUp();
+            _boardService.CreateBoard(_testEmail, _testBoardName);
+            _boardService.LimitTasksInColumn(_testEmail, _testBoardName, 0, 5);
+
+            string jsonResponse = _boardService.GetColumnLimit(_testEmail, _testBoardName, 0);
+            Response<int?> response = JsonSerializer.Deserialize<Response<int?>>(jsonResponse)!;
+            return string.IsNullOrEmpty(response.ErrorMessage) && response.ReturnValue == 5;
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to retrieve the limit of a column index that does not exist.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool GetColumnLimit_InvalidColumnIndex_Failure()
+        {
+            SetUp();
+            _boardService.CreateBoard(_testEmail, _testBoardName);
+            string jsonResponse = _boardService.GetColumnLimit(_testEmail, _testBoardName, 9999);
+            Response<int?> response = JsonSerializer.Deserialize<Response<int?>>(jsonResponse)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to retrieve a column limit while not logged in.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool GetColumnLimit_UserNotLoggedIn_Failure()
+        {
+            SetUp();
+            _boardService.CreateBoard(_testEmail, _testBoardName);
+            _userService.Logout(_testEmail);
+            string jsonResponse = _boardService.GetColumnLimit(_testEmail, _testBoardName, 0);
+            Response<int?> response = JsonSerializer.Deserialize<Response<int?>>(jsonResponse)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        // =========================================================================
+        // GetColumnTasks Tests
+        // =========================================================================
+
+        /// <summary>
+        /// Tests that a logged-in user can successfully retrieve all tasks in a valid column.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool GetColumnTasks_ValidColumn_Success()
+        {
+            SetUp();
+            _boardService.CreateBoard(_testEmail, _testBoardName);
+            _serviceFactory.TaskService.AddTask(_testEmail, _testBoardName, "Task 1", DateTime.Now.AddDays(1), "Desc");
+
+            string jsonResponse = _boardService.GetColumnTasks(_testEmail, _testBoardName, 0);
+            Response<List<TaskSL>> response = JsonSerializer.Deserialize<Response<List<TaskSL>>>(jsonResponse)!;
+            return string.IsNullOrEmpty(response.ErrorMessage) && response.ReturnValue != null && response.ReturnValue.Count == 1;
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to retrieve tasks from a column index that does not exist.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool GetColumnTasks_InvalidColumnIndex_Failure()
+        {
+            SetUp();
+            _boardService.CreateBoard(_testEmail, _testBoardName);
+            string jsonResponse = _boardService.GetColumnTasks(_testEmail, _testBoardName, 9999);
+            Response<List<TaskSL>> response = JsonSerializer.Deserialize<Response<List<TaskSL>>>(jsonResponse)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to retrieve column tasks while not logged in.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool GetColumnTasks_UserNotLoggedIn_Failure()
+        {
+            SetUp();
+            _boardService.CreateBoard(_testEmail, _testBoardName);
+            _userService.Logout(_testEmail);
+            string jsonResponse = _boardService.GetColumnTasks(_testEmail, _testBoardName, 0);
+            Response<List<TaskSL>> response = JsonSerializer.Deserialize<Response<List<TaskSL>>>(jsonResponse)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
     }
 }
