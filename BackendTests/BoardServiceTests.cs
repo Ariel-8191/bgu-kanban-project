@@ -484,5 +484,53 @@ namespace BackendTests
             return !string.IsNullOrEmpty(response.ErrorMessage);
         }
 
+
+        // =========================================================================
+        // GetColumnLimit Tests
+        // =========================================================================
+
+        /// <summary>
+        /// Tests that a logged-in user can successfully retrieve the limit of a valid column.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool GetColumnLimit_ValidColumn_Success()
+        {
+            SetUp();
+            _boardService.CreateBoard(_testEmail, _testBoardName);
+            _boardService.LimitTasksInColumn(_testEmail, _testBoardName, 0, 5);
+
+            string jsonResponse = _boardService.GetColumnLimit(_testEmail, _testBoardName, 0);
+            Response<int?> response = JsonSerializer.Deserialize<Response<int?>>(jsonResponse)!;
+            return string.IsNullOrEmpty(response.ErrorMessage) && response.ReturnValue == 5;
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to retrieve the limit of a column index that does not exist.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool GetColumnLimit_InvalidColumnIndex_Failure()
+        {
+            SetUp();
+            _boardService.CreateBoard(_testEmail, _testBoardName);
+            string jsonResponse = _boardService.GetColumnLimit(_testEmail, _testBoardName, 9999);
+            Response<int?> response = JsonSerializer.Deserialize<Response<int?>>(jsonResponse)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to retrieve a column limit while not logged in.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool GetColumnLimit_UserNotLoggedIn_Failure()
+        {
+            SetUp();
+            _boardService.CreateBoard(_testEmail, _testBoardName);
+            _userService.Logout(_testEmail);
+            string jsonResponse = _boardService.GetColumnLimit(_testEmail, _testBoardName, 0);
+            Response<int?> response = JsonSerializer.Deserialize<Response<int?>>(jsonResponse)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+
     }
 }
