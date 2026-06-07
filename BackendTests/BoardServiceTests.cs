@@ -407,5 +407,37 @@ namespace BackendTests
             Response<string> response = JsonSerializer.Deserialize<Response<string>>(nameJson)!;
             return !string.IsNullOrEmpty(response.ErrorMessage);
         }
+
+        // =========================================================================
+        // GetUserBoards Tests
+        // =========================================================================
+
+        /// <summary>
+        /// Tests that a logged-in user can successfully retrieve a list of their boards.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool GetUserBoards_ValidUser_Success()
+        {
+            SetUp();
+            _boardService.CreateBoard(_testEmail, _testBoardName);
+            string jsonResponse = _boardService.GetUserBoards(_testEmail);
+
+            // Assuming board IDs are integers
+            Response<List<int>> response = JsonSerializer.Deserialize<Response<List<int>>>(jsonResponse)!;
+            return string.IsNullOrEmpty(response.ErrorMessage) && response.ReturnValue != null;
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to retrieve their boards while not logged in.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool GetUserBoards_UserNotLoggedIn_Failure()
+        {
+            SetUp();
+            _userService.Logout(_testEmail);
+            string jsonResponse = _boardService.GetUserBoards(_testEmail);
+            Response<List<int>> response = JsonSerializer.Deserialize<Response<List<int>>>(jsonResponse)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
     }
 }
