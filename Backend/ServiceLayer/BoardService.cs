@@ -75,6 +75,60 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         }
 
         /// <summary>
+        /// This method adds a user as member to an existing board.
+        /// </summary>
+        /// <param name="email">The email of the user that joins the board. Must be logged in</param>
+        /// <param name="boardID">The board's ID</param>
+        /// <returns>Returns a JSON representation of the joined board</returns>
+        public string JoinBoard(string email, int boardID)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// This method removes a user from the members list of a board.
+        /// </summary>
+        /// <param name="email">The email of the user. Must be logged in</param>
+        /// <param name="boardID">The board's ID</param>
+        /// <returns>Returns a JSON representation of the left board</returns>
+        public string LeaveBoard(string email, int boardID)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// This method transfers a board ownership.
+        /// </summary>
+        /// <param name="currentOwnerEmail">Email of the current owner. Must be logged in</param>
+        /// <param name="newOwnerEmail">Email of the new owner</param>
+        /// <param name="boardName">The name of the board</param>
+        /// <returns>Returns a JSON representation of the transfered board</returns>
+        public string TransferOwnership(string currentOwnerEmail, string newOwnerEmail, string boardName)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// This method returns a board's name
+        /// </summary>
+        /// <param name="boardId">The board's ID</param>
+        /// <returns>A response with the board's name</returns>
+        public string GetBoardName(int boardId)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// This method returns a list of IDs of all user's boards.
+        /// </summary>
+        /// <param name="email">Email of the user. Must be logged in</param>
+        /// <returns>A response with a list of IDs of all user's boards,</returns>
+        public string GetUserBoards(string email)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         /// This method returns all in-progress tasks of a user.
         /// </summary>
         /// <param name="email">Email of the user. Must be logged in</param>
