@@ -288,5 +288,89 @@ namespace BackendTests
             Response<TaskSL> response = JsonSerializer.Deserialize<Response<TaskSL>>(advanceJson)!;
             return !string.IsNullOrEmpty(response.ErrorMessage);
         }
+
+        // =========================================================================
+        // AssignTask Tests
+        // =========================================================================
+
+        /// <summary>
+        /// Tests that a logged-in user can successfully assign a task to a user.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool AssignTask_ValidAssign_Success()
+        {
+            SetUp();
+            string taskJson = _taskService.AddTask(_testEmail, _testBoardName, "Title", DateTime.Now.AddDays(1), "Desc");
+            TaskSL task = JsonSerializer.Deserialize<Response<TaskSL>>(taskJson)!.ReturnValue!;
+
+            // Note: AssignTask takes an int for taskID based on the signature in TaskService.cs
+            string assignJson = _taskService.AssignTask(_testEmail, _testBoardName, 0, (int)task.TaskID, _testEmail);
+            Response<TaskSL> response = JsonSerializer.Deserialize<Response<TaskSL>>(assignJson)!;
+            return string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to assign a task while they are not logged in.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool AssignTask_UserNotLoggedIn_Failure()
+        {
+            SetUp();
+            string taskJson = _taskService.AddTask(_testEmail, _testBoardName, "Title", DateTime.Now.AddDays(1), "Desc");
+            TaskSL task = JsonSerializer.Deserialize<Response<TaskSL>>(taskJson)!.ReturnValue!;
+
+            _userService.Logout(_testEmail);
+
+            string assignJson = _taskService.AssignTask(_testEmail, _testBoardName, 0, (int)task.TaskID, _testEmail);
+            Response<TaskSL> response = JsonSerializer.Deserialize<Response<TaskSL>>(assignJson)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to assign a task ID that does not exist.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool AssignTask_TaskDoesNotExist_Failure()
+        {
+            SetUp();
+            string assignJson = _taskService.AssignTask(_testEmail, _testBoardName, 0, 9999, _testEmail);
+            Response<TaskSL> response = JsonSerializer.Deserialize<Response<TaskSL>>(assignJson)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to assign a task to a user email that doesn't exist.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool AssignTask_AssigneeDoesNotExist_Failure()
+        {
+            SetUp();
+            string taskJson = _taskService.AddTask(_testEmail, _testBoardName, "Title", DateTime.Now.AddDays(1), "Desc");
+            TaskSL task = JsonSerializer.Deserialize<Response<TaskSL>>(taskJson)!.ReturnValue!;
+
+            string fakeEmail = "fake.assignee@example.com";
+            string assignJson = _taskService.AssignTask(_testEmail, _testBoardName, 0, (int)task.TaskID, fakeEmail);
+            Response<TaskSL> response = JsonSerializer.Deserialize<Response<TaskSL>>(assignJson)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to assign a task that is already in the 'done' column.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool AssignTask_TaskIsDone_Failure()
+        {
+            SetUp();
+            string taskJson = _taskService.AddTask(_testEmail, _testBoardName, "Title", DateTime.Now.AddDays(1), "Desc");
+            TaskSL task = JsonSerializer.Deserialize<Response<TaskSL>>(taskJson)!.ReturnValue!;
+
+            // Advance to "In Progress" then to "Done" (Assuming index 2 is Done)
+            _taskService.AdvanceTask(_testEmail, _testBoardName, 0, task.TaskID);
+            _taskService.AdvanceTask(_testEmail, _testBoardName, 1, task.TaskID);
+
+            string assignJson = _taskService.AssignTask(_testEmail, _testBoardName, 2, (int)task.TaskID, _testEmail);
+            Response<TaskSL> response = JsonSerializer.Deserialize<Response<TaskSL>>(assignJson)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
     }
 }
