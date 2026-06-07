@@ -131,7 +131,7 @@ namespace BackendTests
             string taskJson = _taskService.AddTask(_testEmail, _testBoardName, "Initial Title", DateTime.Now.AddDays(1), "Initial Desc");
             TaskSL task = JsonSerializer.Deserialize<Response<TaskSL>>(taskJson)!.ReturnValue!;
 
-            string editJson = _taskService.EditTask(_testEmail, _testBoardName, task.TaskID, "New Title", DateTime.Now.AddDays(2), "New Desc");
+            string editJson = _taskService.EditTask(_testEmail, _testBoardName, 0, task.TaskID, "New Title", DateTime.Now.AddDays(2), "New Desc");
             Response<TaskSL> response = JsonSerializer.Deserialize<Response<TaskSL>>(editJson)!;
             return string.IsNullOrEmpty(response.ErrorMessage);
         }
@@ -150,7 +150,7 @@ namespace BackendTests
             _taskService.AdvanceTask(_testEmail, _testBoardName, 0, task.TaskID);
             _taskService.AdvanceTask(_testEmail, _testBoardName, 1, task.TaskID);
 
-            string editJson = _taskService.EditTask(_testEmail, _testBoardName, task.TaskID, "New Title", DateTime.Now.AddDays(2), "New Desc");
+            string editJson = _taskService.EditTask(_testEmail, _testBoardName, 2, task.TaskID, "New Title", DateTime.Now.AddDays(2), "New Desc");
             Response<TaskSL> response = JsonSerializer.Deserialize<Response<TaskSL>>(editJson)!;
             return !string.IsNullOrEmpty(response.ErrorMessage);
         }
@@ -167,7 +167,7 @@ namespace BackendTests
             string taskJson = _taskService.AddTask(_testEmail, _testBoardName, "Initial Title", DateTime.Now.AddDays(1), "Initial Description");
             TaskSL task = JsonSerializer.Deserialize<Response<TaskSL>>(taskJson)!.ReturnValue!;
             _userService.Logout(_testEmail);
-            string jsonResponse = _taskService.EditTask(_testEmail, _testBoardName, task.TaskID, "Other Title", DateTime.Now.AddDays(2), "Other Description");
+            string jsonResponse = _taskService.EditTask(_testEmail, _testBoardName, 0, task.TaskID, "Other Title", DateTime.Now.AddDays(2), "Other Description");
             Response<TaskSL> response = JsonSerializer.Deserialize<Response<TaskSL>>(jsonResponse)!;
             return !string.IsNullOrEmpty(response.ErrorMessage);
         }
@@ -180,7 +180,7 @@ namespace BackendTests
         public bool EditTask_TaskDoesNotExist_Failure()
         {
             SetUp();
-            string editJson = _taskService.EditTask(_testEmail, _testBoardName, 9999, "New Title", DateTime.Now.AddDays(2), "New Desc");
+            string editJson = _taskService.EditTask(_testEmail, _testBoardName, 0, 9999, "New Title", DateTime.Now.AddDays(2), "New Desc");
             Response<TaskSL> response = JsonSerializer.Deserialize<Response<TaskSL>>(editJson)!;
             return !string.IsNullOrEmpty(response.ErrorMessage);
         }
