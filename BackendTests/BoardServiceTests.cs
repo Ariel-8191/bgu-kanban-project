@@ -531,6 +531,50 @@ namespace BackendTests
             return !string.IsNullOrEmpty(response.ErrorMessage);
         }
 
+        // =========================================================================
+        // GetColumnTasks Tests
+        // =========================================================================
 
+        /// <summary>
+        /// Tests that a logged-in user can successfully retrieve all tasks in a valid column.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool GetColumnTasks_ValidColumn_Success()
+        {
+            SetUp();
+            _boardService.CreateBoard(_testEmail, _testBoardName);
+            _serviceFactory.TaskService.AddTask(_testEmail, _testBoardName, "Task 1", DateTime.Now.AddDays(1), "Desc");
+
+            string jsonResponse = _boardService.GetColumnTasks(_testEmail, _testBoardName, 0);
+            Response<List<TaskSL>> response = JsonSerializer.Deserialize<Response<List<TaskSL>>>(jsonResponse)!;
+            return string.IsNullOrEmpty(response.ErrorMessage) && response.ReturnValue != null && response.ReturnValue.Count == 1;
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to retrieve tasks from a column index that does not exist.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool GetColumnTasks_InvalidColumnIndex_Failure()
+        {
+            SetUp();
+            _boardService.CreateBoard(_testEmail, _testBoardName);
+            string jsonResponse = _boardService.GetColumnTasks(_testEmail, _testBoardName, 9999);
+            Response<List<TaskSL>> response = JsonSerializer.Deserialize<Response<List<TaskSL>>>(jsonResponse)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to retrieve column tasks while not logged in.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool GetColumnTasks_UserNotLoggedIn_Failure()
+        {
+            SetUp();
+            _boardService.CreateBoard(_testEmail, _testBoardName);
+            _userService.Logout(_testEmail);
+            string jsonResponse = _boardService.GetColumnTasks(_testEmail, _testBoardName, 0);
+            Response<List<TaskSL>> response = JsonSerializer.Deserialize<Response<List<TaskSL>>>(jsonResponse)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
     }
 }
