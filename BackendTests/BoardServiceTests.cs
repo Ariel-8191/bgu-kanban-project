@@ -279,5 +279,133 @@ namespace BackendTests
             Response<object> response = JsonSerializer.Deserialize<Response<object>>(jsonResponse)!;
             return !string.IsNullOrEmpty(response.ErrorMessage);
         }
+
+        // =========================================================================
+        // TransferOwnership Tests
+        // =========================================================================
+
+        /// <summary>
+        /// Tests that the owner of a board can successfully transfer ownership to another registered user.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool TransferOwnership_ValidTransfer_Success()
+        {
+            SetUp();
+            _boardService.CreateBoard(_testEmail, _testBoardName);
+
+            // Register the new owner
+            string newOwnerEmail = "newowner@example.com";
+            _userService.Register(newOwnerEmail, "Password123");
+
+            string transferJson = _boardService.TransferOwnership(_testEmail, newOwnerEmail, _testBoardName);
+            Response<BoardSL> response = JsonSerializer.Deserialize<Response<BoardSL>>(transferJson)!;
+            return string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to transfer ownership of a board while not logged in.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool TransferOwnership_UserNotLoggedIn_Failure()
+        {
+            SetUp();
+            _boardService.CreateBoard(_testEmail, _testBoardName);
+
+            string newOwnerEmail = "newowner@example.com";
+            _userService.Register(newOwnerEmail, "Password123");
+
+            _userService.Logout(_testEmail);
+
+            string transferJson = _boardService.TransferOwnership(_testEmail, newOwnerEmail, _testBoardName);
+            Response<BoardSL> response = JsonSerializer.Deserialize<Response<BoardSL>>(transferJson)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to transfer ownership to a user that does not exist.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool TransferOwnership_NewOwnerDoesNotExist_Failure()
+        {
+            SetUp();
+            _boardService.CreateBoard(_testEmail, _testBoardName);
+
+            string fakeEmail = "fakeuser@example.com";
+
+            string transferJson = _boardService.TransferOwnership(_testEmail, fakeEmail, _testBoardName);
+            Response<BoardSL> response = JsonSerializer.Deserialize<Response<BoardSL>>(transferJson)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to transfer ownership of a board that does not exist.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool TransferOwnership_BoardDoesNotExist_Failure()
+        {
+            SetUp();
+            string newOwnerEmail = "newowner@example.com";
+            _userService.Register(newOwnerEmail, "Password123");
+
+            string transferJson = _boardService.TransferOwnership(_testEmail, newOwnerEmail, "NonExistentBoard");
+            Response<BoardSL> response = JsonSerializer.Deserialize<Response<BoardSL>>(transferJson)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user who is not the current owner attempts to transfer ownership.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool TransferOwnership_UserIsNotOwner_Failure()
+        {
+            SetUp();
+            string boardJson = _boardService.CreateBoard(_testEmail, _testBoardName);
+            BoardSL board = JsonSerializer.Deserialize<Response<BoardSL>>(boardJson)!.ReturnValue!;
+
+            string otherUser = "otheruser@example.com";
+            _userService.Register(otherUser, "Password123");
+            _boardService.JoinBoard(otherUser, board.BoardID);
+
+            // otherUser tries to transfer the board they do not own to a third user
+            string thirdUser = "thirduser@example.com";
+            _userService.Register(thirdUser, "Password123");
+
+            string transferJson = _boardService.TransferOwnership(otherUser, thirdUser, _testBoardName);
+            Response<BoardSL> response = JsonSerializer.Deserialize<Response<BoardSL>>(transferJson)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        // =========================================================================
+        // GetBoardName Tests
+        // =========================================================================
+
+        /// <summary>
+        /// Tests that the name of a board can be successfully retrieved using a valid board ID.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool GetBoardName_ValidId_Success()
+        {
+            SetUp();
+            string boardJson = _boardService.CreateBoard(_testEmail, _testBoardName);
+            BoardSL board = JsonSerializer.Deserialize<Response<BoardSL>>(boardJson)!.ReturnValue!;
+
+            string nameJson = _boardService.GetBoardName(board.BoardID);
+            Response<string> response = JsonSerializer.Deserialize<Response<string>>(nameJson)!;
+
+            // Verifies there are no errors and that the retrieved name matches the created board name
+            return string.IsNullOrEmpty(response.ErrorMessage) && response.ReturnValue == _testBoardName;
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to get the name of a board ID that does not exist.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool GetBoardName_BoardDoesNotExist_Failure()
+        {
+            SetUp();
+            string nameJson = _boardService.GetBoardName(9999);
+            Response<string> response = JsonSerializer.Deserialize<Response<string>>(nameJson)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
     }
 }
