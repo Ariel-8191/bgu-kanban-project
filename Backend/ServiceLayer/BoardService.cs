@@ -80,7 +80,7 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <param name="email">The email of the user that joins the board. Must be logged in</param>
         /// <param name="boardID">The board's ID</param>
         /// <returns>Returns a JSON representation of the joined board</returns>
-        public string JoinBoard(string email, int boardID)
+        public string JoinBoard(string email, long boardID)
         {
             throw new NotImplementedException();
         }
@@ -91,7 +91,7 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <param name="email">The email of the user. Must be logged in</param>
         /// <param name="boardID">The board's ID</param>
         /// <returns>Returns a JSON representation of the left board</returns>
-        public string LeaveBoard(string email, int boardID)
+        public string LeaveBoard(string email, long boardID)
         {
             throw new NotImplementedException();
         }
@@ -113,7 +113,7 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// </summary>
         /// <param name="boardId">The board's ID</param>
         /// <returns>A response with the board's name</returns>
-        public string GetBoardName(int boardId)
+        public string GetBoardName(long boardId)
         {
             throw new NotImplementedException();
         }
