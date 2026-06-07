@@ -439,5 +439,50 @@ namespace BackendTests
             Response<List<int>> response = JsonSerializer.Deserialize<Response<List<int>>>(jsonResponse)!;
             return !string.IsNullOrEmpty(response.ErrorMessage);
         }
+
+        // =========================================================================
+        // GetColumnName Tests
+        // =========================================================================
+
+        /// <summary>
+        /// Tests that a logged-in user can successfully retrieve the name of a valid column.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool GetColumnName_ValidColumn_Success()
+        {
+            SetUp();
+            _boardService.CreateBoard(_testEmail, _testBoardName);
+            string jsonResponse = _boardService.GetColumnName(_testEmail, _testBoardName, 0);
+            Response<string> response = JsonSerializer.Deserialize<Response<string>>(jsonResponse)!;
+            return string.IsNullOrEmpty(response.ErrorMessage) && !string.IsNullOrEmpty(response.ReturnValue);
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to retrieve the name of a column index that does not exist.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool GetColumnName_InvalidColumnIndex_Failure()
+        {
+            SetUp();
+            _boardService.CreateBoard(_testEmail, _testBoardName);
+            string jsonResponse = _boardService.GetColumnName(_testEmail, _testBoardName, 9999);
+            Response<string> response = JsonSerializer.Deserialize<Response<string>>(jsonResponse)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to retrieve a column name while not logged in.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool GetColumnName_UserNotLoggedIn_Failure()
+        {
+            SetUp();
+            _boardService.CreateBoard(_testEmail, _testBoardName);
+            _userService.Logout(_testEmail);
+            string jsonResponse = _boardService.GetColumnName(_testEmail, _testBoardName, 0);
+            Response<string> response = JsonSerializer.Deserialize<Response<string>>(jsonResponse)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
     }
 }
