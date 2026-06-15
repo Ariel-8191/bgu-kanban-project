@@ -17,9 +17,4 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="DataAccessLayer\Controllers\" />
-    <Folder Include="DataAccessLayer\DTOs\" />
-  </ItemGroup>
 </Project>
