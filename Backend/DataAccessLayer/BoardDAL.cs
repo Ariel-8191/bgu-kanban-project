@@ -3,7 +3,7 @@
 namespace IntroSE.Kanban.Backend.DataAccessLayer
 {
     /// <summary>
-    /// Represents a user within the data access layer of the Kanban application.
+    /// Represents a board within the data access layer of the Kanban application.
     /// </summary>
     internal class BoardDAL
     {
@@ -11,9 +11,6 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
         private BoardsUsersController boardsUsersController;
         private ColumnController columnController;
         private bool isPersisted;
-
-        private const string ownerColumnName = "owner";
-        private const string nextIDColumnName = "next_task_id";
 
         public long BoardID { get; }
         public string BoardName { get; }
@@ -25,7 +22,7 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
             {
                 if (isPersisted)
                 {
-                    boardController.Update(BoardID, ownerColumnName, value);
+                    boardController.UpdateOwner(BoardID, value);
                 }
                 _owner = value;
             }
@@ -54,7 +51,7 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
             {
                 if (isPersisted)
                 {
-                    boardController.Update(BoardID, nextIDColumnName, value);
+                    boardController.UpdateNextTaskID(BoardID, value);
                 }
                 _nextTaskID = value;
             }
@@ -62,10 +59,11 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
 
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="UserDAL"/> class.
+        /// Initializes a new instance of the <see cref="BoardDAL"/> class.
         /// </summary>
-        /// <param name="xcvsvfsdfs">The email address of the user.</param>
-        /// <param name="sdfsdfdsf">The password for the user.</param>
+        /// <param name="boardID">The unique identifier for the board.</param>
+        /// <param name="boardName">The display name of the board.</param>
+        /// <param name="owner">The email address of the user who owns the board.</param>
         public BoardDAL(long boardID, string boardName, string owner)
         {
             this.boardController = new BoardController();
@@ -75,7 +73,7 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
 
             this.BoardID = boardID;
             this.BoardName = boardName;
-            this._owner = owner;
+            this.Owner = owner;
             this.NextTaskID = 0;
         }
 
@@ -91,11 +89,19 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
             }
         }
 
+        /// <summary>
+        /// Adds a user as a member to this board and updates the database.
+        /// </summary>
+        /// <param name="user">The <see cref="UserDAL"/> instance representing the user to add.</param>
         public void AddMember(UserDAL user)
         {
             boardsUsersController.Insert(BoardID, user.Email);
         }
 
+        /// <summary>
+        /// Removes a user from this board's members and deletes the database.
+        /// </summary>
+        /// <param name="user">The <see cref="UserDAL"/> instance representing the user to remove.</param>
         public void removeMember(UserDAL user)
         {
             boardsUsersController.Delete(BoardID, user.Email);
