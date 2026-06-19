@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
 
 namespace IntroSE.Kanban.Backend.BusinessLayer.Board
@@ -149,18 +150,17 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             }
 
 
-            List<TaskBL> inProgressTasks = new List<TaskBL>();
-
             Dictionary<string, BoardBL> userBoards;
-            if (boardsByUser.TryGetValue(email, out userBoards))
+            if (!boardsByUser.TryGetValue(email, out userBoards))
             {
-                foreach (BoardBL board in userBoards.Values)
-                {
-                    inProgressTasks.AddRange(board.GetColumnTasks(BoardBL.InProgressColumnIndex));
-                }
+                return new List<TaskBL>();
             }
 
-            return inProgressTasks;
+            IEnumerable<TaskBL> inProgressTasks = userBoards.Values
+                .SelectMany(board => board.GetColumnTasks(BoardBL.InProgressColumnIndex))
+                .Where(task => string.Equals(task.Assignee, email, StringComparison.OrdinalIgnoreCase));
+
+            return inProgressTasks.ToList();
         }
 
         /// <summary>
