@@ -129,12 +129,13 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <summary>
         /// Edits the details of an existing task on the board.
         /// </summary>
+        /// <param name="email">The email address of the user editing the task.</param>
         /// <param name="taskID">The unique identifier of the task to edit.</param>
         /// <param name="title">The new title for the task.</param>
         /// <param name="dueDate">The new due date for the task.</param>
         /// <param name="description">The new description for the task.</param>
         /// <returns>The updated <see cref="TaskBL"/> object.</returns>
-        public TaskBL EditTask(int columnIndex, long taskID, string title, DateTime? dueDate, string description)
+        public TaskBL EditTask(string email, int columnIndex, long taskID, string title, DateTime? dueDate, string description)
         {
             if (columnIndex < 0 || columnIndex >= columns.Count)
             {
@@ -149,14 +150,20 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
                 throw new KanbanNotFoundException(message);
             }
 
+            TaskBL taskToEdit = columns[columnIndex].GetTask(taskID);
             if (columnIndex == DoneColumnIndex)
             {
                 string message = $"Cannot edit task '{taskID}' in the board '{BoardName}' because it is in the \"Done\" column";
                 log.Warn(message);
                 throw new KanbanInvalidStateException(message);
             }
+            if (!email.Equals(taskToEdit.Assignee, StringComparison.OrdinalIgnoreCase) && !email.Equals(owner, StringComparison.OrdinalIgnoreCase))
+            {
+                string message = $"Cannot edit task '{taskID}' in the board '{BoardName}' because the user '{email}' is neither the assignee nor the owner.";
+                log.Warn(message);
+                throw new KanbanAuthenticationException(message);
+            }
 
-            TaskBL taskToEdit = columns[columnIndex].GetTask(taskID);
             taskToEdit.EditTask(title, dueDate, description);
             return taskToEdit;
         }
@@ -164,10 +171,11 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <summary>
         /// Advances a specific task from its current column to the next column on the board.
         /// </summary>
+        /// <param name="email">The email address of the user advancing the task.</param>
         /// <param name="columnIndex">The index of the column where the task is currently located.</param>
         /// <param name="taskID">The unique identifier of the task to advance.</param>
         /// <returns>The updated <see cref="TaskBL"/> object reflecting its new state/column.</returns>
-        public TaskBL AdvanceTask(int columnIndex, long taskID)
+        public TaskBL AdvanceTask(string email, int columnIndex, long taskID)
         {
             if (columnIndex < 0 || columnIndex >= columns.Count)
             {
@@ -183,14 +191,19 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             }
 
 
+            TaskBL taskToAdvance = columns[columnIndex].GetTask(taskID);
             if (columnIndex + 1 >= columns.Count)
             {
                 string message = $"Cannot advance task '{taskID}' in the board '{BoardName}' from column {columnIndex} because there is nowhere to advance.";
                 log.Warn(message);
                 throw new KanbanInvalidStateException(message);
             }
-
-            TaskBL taskToAdvance = columns[columnIndex].GetTask(taskID);
+            if (!email.Equals(taskToAdvance.Assignee, StringComparison.OrdinalIgnoreCase))
+            {
+                string message = $"Cannot advance task '{taskID}' in the board '{BoardName}' because the user '{email}' is not the assignee.";
+                log.Warn(message);
+                throw new KanbanAuthenticationException(message);
+            }
 
             // Adding the task to the next column before removing it from the current one ensures that the task won't disapper if the next column is full
             columns[columnIndex+1].AddTask(taskToAdvance);

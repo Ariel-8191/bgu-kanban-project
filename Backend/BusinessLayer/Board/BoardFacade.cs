@@ -247,7 +247,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         public TaskBL EditTask(string email, string boardName, int columnIndex, long taskID, string title, DateTime? dueDate, string description)
         {
             BoardBL board = GetBoard(email, boardName);
-            TaskBL editedTask = board.EditTask(columnIndex, taskID, title, dueDate, description);
+            TaskBL editedTask = board.EditTask(email, columnIndex, taskID, title, dueDate, description);
             return editedTask;
         }
 
@@ -262,7 +262,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         public TaskBL AdvanceTask(string email, string boardName, int columnIndex, long taskID)
         {
             BoardBL board = GetBoard(email, boardName);
-            TaskBL advancedTask = board.AdvanceTask(columnIndex, taskID);
+            TaskBL advancedTask = board.AdvanceTask(email, columnIndex, taskID);
             return advancedTask;
         }
 
