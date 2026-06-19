@@ -64,7 +64,7 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
         /// <param name="boardID">The unique identifier for the board.</param>
         /// <param name="boardName">The display name of the board.</param>
         /// <param name="owner">The email address of the user who owns the board.</param>
-        public BoardDAL(long boardID, string boardName, string owner)
+        public BoardDAL(long boardID, string boardName, string owner, long NextTaskID)
         {
             this.boardController = new BoardController();
             this.boardsUsersController = new BoardsUsersController();
@@ -74,7 +74,7 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
             this.BoardID = boardID;
             this.BoardName = boardName;
             this.Owner = owner;
-            this.NextTaskID = 0;
+            this.NextTaskID = NextTaskID;
         }
 
         /// <summary>
