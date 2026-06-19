@@ -19,6 +19,8 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         internal const string DoneColumnName = "done";
 
         public string BoardName { get; }
+        private string owner;
+        private HashSet<string> members;
         private List<ColumnBL> columns;
         private long nextTaskID;
 
@@ -26,9 +28,12 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// Initializes a new instance of the <see cref="BoardBL"/> class with the specified board name.
         /// </summary>
         /// <param name="boardName">The name to be assigned to the new board.</param>
-        public BoardBL(string boardName)
+        /// <param name="creator">The email address of the user who created the board.</param>
+        public BoardBL(string boardName, string creator)
         {
             this.BoardName = boardName;
+            this.owner = creator;
+            this.members = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { creator };
             this.nextTaskID = 0;
 
             this.columns = new List<ColumnBL>();
@@ -191,6 +196,58 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             columns[columnIndex+1].AddTask(taskToAdvance);
             columns[columnIndex].RemoveTask(taskToAdvance);
             return taskToAdvance;
+        }
+
+        /// <summary>
+        /// Assigns a task to a new assignee.
+        /// </summary>
+        /// <param name="columnIndex">The index of the column where the task is currently located.</param>
+        /// <param name="taskID">The unique identifier of the task to assign.</param>
+        /// <param name="assigner">The user attempting to assign the task.</param>
+        /// <param name="newAssignee">The user to whom the task is being assigned.</param>
+        /// <returns>The updated <see cref="TaskBL"/> object reflecting its new assignee.</returns>
+        public TaskBL AssignTask(int columnIndex, long taskID, string assigner, string newAssignee)
+        {
+            if (columnIndex < 0 || columnIndex >= columns.Count)
+            {
+                string message = $"Cannot assign task '{taskID}' in the board '{BoardName}' from column {columnIndex} because the column index is out of bounds.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
+            }
+            if (!columns[columnIndex].ContainsTask(taskID))
+            {
+                string message = $"Cannot assign task '{taskID}' in the board '{BoardName}' in column {columnIndex} because it does not exist.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
+            }
+            if (!members.Contains(assigner))
+            {
+                string message = $"Cannot assign task '{taskID}' in the board '{BoardName}' in column {columnIndex} because the user '{assigner}' is not a member of the board.";
+                log.Warn(message);
+                throw new KanbanAuthenticationException(message);
+            }
+            if (!members.Contains(newAssignee))
+            {
+                string message = $"Cannot assign task '{taskID}' in the board '{BoardName}' in column {columnIndex} to user '{newAssignee}' because they are not a member of the board.";
+                log.Warn(message);
+                throw new KanbanAuthenticationException(message);
+            }
+
+            TaskBL taskToAssign = columns[columnIndex].GetTask(taskID);
+            string currentAssignee = taskToAssign.Assignee;
+
+            // If the task is unassigned OR the user trying to assign is the current assignee OR the user trying to assign is the owner of the board, allow the assignment
+            if (currentAssignee == null || assigner.Equals(currentAssignee, StringComparison.OrdinalIgnoreCase) || assigner.Equals(owner, StringComparison.OrdinalIgnoreCase))
+            {
+                taskToAssign.Assignee = newAssignee;
+                return taskToAssign;
+            }
+            else
+            {
+                string message = $"Cannot assign task '{taskID}' in the board '{BoardName}' in column {columnIndex} because the user '{assigner}' is not the current assignee or the owner.";
+                log.Warn(message);
+                throw new KanbanInvalidStateException(message);
+            }
         }
     }
 }
