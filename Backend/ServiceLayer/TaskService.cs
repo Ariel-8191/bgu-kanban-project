@@ -109,15 +109,29 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <summary>
         /// This method assigns a task to a user
         /// </summary>
-        /// <param name="email">Email of the user. Must be logged in</param>
-        /// <param name="boardName">The name of the board</param>
-        /// <param name="columnIndex">The column number. The first column is 0, the number increases by 1 for each column</param>
-        /// <param name="taskID">The task to be updated identified a task ID</param>        
-        /// <param name="assigneeEmail">Email of the asignee user</param>
+        /// <param name="email">The email address of the user assigning the task.</param>
+        /// <param name="boardName">The name of the board containing the task.</param>
+        /// <param name="columnIndex">The index of the column where the task is currently located.</param>
+        /// <param name="taskID">The unique identifier of the task to assign.</param>
+        /// <param name="newAssignee">The email address of the user to whom the task is being assigned.</param>
         /// <returns>Returns a JSON representation of the task</returns>
-        public string AssignTask(string email, string boardName, int columnIndex, int taskID, string assigneeEmail)
+        public string AssignTask(string email, string boardName, int columnIndex, int taskID, string newAssignee)
         {
-            throw new NotImplementedException();
+            try
+            {
+                TaskSL task = new TaskSL(this.boardFacade.AssignTask(email, boardName, columnIndex, taskID, newAssignee));
+                log.Info($"Successfully assigned task '{taskID}' to '{newAssignee}' in board '{boardName}' (User: '{email}').");
+                return new Response<TaskSL>(task).ToJson();
+            }
+            catch (KanbanException ex)
+            {
+                return new Response<TaskSL>(ex.Message).ToJson();
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An unexpected system error occurred in AssignTask(email='{email}', board='{boardName}', taskID={taskID}, newAssignee='{newAssignee}'): {ex.Message}");
+                return new Response<TaskSL>("An unexpected system error occurred").ToJson();
+            }
         }
     }
 }

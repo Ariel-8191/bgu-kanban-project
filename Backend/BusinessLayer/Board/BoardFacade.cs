@@ -66,7 +66,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
                 boardsByUser.Add(email, userBoards);
             }
 
-            BoardBL newBoard = new BoardBL(boardName);
+            BoardBL newBoard = new BoardBL(boardName, email);
             userBoards.Add(boardName, newBoard);
             return newBoard;
         }
@@ -264,6 +264,22 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             BoardBL board = GetBoard(email, boardName);
             TaskBL advancedTask = board.AdvanceTask(columnIndex, taskID);
             return advancedTask;
+        }
+
+        /// <summary>
+        /// Assigns a task to a new assignee.
+        /// </summary>
+        /// <param name="email">The email address of the user assigning the task.</param>
+        /// <param name="boardName">The name of the board containing the task.</param>
+        /// <param name="columnIndex">The index of the column where the task is currently located.</param>
+        /// <param name="taskID">The unique identifier of the task to assign.</param>
+        /// <param name="newAssignee">The email address of the user to whom the task is being assigned.</param>
+        /// <returns>The updated <see cref="TaskBL"/> object reflecting its new assignee.</returns>
+        public TaskBL AssignTask(string email, string boardName, int columnIndex, long taskID, string newAssignee)
+        {
+            BoardBL board = GetBoard(email, boardName);
+            TaskBL assignedTask = board.AssignTask(columnIndex, taskID, email, newAssignee);
+            return assignedTask;
         }
     }
 }
