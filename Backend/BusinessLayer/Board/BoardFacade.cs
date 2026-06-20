@@ -197,7 +197,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         }
 
         /// <summary>
-        /// Removes a user to a certain board
+        /// Removes a user from a certain board
         /// </summary>
         /// <param name="email">The email of the user to add to the board</param>
         /// <param name="boardID">The id of the board to add the user to</param>
@@ -265,6 +265,17 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
 
             List<BoardBL> boardsList = userBoards.Values.ToList();
             return boardsList;
+        }
+
+        /// <summary>
+        /// Retrieves the name of a board by its unique ID.
+        /// </summary>
+        /// <param name="boardID">The unique ID of the board.</param>
+        /// <returns>The name of the board.</returns>
+        public string GetBoardName(long boardID)
+        {
+            BoardBL board = GetBoard(boardID);
+            return board.BoardName;
         }
 
         /// <summary>
