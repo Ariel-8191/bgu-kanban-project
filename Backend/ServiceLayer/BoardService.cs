@@ -153,7 +153,22 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <returns>A response with a list of IDs of all user's boards,</returns>
         public string GetUserBoards(string email)
         {
-            throw new NotImplementedException();
+            try
+            {
+                List<BoardBL> userBoardsBL = this.boardFacade.GetUserBoards(email);
+                List<long> userBoardIDs = userBoardsBL.Select(board => board.BoardID).ToList();
+                log.Info($"Successfully retrieved all boards for user '{email}'");
+                return new Response<List<long>>(userBoardIDs).ToJson();
+            }
+            catch (KanbanException ex)
+            {
+                return new Response<List<BoardSL>>(ex.Message).ToJson();
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An unexpected system error occurred in GetUserBoards(email='{email}'): {ex.Message}");
+                return new Response<List<BoardSL>>("An unexpected system error occurred").ToJson();
+            }
         }
 
         /// <summary>
