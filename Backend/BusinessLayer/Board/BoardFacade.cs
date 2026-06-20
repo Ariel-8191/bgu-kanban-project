@@ -183,6 +183,17 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         }
 
         /// <summary>
+        /// Retrieves the name of a board by its unique ID.
+        /// </summary>
+        /// <param name="boardID">The unique ID of the board.</param>
+        /// <returns>The name of the board.</returns>
+        public string GetBoardName(long boardID)
+        {
+            BoardBL board = GetBoard(boardID);
+            return board.BoardName;
+        }
+
+        /// <summary>
         /// Retrieves all in-progress tasks for a specific user across their boards.
         /// </summary>
         /// <param name="email">The email address of the user.</param>
