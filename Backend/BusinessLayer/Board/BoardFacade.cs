@@ -183,6 +183,63 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         }
 
         /// <summary>
+        /// Removes a user from a certain board
+        /// </summary>
+        /// <param name="email">The email of the user to add to the board</param>
+        /// <param name="boardID">The id of the board to add the user to</param>
+        /// <returns>the joined <see cref="BoardBL"/> object</returns>
+        public BoardBL LeaveBoard(string email, long boardID)
+        {
+            BoardBL board = GetBoard(boardID);
+            if (!boardsByUser.TryGetValue(email, out Dictionary<string, BoardBL> userBoards) || !userBoards.ContainsKey(board.BoardName))
+            {
+                string message = $"Cannot leave the board with ID '{boardID}' because the user '{email}' is not currently a member of the board '{board.BoardName}'.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
+            }
+            board.RemoveMember(email);
+            userBoards.Remove(board.BoardName);
+
+            if(userBoards.Count == 0)
+            {
+                boardsByUser.Remove(email);
+            }
+
+            return board;
+        }
+
+        /// <summary>
+        /// Retrieves all the boards a specific user is a member of.
+        /// </summary>
+        /// <param name="email">The email address of the user.</param>
+        /// <returns>A list of <see cref="BoardBL"/> objects.</returns>
+        public List<BoardBL> GetUserBoards(string email)
+        {
+            if (email == null)
+            {
+                string message = "Cannot get the boards of a user because the given email is null.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
+            }
+            if (!authenticationFacade.IsLoggedIn(email))
+            {
+                string message = $"Cannot get the boards of the user '{email}' because he is not currently logged in.";
+                log.Warn(message);
+                throw new KanbanAuthenticationException(message);
+            }
+
+
+            Dictionary<string, BoardBL> userBoards;
+            if (!boardsByUser.TryGetValue(email, out userBoards))
+            {
+                return new List<BoardBL>();
+            }
+
+            List<BoardBL> boardsList = userBoards.Values.ToList();
+            return boardsList;
+        }
+
+        /// <summary>
         /// Retrieves the name of a board by its unique ID.
         /// </summary>
         /// <param name="boardID">The unique ID of the board.</param>
