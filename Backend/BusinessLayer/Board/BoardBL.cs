@@ -18,6 +18,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         internal const string InProgressColumnName = "in progress";
         internal const string DoneColumnName = "done";
 
+        public long BoardID { get; }
         public string BoardName { get; }
         private string owner;
         private HashSet<string> members;
@@ -27,10 +28,12 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <summary>
         /// Initializes a new instance of the <see cref="BoardBL"/> class with the specified board name.
         /// </summary>
+        /// <param name="boardID">The ID to be assigned to the new board.</param>
         /// <param name="boardName">The name to be assigned to the new board.</param>
         /// <param name="creator">The email address of the user who created the board.</param>
-        public BoardBL(string boardName, string creator)
+        public BoardBL(long boardID, string boardName, string creator)
         {
+            this.BoardID = boardID;
             this.BoardName = boardName;
             this.owner = creator;
             this.members = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { creator };
@@ -40,6 +43,53 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             columns.Add(new ColumnBL(BacklogColumnName));
             columns.Add(new ColumnBL(InProgressColumnName));
             columns.Add(new ColumnBL(DoneColumnName));
+        }
+
+        /// <summary>
+        /// Adds a user to the board
+        /// </summary>
+        /// <param name="email">The email of the user to add</param>
+        public void AddMember(string email)
+        {        
+            members.Add(email);
+        }
+
+        /// <summary>
+        /// Removes a user to the board
+        /// </summary>
+        /// <param name="email">The email of the user to add</param>
+        public void RemoveMember(string email)
+        {
+            if (!members.Contains(email))
+            {
+                string message = $"Can't remove a user from '{BoardName}' because user '{email}' is not in it.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
+            }
+            if (owner.Equals(email, StringComparison.OrdinalIgnoreCase))
+            {
+                string message = $"Can't remove a user from '{BoardName}' because user '{email}' is the owner of the board.";
+                log.Warn(message);
+                throw new KanbanValidationException(message);
+            }
+
+            for (int i = 0; i < columns.Count; i++)
+            {
+                if (i == DoneColumnIndex)
+                {
+                    continue; //Skip the tasks that are done
+                }
+
+                foreach (TaskBL task in columns[i].GetTasks())
+                {
+                    if (task.Assignee.Equals(email, StringComparison.OrdinalIgnoreCase))
+                    {
+                        task.Assignee = null; 
+                    }
+                }
+            }
+
+            members.Remove(email);
         }
 
         /// <summary>
