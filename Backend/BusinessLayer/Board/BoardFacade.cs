@@ -1,7 +1,9 @@
-﻿using System;
+﻿using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
+using IntroSE.Kanban.Backend.ServiceLayer;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
+using System.Security.Cryptography.X509Certificates;
 
 namespace IntroSE.Kanban.Backend.BusinessLayer.Board
 {
@@ -13,7 +15,9 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private Dictionary<string, Dictionary<string, BoardBL>> boardsByUser;
+        private Dictionary<long, BoardBL> boardsByID;
         private AuthenticationFacade authenticationFacade;
+        private long nextBoardID;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BoardFacade"/> class.
@@ -22,7 +26,9 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         public BoardFacade(AuthenticationFacade authenticationFacade)
         {
             this.boardsByUser = new Dictionary<string, Dictionary<string, BoardBL>>(StringComparer.OrdinalIgnoreCase);
+            this.boardsByID = new Dictionary<long, BoardBL>();
             this.authenticationFacade = authenticationFacade;
+            this.nextBoardID = 0;
         }
 
         /// <summary>
@@ -67,15 +73,16 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
                 boardsByUser.Add(email, userBoards);
             }
 
-            BoardBL newBoard = new BoardBL(boardName, email);
+            BoardBL newBoard = new BoardBL(nextBoardID, boardName, email);
             userBoards.Add(boardName, newBoard);
+            nextBoardID++;
             return newBoard;
         }
 
         /// <summary>
-        /// Retrieves a user's board. Used as a helper method in the rest of the facade.
+        /// Retrieves a board that a user is member of. Used as a helper method in the rest of the facade.
         /// </summary>
-        /// <param name="email">The email address of the user the board belongs to.</param>
+        /// <param name="email">The email address of the user that is a member of the board.</param>
         /// <param name="boardName">The name of the board.</param>
         /// <returns>The <see cref="BoardBL"/> object.</returns>
         private BoardBL GetBoard(string email, string boardName)
@@ -111,6 +118,23 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         }
 
         /// <summary>
+        /// Retrieves a board by its unique ID. Used as a helper method in the rest of the facade.
+        /// </summary>
+        /// <param name="boardId">The unique ID of the board.</param>
+        /// <returns>The <see cref="BoardBL"/> object.</returns>
+        private BoardBL GetBoard(long boardID)
+        {
+            if (!boardsByID.TryGetValue(boardID, out BoardBL foundBoard))
+            {
+                string message = $"Cannot get the board with ID '{boardID}' because there is no such board.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
+            }
+    
+            return foundBoard;
+        }
+
+        /// <summary>
         /// Deletes an existing board for the specified user.
         /// </summary>
         /// <param name="email">The email address of the user deleting the board.</param>
@@ -126,6 +150,35 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             {
                 boardsByUser.Remove(email);
             }
+            return board;
+        }
+
+        /// <summary>
+        /// Adds a user to a certain board
+        /// </summary>
+        /// <param name="email">The email of the user to add to the board</param>
+        /// <param name="boardID">The id of the board to add the user to</param>
+        /// <returns>the joined <see cref="BoardBL"/> object</returns>
+        public BoardBL JoinBoard(string email, long boardID)
+        {
+            BoardBL board = GetBoard(boardID);
+            if (boardsByUser.TryGetValue(email, out Dictionary<string, BoardBL> userBoards))
+            {
+                if (userBoards.ContainsKey(board.BoardName))
+                {
+                    string message = $"Cannot join the board with ID '{boardID}' because the user '{email}' already has a board named '{board.BoardName}'.";
+                    log.Warn(message);
+                    throw new KanbanConflictException(message);
+                }
+            }
+            else 
+            {
+                userBoards = new Dictionary<string, BoardBL>(StringComparer.OrdinalIgnoreCase);
+                boardsByUser.Add(email, userBoards);
+            }
+
+            board.AddMember(email);
+            userBoards.Add(board.BoardName, board);
             return board;
         }
 
