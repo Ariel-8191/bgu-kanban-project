@@ -360,7 +360,7 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <returns>A response with a list of IDs of all user's boards, unless an error occurs (see <see cref="GradingService"/>)</returns>
         public string GetUserBoards(string email)
         {
-            throw new NotImplementedException();
+            return serviceFactory.BoardService.GetUserBoards(email);
         }
 
         /// <summary>

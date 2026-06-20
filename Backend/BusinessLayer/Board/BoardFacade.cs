@@ -183,6 +183,37 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         }
 
         /// <summary>
+        /// Retrieves all the boards a specific user is a member of.
+        /// </summary>
+        /// <param name="email">The email address of the user.</param>
+        /// <returns>A list of <see cref="BoardBL"/> objects.</returns>
+        public List<BoardBL> GetUserBoards(string email)
+        {
+            if (email == null)
+            {
+                string message = "Cannot get the boards of a user because the given email is null.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
+            }
+            if (!authenticationFacade.IsLoggedIn(email))
+            {
+                string message = $"Cannot get the boards of the user '{email}' because he is not currently logged in.";
+                log.Warn(message);
+                throw new KanbanAuthenticationException(message);
+            }
+
+
+            Dictionary<string, BoardBL> userBoards;
+            if (!boardsByUser.TryGetValue(email, out userBoards))
+            {
+                return new List<BoardBL>();
+            }
+
+            List<BoardBL> boardsList = userBoards.Values.ToList();
+            return boardsList;
+        }
+
+        /// <summary>
         /// Retrieves all in-progress tasks for a specific user across their boards.
         /// </summary>
         /// <param name="email">The email address of the user.</param>
