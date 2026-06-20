@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
 
 namespace IntroSE.Kanban.Backend.BusinessLayer.Board
@@ -66,7 +67,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
                 boardsByUser.Add(email, userBoards);
             }
 
-            BoardBL newBoard = new BoardBL(boardName);
+            BoardBL newBoard = new BoardBL(boardName, email);
             userBoards.Add(boardName, newBoard);
             return newBoard;
         }
@@ -149,18 +150,17 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             }
 
 
-            List<TaskBL> inProgressTasks = new List<TaskBL>();
-
             Dictionary<string, BoardBL> userBoards;
-            if (boardsByUser.TryGetValue(email, out userBoards))
+            if (!boardsByUser.TryGetValue(email, out userBoards))
             {
-                foreach (BoardBL board in userBoards.Values)
-                {
-                    inProgressTasks.AddRange(board.GetColumnTasks(BoardBL.InProgressColumnIndex));
-                }
+                return new List<TaskBL>();
             }
 
-            return inProgressTasks;
+            IEnumerable<TaskBL> inProgressTasks = userBoards.Values
+                .SelectMany(board => board.GetColumnTasks(BoardBL.InProgressColumnIndex))
+                .Where(task => string.Equals(task.Assignee, email, StringComparison.OrdinalIgnoreCase));
+
+            return inProgressTasks.ToList();
         }
 
         /// <summary>
@@ -247,7 +247,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         public TaskBL EditTask(string email, string boardName, int columnIndex, long taskID, string title, DateTime? dueDate, string description)
         {
             BoardBL board = GetBoard(email, boardName);
-            TaskBL editedTask = board.EditTask(columnIndex, taskID, title, dueDate, description);
+            TaskBL editedTask = board.EditTask(email, columnIndex, taskID, title, dueDate, description);
             return editedTask;
         }
 
@@ -262,8 +262,24 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         public TaskBL AdvanceTask(string email, string boardName, int columnIndex, long taskID)
         {
             BoardBL board = GetBoard(email, boardName);
-            TaskBL advancedTask = board.AdvanceTask(columnIndex, taskID);
+            TaskBL advancedTask = board.AdvanceTask(email, columnIndex, taskID);
             return advancedTask;
+        }
+
+        /// <summary>
+        /// Assigns a task to a new assignee.
+        /// </summary>
+        /// <param name="email">The email address of the user assigning the task.</param>
+        /// <param name="boardName">The name of the board containing the task.</param>
+        /// <param name="columnIndex">The index of the column where the task is currently located.</param>
+        /// <param name="taskID">The unique identifier of the task to assign.</param>
+        /// <param name="newAssignee">The email address of the user to whom the task is being assigned.</param>
+        /// <returns>The updated <see cref="TaskBL"/> object reflecting its new assignee.</returns>
+        public TaskBL AssignTask(string email, string boardName, int columnIndex, long taskID, string newAssignee)
+        {
+            BoardBL board = GetBoard(email, boardName);
+            TaskBL assignedTask = board.AssignTask(columnIndex, taskID, email, newAssignee);
+            return assignedTask;
         }
     }
 }
