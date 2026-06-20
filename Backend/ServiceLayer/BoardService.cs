@@ -107,7 +107,21 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <returns>Returns a JSON representation of the left board</returns>
         public string LeaveBoard(string email, long boardID)
         {
-            throw new NotImplementedException();
+            try
+            {
+                BoardSL board = new BoardSL(this.boardFacade.LeaveBoard(email, boardID));
+                log.Info($"Successfully left board: '{boardID}' for user '{email}'.");
+                return new Response<BoardSL>(board).ToJson();
+            }
+            catch (KanbanException ex)
+            {
+                return new Response<BoardSL>(ex.Message).ToJson();
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An unexpected system error occurred in JoinBoard(email='{email}', boardID='{boardID}'): {ex.Message}");
+                return new Response<BoardSL>("An unexpected system error occurred").ToJson();
+            }
         }
 
         /// <summary>
@@ -153,7 +167,22 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <returns>A response with a list of IDs of all user's boards,</returns>
         public string GetUserBoards(string email)
         {
-            throw new NotImplementedException();
+            try
+            {
+                List<BoardBL> userBoardsBL = this.boardFacade.GetUserBoards(email);
+                List<long> userBoardIDs = userBoardsBL.Select(board => board.BoardID).ToList();
+                log.Info($"Successfully retrieved all boards for user '{email}'");
+                return new Response<List<long>>(userBoardIDs).ToJson();
+            }
+            catch (KanbanException ex)
+            {
+                return new Response<List<BoardSL>>(ex.Message).ToJson();
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An unexpected system error occurred in GetUserBoards(email='{email}'): {ex.Message}");
+                return new Response<List<BoardSL>>("An unexpected system error occurred").ToJson();
+            }
         }
 
         /// <summary>
