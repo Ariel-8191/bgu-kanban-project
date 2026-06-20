@@ -161,7 +161,21 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <returns>the joined <see cref="BoardBL"/> object</returns>
         public BoardBL JoinBoard(string email, long boardID)
         {
+            if (email == null)
+            {
+                string message = $"Cannot join the board with the ID: '{boardID}' because the given email is null.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
+            }
+            if (!authenticationFacade.IsLoggedIn(email))
+            {
+                string message = $"Cannot join the board with the ID: '{boardID}' because the user '{email}' is not currently logged in.";
+                log.Warn(message);
+                throw new KanbanAuthenticationException(message);
+            }
+
             BoardBL board = GetBoard(boardID);
+
             if (boardsByUser.TryGetValue(email, out Dictionary<string, BoardBL> userBoards))
             {
                 if (userBoards.ContainsKey(board.BoardName))
@@ -190,7 +204,21 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <returns>the joined <see cref="BoardBL"/> object</returns>
         public BoardBL LeaveBoard(string email, long boardID)
         {
+            if (email == null)
+            {
+                string message = $"Cannot leave the board with the ID: '{boardID}' because the given email is null.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
+            }
+            if (!authenticationFacade.IsLoggedIn(email))
+            {
+                string message = $"Cannot leave the board with the ID: '{boardID}' because the user '{email}' is not currently logged in.";
+                log.Warn(message);
+                throw new KanbanAuthenticationException(message);
+            }
+
             BoardBL board = GetBoard(boardID);
+
             if (!boardsByUser.TryGetValue(email, out Dictionary<string, BoardBL> userBoards) || !userBoards.ContainsKey(board.BoardName))
             {
                 string message = $"Cannot leave the board with ID '{boardID}' because the user '{email}' is not currently a member of the board '{board.BoardName}'.";
