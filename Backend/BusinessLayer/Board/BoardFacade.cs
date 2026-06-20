@@ -183,6 +183,32 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         }
 
         /// <summary>
+        /// Removes a user to a certain board
+        /// </summary>
+        /// <param name="email">The email of the user to add to the board</param>
+        /// <param name="boardID">The id of the board to add the user to</param>
+        /// <returns>the joined <see cref="BoardBL"/> object</returns>
+        public BoardBL LeaveBoard(string email, long boardID)
+        {
+            BoardBL board = GetBoard(boardID);
+            if (!boardsByUser.TryGetValue(email, out Dictionary<string, BoardBL> userBoards) || !userBoards.ContainsKey(board.BoardName))
+            {
+                string message = $"Cannot leave the board with ID '{boardID}' because the user '{email}' is not currently a member of the board '{board.BoardName}'.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
+            }
+            board.RemoveMember(email);
+            userBoards.Remove(board.BoardName);
+
+            if(userBoards.Count == 0)
+            {
+                boardsByUser.Remove(email);
+            }
+
+            return board;
+        }
+
+        /// <summary>
         /// Retrieves all the boards a specific user is a member of.
         /// </summary>
         /// <param name="email">The email address of the user.</param>
