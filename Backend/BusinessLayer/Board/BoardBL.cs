@@ -55,6 +55,44 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         }
 
         /// <summary>
+        /// Removes a user to the board
+        /// </summary>
+        /// <param name="email">The email of the user to add</param>
+        public void RemoveMember(string email)
+        {
+            if (!members.Contains(email))
+            {
+                string message = $"Can't remove a user from '{BoardName}' because user '{email}' is not in it.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
+            }
+            if (owner.Equals(email, StringComparison.OrdinalIgnoreCase))
+            {
+                string message = $"Can't remove a user from '{BoardName}' because user '{email}' is the owner of the board.";
+                log.Warn(message);
+                throw new KanbanValidationException(message);
+            }
+
+            for (int i = 0; i < columns.Count; i++)
+            {
+                if (i == DoneColumnIndex)
+                {
+                    continue; //Skip the tasks that are done
+                }
+
+                foreach (TaskBL task in columns[i].GetTasks())
+                {
+                    if (task.Assignee.Equals(email, StringComparison.OrdinalIgnoreCase))
+                    {
+                        task.Assignee = null; 
+                    }
+                }
+            }
+
+            members.Remove(email);
+        }
+
+        /// <summary>
         /// Sets or removes the maximum limit on the number of tasks allowed in a specific column.
         /// </summary>
         /// <param name="columnIndex">The zero-based index of the column to modify.</param>
