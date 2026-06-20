@@ -54,6 +54,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
                 _description = value;
             }
         }
+        public string Assignee { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskBL"/> class with the specified details.
@@ -69,6 +70,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             this.Title = title;
             this.DueDate = dueDate;
             this.Description = description;
+            this.Assignee = null;
         }
 
         /// <summary>
