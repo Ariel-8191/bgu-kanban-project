@@ -18,7 +18,7 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         internal BoardSL(BoardBL boardBL)
         {
             this.BoardName = boardBL.BoardName;
-            this.BoardID = BoardBL.BoardID;
+            this.BoardID = boardBL.BoardID;
         }
 
         // Required by System.Text.Json for deserialization

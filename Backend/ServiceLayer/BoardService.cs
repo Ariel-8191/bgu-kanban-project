@@ -82,7 +82,21 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <returns>Returns a JSON representation of the joined board</returns>
         public string JoinBoard(string email, long boardID)
         {
-            throw new NotImplementedException();
+            try
+            {
+                BoardSL board = new BoardSL(this.boardFacade.JoinBoard(email, boardID));
+                log.Info($"Successfully Joined board: '{boardID}' for user '{email}'.");
+                return new Response<BoardSL>(board).ToJson();
+            }
+            catch (KanbanException ex)
+            {
+                return new Response<BoardSL>(ex.Message).ToJson();
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An unexpected system error occurred in JoinBoard(email='{email}', boardID='{boardID}'): {ex.Message}");
+                return new Response<BoardSL>("An unexpected system error occurred").ToJson();
+            }
         }
 
         /// <summary>

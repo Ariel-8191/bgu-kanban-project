@@ -371,7 +371,15 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <returns>An empty response, unless an error occurs (see <see cref="GradingService"/>)</returns>
         public string JoinBoard(string email, int boardID)
         {
-            throw new NotImplementedException();
+            Response<TaskSL> response = JsonSerializer.Deserialize<Response<TaskSL>>(serviceFactory.BoardService.JoinBoard(email, boardID));
+            if (response.ErrorMessage == null)
+            {
+                return new Response<TaskSL>().ToJson();
+            }
+            else
+            {
+                return response.ToJson();
+            }
         }
 
         /// <summary>
