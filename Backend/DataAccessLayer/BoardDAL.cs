@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace IntroSE.Kanban.Backend.DataAccessLayer
 {
@@ -87,6 +88,16 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
                 boardController.Insert(this);
                 isPersisted = true;
             }
+        }
+
+        /// <summary>
+        /// Create a new column in the database 
+        /// </summary>
+        /// <param name="columnIndex">The identifing index of the column</param>
+        /// <param name="column">The ColumnDAL object to save in the database</param>
+        public void CreateColumn(int columnIndex, ColumnDAL column)
+        {
+            column.Persist(BoardID, columnIndex);
         }
 
         /// <summary>
