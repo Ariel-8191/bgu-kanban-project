@@ -23,11 +23,11 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
             get => _name;
             set
             {
-                _name = value;
                 if (isPersisted && boardID.HasValue && columnIndex.HasValue)
                 {
                     columnController.Update(boardID.Value, columnIndex.Value, "Name", value);
                 }
+                _name = value;
             }
         }
 
@@ -37,17 +37,22 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
             get => _taskLimit;
             set
             {
-                _taskLimit = value;
                 if (isPersisted && boardID.HasValue && columnIndex.HasValue)
                 {
                     columnController.Update(boardID.Value, columnIndex.Value, "TaskLimit", value);
                 }
+                _taskLimit = value;
             }
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ColumnDAL"/> class.
         /// </summary>
+        /// <param name="boardId">The unique identifier of the board this column belongs to.</param>
+        /// <param name="columnIndex">The positional index of the column within the board.</param>
+        /// <param name="name">The display name of the column.</param>
+        /// <param name="taskLimit">The maximum number of tasks allowed in the column, or null if unrestricted.</param>
+        /// <param name="isPersisted">Indicates whether the column data is already saved in the database.</param>
         public ColumnDAL(long? boardId, int? columnIndex, string name, int? taskLimit = null, bool isPersisted = false)
         {
             this.columnController = new ColumnController();
@@ -63,17 +68,27 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
         }
 
         /// <summary>
-        /// Persists the current instance by inserting it into the database if it hasn't been saved yet.
+        /// Persists the current instance by inserting it into the database using existing boardID and columnIndex.
         /// </summary>
         public void Persist()
         {
             if (!isPersisted && boardID.HasValue && columnIndex.HasValue)
             {
-                // Make sure your ColumnController's Insert method can access the 
-                // columnIndex, either by passing it as a parameter or exposing an internal getter.
                 columnController.Insert(boardID.Value, this);
                 isPersisted = true;
             }
+        }
+
+        /// <summary>
+        /// Persists the current instance by first setting the boardID and columnIndex.
+        /// </summary>
+        /// <param name="boardID">The ID of the board this column belongs to.</param>
+        /// <param name="columnIndex">The positional index of the column.</param>
+        public void Persist(long boardID, int columnIndex)
+        {
+            this.boardID = boardID;
+            this.columnIndex = columnIndex;
+            Persist();
         }
 
         /// <summary>
@@ -82,7 +97,7 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
         /// <param name="task">The task data access object to add.</param>
         public void AddTask(TaskDAL task)
         {
-            // Note: Adjust 'task.TaskID' if your TaskDAL property is simply named 'Id'
+            // Assumes TaskDAL has a TaskID property of type long
             Tasks.Add(task.TaskID, task);
         }
 
