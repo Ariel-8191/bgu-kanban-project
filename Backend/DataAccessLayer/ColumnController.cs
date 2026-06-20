@@ -15,13 +15,13 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
 
         private readonly string connectionString;
         private const string columnTableName = "Columns";
-        private const string boardIdColumnName = "BoardID";
+        private const string boardIdColumnName = "boardID";
         private const int boardIdColumnIndex = 0;
-        private const string columnIndexColumnName = "ColumnIndex";
+        private const string columnIndexColumnName = "columnIndex";
         private const int columnIndexColumnIndex = 1;
-        private const string nameColumnName = "Name";
+        private const string nameColumnName = "name";
         private const int nameColumnIndex = 2;
-        private const string taskLimitColumnName = "TaskLimit";
+        private const string taskLimitColumnName = "limit";
         private const int taskLimitColumnIndex = 3;
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
                         command.Parameters.AddWithValue("@BoardID", boardID);
                         command.Parameters.AddWithValue("@ColumnIndex", columnIndex);
                         command.Parameters.AddWithValue("@Name", column.Name);
-                        command.Parameters.AddWithValue("@TaskLimit", column.TaskLimit.HasValue ? (object)column.TaskLimit.Value : DBNull.Value);
+                        command.Parameters.AddWithValue("@TaskLimit", column.TaskLimit.HasValue ? column.TaskLimit.Value : DBNull.Value);
                         command.ExecuteNonQuery();
                     }
                 }
@@ -74,7 +74,7 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
         /// <param name="limit">The new task limit.</param>
         public void UpdateTaskLimit(long boardID, int columnIndex, int? limit)
         {
-            Update(boardID, columnIndex, taskLimitColumnName, limit.HasValue ? (object)limit.Value : DBNull.Value);
+            Update(boardID, columnIndex, taskLimitColumnName, limit.HasValue ? limit.Value : DBNull.Value);
         }
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
                 using (SQLiteConnection connection = new SQLiteConnection(connectionString))
                 {
                     connection.Open();
-                    string commandText = $"SELECT * FROM {columnTableName} WHERE {boardIdColumnName} = @BoardID ORDER BY {columnIndexColumnName} ASC";
+                    string commandText = $"SELECT * FROM {columnTableName} WHERE {boardIdColumnName} = @BoardID";
                     using (SQLiteCommand command = new SQLiteCommand(commandText, connection))
                     {
                         command.Parameters.AddWithValue("@BoardID", boardID);
@@ -164,8 +164,7 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
                 taskLimit = reader.GetInt32(taskLimitColumnIndex);
             }
 
-            // The last parameter is 'isPersisted = true' because the data is coming straight from the DB
-            return new ColumnDAL(boardId, colIndex, name, taskLimit, true);
+            return new ColumnDAL(name, taskLimit, boardId, colIndex);
         }
     }
 }
