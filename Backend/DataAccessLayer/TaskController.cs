@@ -42,8 +42,11 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
         }
 
         /// <summary>
-        /// Inserts a new task record into the database.
+        /// Inserts a new task record into the database. If a record with the same boardID and taskID already exists, it updates the columnIndex instead.
         /// </summary>
+        /// <param name="boardID">The ID of the board to which the task belongs.</param>
+        /// <param name="columnIndex">The index of the column in which the task is located.</param>
+        /// <param name="task">The task data to be inserted or updated.</param>
         public void Insert(long boardID, int columnIndex, TaskDAL task)
         {
             try
@@ -78,6 +81,9 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
         /// <summary>
         /// Updates the title of a specific task.
         /// </summary>
+        /// <param name="boardID">The ID of the board to which the task belongs.</param>
+        /// <param name="taskID">The ID of the task to be updated.</param>
+        /// <param name="title">The new title for the task.</param>
         public void UpdateTitle(long boardID, long taskID, string title)
         {
             Update(boardID, taskID, titleColumnName, title);
@@ -86,6 +92,9 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
         /// <summary>
         /// Updates the due date of a specific task.
         /// </summary>
+        /// <param name="boardID">The ID of the board to which the task belongs.</param>
+        /// <param name="taskID">The ID of the task to be updated.</param>
+        /// <param name="dueDate">The new due date for the task.</param>
         public void UpdateDueDate(long boardID, long taskID, DateTime dueDate)
         {
             Update(boardID, taskID, dueDateColumnName, dueDate.ToString("yyyy-MM-dd HH:mm:ss"));
@@ -94,6 +103,9 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
         /// <summary>
         /// Updates the description of a specific task.
         /// </summary>
+        /// <param name="boardID">The ID of the board to which the task belongs.</param>
+        /// <param name="taskID">The ID of the task to be updated.</param>
+        /// <param name="description">The new description for the task.</param>
         public void UpdateDescription(long boardID, long taskID, string description)
         {
             Update(boardID, taskID, descriptionColumnName, string.IsNullOrEmpty(description) ? DBNull.Value : (object)description);
@@ -102,6 +114,9 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
         /// <summary>
         /// Updates the assignee of a specific task.
         /// </summary>
+        /// <param name="boardID">The ID of the board to which the task belongs.</param>
+        /// <param name="taskID">The ID of the task to be updated.</param>
+        /// <param name="assignee">The new assignee for the task.</param>
         public void UpdateAssignee(long boardID, long taskID, string assignee)
         {
             Update(boardID, taskID, assigneeColumnName, string.IsNullOrEmpty(assignee) ? DBNull.Value : (object)assignee);
@@ -110,9 +125,12 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
         /// <summary>
         /// Retrieves all tasks associated with a specific column from the database.
         /// </summary>
-        public List<TaskDAL> SelectColumnTasks(long boardID, int columnIndex)
+        ///<param name="boardID">The ID of the board to which the tasks belong.</param>
+        ///<param name="columnIndex">The index of the column for which to retrieve tasks.</param>
+        ///<returns>A dictionary mapping task IDs to their corresponding <see cref="TaskDAL"/> objects.</returns>
+        public Dictionary<long, TaskDAL> SelectColumnTasks(long boardID, int columnIndex)
         {
-            List<TaskDAL> tasks = new List<TaskDAL>();
+            Dictionary<long, TaskDAL> tasks = new Dictionary<long, TaskDAL>();
             try
             {
                 using (SQLiteConnection connection = new SQLiteConnection(connectionString))
@@ -127,7 +145,8 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
                         {
                             while (reader.Read())
                             {
-                                tasks.Add(ConvertReaderToTask(reader));
+                                TaskDAL task = ConvertReaderToTask(reader);
+                                tasks.Add(task.TaskID, task);
                             }
                         }
                     }
@@ -146,6 +165,10 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
         /// <summary>
         /// Private helper method for updating a single attribute of a specific task.
         /// </summary>
+        /// <param name="boardID">The ID of the board to which the task belongs.</param>
+        /// <param name="taskID">The ID of the task to be updated.</param>
+        /// <param name="attributeName">The name of the attribute to be updated (e.g., "title", "dueDate").</param>
+        /// <param name="newValue">The new value for the specified attribute.</param>
         private void Update(long boardID, long taskID, string attributeName, object newValue)
         {
             try
@@ -175,6 +198,8 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
         /// <summary>
         /// Converts the current row of a SQLite data reader into a <see cref="TaskDAL"/> object.
         /// </summary>
+        /// <param name="reader">The active SQLite data reader.</param>
+        /// <returns>A populated <see cref="TaskDAL"/> instance.</returns>
         private TaskDAL ConvertReaderToTask(SQLiteDataReader reader)
         {
             long boardId = reader.GetInt64(boardIdColumnIndex);

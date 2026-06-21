@@ -74,6 +74,12 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskDAL"/> class.
         /// </summary>
+        /// <param name="taskID">The unique identifier of the task.</param>
+        /// <param name="creationTime">The creation time of the task.</param>
+        /// <param name="title">The title of the task.</param>
+        /// <param name="description">The description of the task.</param>
+        /// <param name="dueDate">The due date of the task.</param>
+        /// <param name="assignee">The assignee of the task.</param>
         public TaskDAL(long taskID, DateTime creationTime, string title, string description, DateTime dueDate, string assignee)
         {
             this.taskController = new TaskController();
@@ -89,6 +95,14 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
         /// <summary>
         /// Loads a persisted instance of the <see cref="TaskDAL"/> class from the database.
         /// </summary>
+        /// <param name="taskID">The unique identifier of the task.</param>
+        /// <param name="creationTime">The creation time of the task.</param>
+        /// <param name="title">The title of the task.</param>
+        /// <param name="description">The description of the task.</param>
+        /// <param name="dueDate">The due date of the task.</param>
+        /// <param name="assignee">The assignee of the task.</param>
+        /// <param name="boardID">The unique identifier of the board to which the task belongs.</param>
+        /// <param name="columnIndex">The index of the column to which the task belongs.</param>
         internal TaskDAL(long taskID, DateTime creationTime, string title, string description, DateTime dueDate, string assignee, long boardID, int columnIndex)
             : this(taskID, creationTime, title, description, dueDate, assignee)
         {
@@ -105,6 +119,8 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
         /// <summary>
         /// Persists the current instance by inserting it into the database and setting its boardID and columnIndex.
         /// </summary>
+        /// <param name="boardID">The unique identifier of the board to which the task belongs.</param>
+        /// <param name="columnIndex">The index of the column to which the task belongs.</param>
         public void Persist(long boardID, int columnIndex)
         {
             if (!isPersisted)
