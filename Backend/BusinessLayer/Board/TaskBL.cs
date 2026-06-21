@@ -41,7 +41,22 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
                 _title = value;
             }
         }
-        public DateTime DueDate { get; private set; }
+        private DateTime _dueDate;
+        public DateTime DueDate
+        {
+            get => _dueDate;
+            private set
+            {
+                if (value < DateTime.Now)
+                {
+                    string message = $"Cannot set a due date in the past. Attempted date: {value}.";
+                    log.Warn(message);
+                    throw new KanbanValidationException(message);
+                }
+
+                _dueDate = value;
+            }
+        }
         private string _description;
         public string Description
         {
