@@ -454,7 +454,14 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <returns>An empty response, unless an error occurs (see <see cref="GradingService"/>)</returns>
         public string LoadData()
         {
-            throw new NotImplementedException();
+            try { 
+                serviceFactory.LoadData();
+                return new Response<object>().ToJson();
+            }
+            catch (Exception ex)
+            {
+                return new Response<object>(ex.Message).ToJson();
+            }
         }
 
         ///<summary>This method deletes all persisted data.
@@ -466,7 +473,15 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         ///<returns>An empty response, unless an error occurs (see <see cref="GradingService"/>)</returns>
         public string DeleteData()
         {
-            throw new NotImplementedException();
+            try
+            {
+                serviceFactory.DeleteData();
+                return new Response<object>().ToJson();
+            }
+            catch (Exception ex)
+            {
+                return new Response<object>(ex.Message).ToJson();
+            }
         }
     }
 }
