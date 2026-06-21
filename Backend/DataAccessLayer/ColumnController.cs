@@ -21,7 +21,7 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
         private const int columnIndexColumnIndex = 1;
         private const string nameColumnName = "name";
         private const int nameColumnIndex = 2;
-        private const string taskLimitColumnName = "limit";
+        private const string taskLimitColumnName = "taskLimit";
         private const int taskLimitColumnIndex = 3;
 
         /// <summary>
