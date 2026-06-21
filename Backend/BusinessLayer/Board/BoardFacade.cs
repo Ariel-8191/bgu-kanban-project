@@ -1,5 +1,6 @@
 ﻿using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
 using IntroSE.Kanban.Backend.DataAccessLayer;
+using IntroSE.Kanban.Backend.ServiceLayer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -108,6 +109,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             }
 
             BoardBL newBoard = new BoardBL(nextBoardID, boardName, email);
+            boardsByID.Add(newBoard.BoardID, newBoard);
             userBoards.Add(boardName, newBoard);
             nextBoardID++;
             return newBoard;
@@ -177,14 +179,28 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         public BoardBL DeleteBoard(string email, string boardName)
         {
             BoardBL board = GetBoard(email, boardName);
-            new BoardController().Delete(board.BoardID);
-            boardsByUser[email].Remove(boardName); // the call to 'GetBoard' in the previous line ensures the input is valid
-
-            // If the user doesn't have any boards after the deletion, don't store an empty dictionary
-            if (boardsByUser[email].Count == 0)
+            if (!board.Owner.Equals(email, StringComparison.OrdinalIgnoreCase))
             {
-                boardsByUser.Remove(email);
+                string message = $"Cannot delete the board '{boardName}' because the given email is not the owner.";
+                log.Warn(message);
+                throw new KanbanAuthenticationException(message);
             }
+
+            new BoardController().Delete(board.BoardID);
+
+            foreach (string memberEmail in board.members)
+            {
+                if (boardsByUser.TryGetValue(memberEmail, out Dictionary<string, BoardBL> userBoards))
+                {
+                    userBoards.Remove(boardName);
+                    if (userBoards.Count == 0)
+                    {
+                        boardsByUser.Remove(memberEmail);
+                    }
+                }
+            }
+            boardsByID.Remove(board.BoardID);
+
             return board;
         }
 
@@ -440,7 +456,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         public TaskBL AddTask(string email, string boardName, string title, DateTime dueDate, string description)
         {
             BoardBL board = GetBoard(email, boardName);
-            TaskBL newTask = board.AddTask(title, dueDate, description);
+            TaskBL newTask = board.AddTask(email, title, dueDate, description);
             return newTask;
         }
 

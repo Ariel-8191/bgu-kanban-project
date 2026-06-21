@@ -1,5 +1,7 @@
 ﻿using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
+using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
 using IntroSE.Kanban.Backend.DataAccessLayer;
+using IntroSE.Kanban.Backend.ServiceLayer;
 using System;
 using System.Collections.Generic;
 
@@ -24,7 +26,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         public long BoardID { get; }
         public string BoardName { get; }
         private string _owner;
-        private string Owner
+        internal string Owner
         {
             get => _owner;
             set
@@ -48,16 +50,17 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             this.boardDTO = new BoardDAL(boardID, boardName, creator, 0);
             this.BoardID = boardID;
             this.BoardName = boardName;
-            this.Owner = creator;
+            this._owner = creator;
             this.members = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { creator };
             this.nextTaskID = 0;
+
+
+            boardDTO.Persist();
 
             this.columns = new List<ColumnBL>();
             CreateColumn(BacklogColumnName);
             CreateColumn(InProgressColumnName);
             CreateColumn(DoneColumnName);
-
-            boardDTO.Persist();
         }
 
         /// <summary>
@@ -69,7 +72,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             this.boardDTO = boardDTO;
             this.BoardID = boardDTO.BoardID;
             this.BoardName = boardDTO.BoardName;
-            this.Owner = boardDTO.Owner;
+            this._owner = boardDTO.Owner;
             this.members = boardDTO.Members;
             this.nextTaskID = boardDTO.NextTaskID;
             this.columns = boardDTO.Columns.ConvertAll(columnDTO => new ColumnBL(columnDTO));
@@ -116,6 +119,17 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
                 throw new KanbanValidationException(message);
             }
 
+            UnassignMemberTasks(email);
+
+            members.Remove(email);
+        }
+
+        /// <summary>
+        /// Unassigns member from all of his assigned tasks that are not done.
+        /// </summary>
+        /// <param name="email">The email of the user to unassign from all the tasks</param>
+        private void UnassignMemberTasks(string email)
+        {
             for (int i = 0; i < columns.Count; i++)
             {
                 if (i == DoneColumnIndex)
@@ -125,7 +139,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
 
                 foreach (TaskBL task in columns[i].GetTasks())
                 {
-                    if (task.Assignee.Equals(email, StringComparison.OrdinalIgnoreCase))
+                    if (email.Equals(task.Assignee, StringComparison.OrdinalIgnoreCase))
                     {
                         task.Assignee = null;
                     }
@@ -153,6 +167,13 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             if (!this.members.Contains(newOwnerEmail))
             {
                 string message = $"Cannot transfer ownership of board '{BoardName}' to user '{newOwnerEmail}' because they have not joined the board.";
+                log.Warn(message);
+                throw new KanbanValidationException(message);
+            }
+
+            if (currentOwnerEmail.Equals(newOwnerEmail, StringComparison.OrdinalIgnoreCase))
+            {
+                string message = $"Cannot transfer ownership of board '{BoardName}' to the same user.";
                 log.Warn(message);
                 throw new KanbanValidationException(message);
             }
@@ -230,14 +251,22 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <summary>
         /// Creates and adds a new task to the board. 
         /// </summary>
+        /// <param name="email">The email of the user trying to add a task</param>
         /// <param name="title">The title of the new task.</param>
         /// <param name="dueDate">The deadline/due date for the task.</param>
         /// <param name="description">A detailed description of the task.</param>
         /// <returns>The newly created <see cref="TaskBL"/> object.</returns>
-        public TaskBL AddTask(string title, DateTime dueDate, string description)
+        public TaskBL AddTask(string email, string title, DateTime dueDate, string description)
         {
+            if (!members.Contains(email))
+            {
+                string message = $"Cannot add task because the given user isn't a member of the board.";
+                log.Warn(message);
+                throw new KanbanAuthenticationException(message);
+            }
             TaskBL newTask = new TaskBL(nextTaskID, title, dueDate, description);
             nextTaskID++;
+            boardDTO.NextTaskID = nextTaskID;
 
             columns[BacklogColumnIndex].AddTask(newTask);
 
@@ -362,6 +391,12 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
                 string message = $"Cannot assign task '{taskID}' in the board '{BoardName}' in column {columnIndex} to user '{newAssignee}' because they are not a member of the board.";
                 log.Warn(message);
                 throw new KanbanAuthenticationException(message);
+            }
+            if (assigner.Equals(newAssignee, StringComparison.OrdinalIgnoreCase))
+            {
+                string message = $"Cannot transfer ownership of board '{BoardName}' to the same user.";
+                log.Warn(message);
+                throw new KanbanValidationException(message);
             }
 
             TaskBL taskToAssign = columns[columnIndex].GetTask(taskID);

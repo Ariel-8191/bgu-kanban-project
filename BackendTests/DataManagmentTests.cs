@@ -20,6 +20,7 @@ namespace BackendTests
         private void SetUp()
         {
             _serviceFactory = new ServiceFactory();
+            _serviceFactory.DeleteData();
             _userService = _serviceFactory.UserService;
             _boardService = _serviceFactory.BoardService;
         }
@@ -30,6 +31,7 @@ namespace BackendTests
 
         /// <summary>
         /// Tests that data is successfully loaded from the persistent storage after a system restart.
+        /// Requirement 27
         /// </summary>
         /// <returns>Returns true if the test passed, false otherwise.</returns>
         public bool LoadData_ValidData_Success()
@@ -65,6 +67,7 @@ namespace BackendTests
 
         /// <summary>
         /// Tests that deleting data completely wipes the database and resets the system state.
+        /// Requirement 27
         /// </summary>
         /// <returns>Returns true if the test passed, false otherwise.</returns>
         public bool DeleteData_ClearsAllData_Success()

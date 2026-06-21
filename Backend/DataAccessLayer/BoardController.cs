@@ -21,7 +21,7 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
         private const int nameColumnIndex = 1;
         private const string ownerColumnName = "Owner";
         private const int ownerColumnIndex = 2;
-        private const string nextTaskIdColumnName = "next_task_id";
+        private const string nextTaskIdColumnName = "nextTaskID";
         private const int nextTaskIdColumnIndex = 3;
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
         public BoardController()
         {
             string path = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "kanban.db"));
-            this.connectionString = $"Data Source={path};Version=3;";
+            this.connectionString = $"Data Source={path};Version=3;Foreign Keys=True;";
         }
 
         /// <summary>
@@ -249,7 +249,7 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
             string owner = reader.GetString(ownerColumnIndex);
             long nextTaskID = reader.GetInt64(nextTaskIdColumnIndex);
 
-            return new BoardDAL(id, name, owner, nextTaskID);
+            return new BoardDAL(id, name, owner, nextTaskID, true);
         }
     }
 }
