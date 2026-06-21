@@ -110,7 +110,8 @@ namespace BackendTests
         public bool AddTask_BacklogIsFull_Failure()
         {
             SetUp();
-            _boardService.LimitTasksInColumn(_testEmail, _testBoardName, 0, 0);
+            _boardService.LimitTasksInColumn(_testEmail, _testBoardName, 0, 1);
+            _taskService.AddTask(_testEmail, _testBoardName, "First Task", DateTime.Now.AddDays(1), "First Description");
             string jsonResponse = _taskService.AddTask(_testEmail, _testBoardName, "Title", DateTime.Now.AddDays(1), "Something");
             Response<TaskSL> response = JsonSerializer.Deserialize<Response<TaskSL>>(jsonResponse)!;
             return !string.IsNullOrEmpty(response.ErrorMessage);
@@ -131,6 +132,7 @@ namespace BackendTests
             SetUp();
             string taskJson = _taskService.AddTask(_testEmail, _testBoardName, "Initial Title", DateTime.Now.AddDays(1), "Initial Desc");
             TaskSL task = JsonSerializer.Deserialize<Response<TaskSL>>(taskJson)!.ReturnValue!;
+            _taskService.AssignTask(_testEmail, _testBoardName, 0, (int)task.TaskID, _testEmail);
 
             string editJson = _taskService.EditTask(_testEmail, _testBoardName, 0, task.TaskID, "New Title", DateTime.Now.AddDays(2), "New Desc");
             Response<TaskSL> response = JsonSerializer.Deserialize<Response<TaskSL>>(editJson)!;
@@ -148,6 +150,7 @@ namespace BackendTests
             string taskJson = _taskService.AddTask(_testEmail, _testBoardName, "Initial Title", DateTime.Now.AddDays(1), "Initial Desc");
             TaskSL task = JsonSerializer.Deserialize<Response<TaskSL>>(taskJson)!.ReturnValue!;
 
+            _taskService.AssignTask(_testEmail, _testBoardName, 0, (int)task.TaskID, _testEmail);
             _taskService.AdvanceTask(_testEmail, _testBoardName, 0, task.TaskID);
             _taskService.AdvanceTask(_testEmail, _testBoardName, 1, task.TaskID);
 
@@ -167,6 +170,7 @@ namespace BackendTests
             SetUp();
             string taskJson = _taskService.AddTask(_testEmail, _testBoardName, "Initial Title", DateTime.Now.AddDays(1), "Initial Description");
             TaskSL task = JsonSerializer.Deserialize<Response<TaskSL>>(taskJson)!.ReturnValue!;
+            _taskService.AssignTask(_testEmail, _testBoardName, 0, (int)task.TaskID, _testEmail);
             _userService.Logout(_testEmail);
             string jsonResponse = _taskService.EditTask(_testEmail, _testBoardName, 0, task.TaskID, "Other Title", DateTime.Now.AddDays(2), "Other Description");
             Response<TaskSL> response = JsonSerializer.Deserialize<Response<TaskSL>>(jsonResponse)!;
@@ -200,6 +204,7 @@ namespace BackendTests
             SetUp();
             string taskJson = _taskService.AddTask(_testEmail, _testBoardName, "Title", DateTime.Now.AddDays(1), "Desc");
             TaskSL task = JsonSerializer.Deserialize<Response<TaskSL>>(taskJson)!.ReturnValue!;
+            _taskService.AssignTask(_testEmail, _testBoardName, 0, (int)task.TaskID, _testEmail);
 
             string advanceJson = _taskService.AdvanceTask(_testEmail, _testBoardName, 0, task.TaskID);
             Response<TaskSL> response = JsonSerializer.Deserialize<Response<TaskSL>>(advanceJson)!;
@@ -216,6 +221,7 @@ namespace BackendTests
             SetUp();
             string taskJson = _taskService.AddTask(_testEmail, _testBoardName, "Title", DateTime.Now.AddDays(1), "Desc");
             TaskSL task = JsonSerializer.Deserialize<Response<TaskSL>>(taskJson)!.ReturnValue!;
+            _taskService.AssignTask(_testEmail, _testBoardName, 0, (int)task.TaskID, _testEmail);
 
             _taskService.AdvanceTask(_testEmail, _testBoardName, 0, task.TaskID);
             _taskService.AdvanceTask(_testEmail, _testBoardName, 1, task.TaskID);
@@ -249,6 +255,7 @@ namespace BackendTests
             SetUp();
             string taskJson = _taskService.AddTask(_testEmail, _testBoardName, "Title", DateTime.Now.AddDays(1), "Desc");
             TaskSL task = JsonSerializer.Deserialize<Response<TaskSL>>(taskJson)!.ReturnValue!;
+            _taskService.AssignTask(_testEmail, _testBoardName, 0, (int)task.TaskID, _testEmail);
 
             string advanceJson = _taskService.AdvanceTask(_testEmail, _testBoardName, 5, task.TaskID);
             Response<TaskSL> response = JsonSerializer.Deserialize<Response<TaskSL>>(advanceJson)!;
@@ -265,6 +272,7 @@ namespace BackendTests
             SetUp();
             string taskJson = _taskService.AddTask(_testEmail, _testBoardName, "Title", DateTime.Now.AddDays(1), "Desc");
             TaskSL task = JsonSerializer.Deserialize<Response<TaskSL>>(taskJson)!.ReturnValue!;
+            _taskService.AssignTask(_testEmail, _testBoardName, 0, (int)task.TaskID, _testEmail);
 
             _userService.Logout(_testEmail);
 
@@ -281,10 +289,18 @@ namespace BackendTests
         public bool AdvanceTask_NextColumnIsFull_Failure()
         {
             SetUp();
+
             string taskJson = _taskService.AddTask(_testEmail, _testBoardName, "Title", DateTime.Now.AddDays(1), "Desc");
             TaskSL task = JsonSerializer.Deserialize<Response<TaskSL>>(taskJson)!.ReturnValue!;
+            _taskService.AssignTask(_testEmail, _testBoardName, 0, (int)task.TaskID, _testEmail);
 
-            _boardService.LimitTasksInColumn(_testEmail, _testBoardName, 1, 0);
+            string task2Json = _taskService.AddTask(_testEmail, _testBoardName, "Title2", DateTime.Now.AddDays(1), "Desc");
+            TaskSL task2 = JsonSerializer.Deserialize<Response<TaskSL>>(task2Json)!.ReturnValue!;
+            _taskService.AssignTask(_testEmail, _testBoardName, 0, (int)task2.TaskID, _testEmail);
+            _taskService.AdvanceTask(_testEmail, _testBoardName, 0, task2.TaskID);
+
+            _boardService.LimitTasksInColumn(_testEmail, _testBoardName, 1, 1);
+
             string advanceJson = _taskService.AdvanceTask(_testEmail, _testBoardName, 0, task.TaskID);
             Response<TaskSL> response = JsonSerializer.Deserialize<Response<TaskSL>>(advanceJson)!;
             return !string.IsNullOrEmpty(response.ErrorMessage);

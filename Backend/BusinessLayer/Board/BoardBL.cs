@@ -49,16 +49,17 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             this.boardDTO = new BoardDAL(boardID, boardName, creator, 0);
             this.BoardID = boardID;
             this.BoardName = boardName;
-            this.Owner = creator;
+            this._owner = creator;
             this.members = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { creator };
             this.nextTaskID = 0;
+
+
+            boardDTO.Persist();
 
             this.columns = new List<ColumnBL>();
             CreateColumn(BacklogColumnName);
             CreateColumn(InProgressColumnName);
             CreateColumn(DoneColumnName);
-
-            boardDTO.Persist();
         }
 
         /// <summary>
@@ -70,7 +71,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             this.boardDTO = boardDTO;
             this.BoardID = boardDTO.BoardID;
             this.BoardName = boardDTO.BoardName;
-            this.Owner = boardDTO.Owner;
+            this._owner = boardDTO.Owner;
             this.members = boardDTO.Members;
             this.nextTaskID = boardDTO.NextTaskID;
             this.columns = boardDTO.Columns.ConvertAll(columnDTO => new ColumnBL(columnDTO));
@@ -250,6 +251,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         {
             TaskBL newTask = new TaskBL(nextTaskID, title, dueDate, description);
             nextTaskID++;
+            boardDTO.NextTaskID = nextTaskID;
 
             columns[BacklogColumnIndex].AddTask(newTask);
 
