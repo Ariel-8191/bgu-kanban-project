@@ -392,12 +392,6 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
                 log.Warn(message);
                 throw new KanbanAuthenticationException(message);
             }
-            if (assigner.Equals(newAssignee, StringComparison.OrdinalIgnoreCase))
-            {
-                string message = $"Cannot transfer ownership of board '{BoardName}' to the same user.";
-                log.Warn(message);
-                throw new KanbanValidationException(message);
-            }
 
             TaskBL taskToAssign = columns[columnIndex].GetTask(taskID);
             string currentAssignee = taskToAssign.Assignee;
