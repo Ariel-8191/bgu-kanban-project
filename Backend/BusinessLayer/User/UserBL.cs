@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
+using IntroSE.Kanban.Backend.DataAccessLayer;
 
 namespace IntroSE.Kanban.Backend.BusinessLayer.User
 {
@@ -15,8 +16,18 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.User
         private const int minPasswordLength = 6;
         private const int maxPasswordLength = 20;
 
-        public string Email { get; }
 
+        private UserDAL userDTO;
+
+        private string _email;
+        public string Email {
+            get => _email; 
+            set
+            {
+                ValidateEmailStructure(value);
+                _email = value;
+            }
+        }
         private string _password;
         private string Password
         {
@@ -35,9 +46,21 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.User
         /// <param name="password">The password for the user.</param>
         public UserBL(string email, string password)
         {
-            ValidateEmailStructure(email);
+            this.userDTO = new UserDAL(email, password);
             this.Email = email;
             this.Password = password;
+            userDTO.Persist();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UserBL"/> class using an existing <see cref="UserDAL"/> object.
+        /// </summary>
+        /// <param name="userDTO">The data access layer object representing the user.</param>
+        public UserBL(UserDAL userDTO)
+        {
+            this.userDTO = userDTO;
+            this.Email = userDTO.Email;
+            this.Password = userDTO.Password;
         }
 
         /// <summary>
