@@ -1,9 +1,8 @@
 ﻿using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
-using IntroSE.Kanban.Backend.ServiceLayer;
+using IntroSE.Kanban.Backend.DataAccessLayer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 
 namespace IntroSE.Kanban.Backend.BusinessLayer.Board
 {
@@ -29,6 +28,41 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             this.boardsByID = new Dictionary<long, BoardBL>();
             this.authenticationFacade = authenticationFacade;
             this.nextBoardID = 0;
+        }
+
+        /// <summary>
+        /// Loads all boards from the database.
+        /// </summary>
+        public void LoadBoards()
+        {
+            List<BoardDAL> boardDTOs = new BoardController().SelectAll();
+            foreach (BoardDAL boardDTO in boardDTOs)
+            {
+                BoardBL board = new BoardBL(boardDTO);
+                boardsByID.Add(board.BoardID, board);
+                foreach (string memberEmail in board.members)
+                {
+                    if (!boardsByUser.TryGetValue(memberEmail, out Dictionary<string, BoardBL> userBoards))
+                    {
+                        userBoards = new Dictionary<string, BoardBL>(StringComparer.OrdinalIgnoreCase);
+                        boardsByUser.Add(memberEmail, userBoards);
+                    }
+                    userBoards.Add(board.BoardName, board);
+                }
+            }
+
+            nextBoardID = new BoardController().GetNextAvailableBoardID();
+        }
+
+        /// <summary>
+        /// Deletes all boards from the database and clears the in-memory collections.
+        /// </summary>
+        public void DeleteBoards()
+        {
+            new BoardController().DeleteAll();
+            boardsByUser.Clear();
+            boardsByID.Clear();
+            nextBoardID = 0;
         }
 
         /// <summary>
@@ -130,7 +164,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
                 log.Warn(message);
                 throw new KanbanNotFoundException(message);
             }
-    
+
             return foundBoard;
         }
 
@@ -143,6 +177,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         public BoardBL DeleteBoard(string email, string boardName)
         {
             BoardBL board = GetBoard(email, boardName);
+            new BoardController().Delete(board.BoardID);
             boardsByUser[email].Remove(boardName); // the call to 'GetBoard' in the previous line ensures the input is valid
 
             // If the user doesn't have any boards after the deletion, don't store an empty dictionary
@@ -185,7 +220,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
                     throw new KanbanConflictException(message);
                 }
             }
-            else 
+            else
             {
                 userBoards = new Dictionary<string, BoardBL>(StringComparer.OrdinalIgnoreCase);
                 boardsByUser.Add(email, userBoards);
@@ -228,7 +263,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             board.RemoveMember(email);
             userBoards.Remove(board.BoardName);
 
-            if(userBoards.Count == 0)
+            if (userBoards.Count == 0)
             {
                 boardsByUser.Remove(email);
             }

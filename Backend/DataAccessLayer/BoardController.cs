@@ -68,7 +68,7 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
         /// Deletes a specific board record from the database.
         /// </summary>
         /// <param name="board">The board data access object to delete.</param>
-        public void Delete(BoardDAL board)
+        public void Delete(long boardID)
         {
             try
             {
@@ -78,15 +78,15 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
                     string commandText = $"DELETE FROM {boardTableName} WHERE {idColumnName} = @BoardID";
                     using (SQLiteCommand command = new SQLiteCommand(commandText, connection))
                     {
-                        command.Parameters.AddWithValue("@BoardID", board.BoardID);
+                        command.Parameters.AddWithValue("@BoardID", boardID);
                         command.ExecuteNonQuery();
                     }
                 }
-                log.Info($"Successfully deleted board ID {board.BoardID} from the database.");
+                log.Info($"Successfully deleted board ID {boardID} from the database.");
             }
             catch (SQLiteException)
             {
-                string message = $"Failed to delete board ID {board.BoardID} from the database.";
+                string message = $"Failed to delete board ID {boardID} from the database.";
                 log.Error(message);
                 throw new DataException(message);
             }

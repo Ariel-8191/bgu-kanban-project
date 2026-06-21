@@ -1,4 +1,6 @@
-﻿using System;
+﻿using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
+using IntroSE.Kanban.Backend.DataAccessLayer;
+using System;
 using System.Collections.Generic;
 using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
 
@@ -18,10 +20,21 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         internal const string InProgressColumnName = "in progress";
         internal const string DoneColumnName = "done";
 
+        private BoardDAL boardDTO;
+
         public long BoardID { get; }
         public string BoardName { get; }
-        private string owner;
-        private HashSet<string> members;
+        private string _owner;
+        private string Owner
+        {
+            get => _owner;
+            set
+            {
+                boardDTO.Owner = value;
+                _owner = value;
+            }
+        }
+        internal HashSet<string> members;
         private List<ColumnBL> columns;
         private long nextTaskID;
 
@@ -33,16 +46,46 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <param name="creator">The email address of the user who created the board.</param>
         public BoardBL(long boardID, string boardName, string creator)
         {
+            this.boardDTO = new BoardDAL(boardID, boardName, creator, 0);
             this.BoardID = boardID;
             this.BoardName = boardName;
-            this.owner = creator;
+            this.Owner = creator;
             this.members = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { creator };
             this.nextTaskID = 0;
 
             this.columns = new List<ColumnBL>();
-            columns.Add(new ColumnBL(BacklogColumnName));
-            columns.Add(new ColumnBL(InProgressColumnName));
-            columns.Add(new ColumnBL(DoneColumnName));
+            CreateColumn(BacklogColumnName);
+            CreateColumn(InProgressColumnName);
+            CreateColumn(DoneColumnName);
+
+            boardDTO.Persist();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BoardBL"/> class using an existing <see cref="BoardDAL"/> object.
+        /// </summary>
+        /// <param name="boardDTO">The data access layer object representing the existing board.</param>
+        public BoardBL(BoardDAL boardDTO)
+        {
+            this.boardDTO = boardDTO;
+            this.BoardID = boardDTO.BoardID;
+            this.BoardName = boardDTO.BoardName;
+            this.Owner = boardDTO.Owner;
+            this.members = boardDTO.Members;
+            this.nextTaskID = boardDTO.NextTaskID;
+            this.columns = boardDTO.Columns.ConvertAll(columnDTO => new ColumnBL(columnDTO));
+        }
+
+        /// <summary>
+        /// Creates a new column with the specified name and adds it to the board. The new column is also persisted in the data access layer.
+        /// </summary>
+        /// <param name="name">The name of the column to create.</param>
+        private void CreateColumn(string name)
+        {
+            ColumnBL column = new ColumnBL(name);
+            int columnIndex = columns.Count;
+            boardDTO.CreateColumn(columnIndex, column.columnDTO);
+            columns.Add(column);
         }
 
         /// <summary>
@@ -50,7 +93,8 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// </summary>
         /// <param name="email">The email of the user to add</param>
         public void AddMember(string email)
-        {        
+        {
+            boardDTO.AddMember(email);
             members.Add(email);
         }
 
@@ -66,7 +110,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
                 log.Warn(message);
                 throw new KanbanNotFoundException(message);
             }
-            if (owner.Equals(email, StringComparison.OrdinalIgnoreCase))
+            if (Owner.Equals(email, StringComparison.OrdinalIgnoreCase))
             {
                 string message = $"Can't remove a user from '{BoardName}' because user '{email}' is the owner of the board.";
                 log.Warn(message);
@@ -99,6 +143,9 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
                     }
                 }
             }
+
+            boardDTO.RemoveMember(email);
+            members.Remove(email);
         }
 
         /// <summary>
@@ -108,7 +155,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <param name="newOwnerEmail">The email of the new owner.</param>
         public void TransferOwnership(string currentOwnerEmail, string newOwnerEmail)
         {
-            if (!this.owner.Equals(currentOwnerEmail, StringComparison.OrdinalIgnoreCase))
+            if (!this.Owner.Equals(currentOwnerEmail, StringComparison.OrdinalIgnoreCase))
             {
                 string message = $"Cannot transfer ownership of board '{BoardName}' because user '{currentOwnerEmail}' is not the owner.";
                 log.Warn(message);
@@ -122,7 +169,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
                 throw new KanbanValidationException(message);
             }
 
-            this.owner = newOwnerEmail;
+            this.Owner = newOwnerEmail;
         }
 
         /// <summary>
@@ -240,7 +287,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
                 log.Warn(message);
                 throw new KanbanInvalidStateException(message);
             }
-            if (!email.Equals(taskToEdit.Assignee, StringComparison.OrdinalIgnoreCase) && !email.Equals(owner, StringComparison.OrdinalIgnoreCase))
+            if (!email.Equals(taskToEdit.Assignee, StringComparison.OrdinalIgnoreCase) && !email.Equals(Owner, StringComparison.OrdinalIgnoreCase))
             {
                 string message = $"Cannot edit task '{taskID}' in the board '{BoardName}' because the user '{email}' is neither the assignee nor the owner.";
                 log.Warn(message);
@@ -289,7 +336,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             }
 
             // Adding the task to the next column before removing it from the current one ensures that the task won't disapper if the next column is full
-            columns[columnIndex+1].AddTask(taskToAdvance);
+            columns[columnIndex + 1].AddTask(taskToAdvance);
             columns[columnIndex].RemoveTask(taskToAdvance);
             return taskToAdvance;
         }
@@ -333,7 +380,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             string currentAssignee = taskToAssign.Assignee;
 
             // If the task is unassigned OR the user trying to assign is the current assignee OR the user trying to assign is the owner of the board, allow the assignment
-            if (currentAssignee == null || assigner.Equals(currentAssignee, StringComparison.OrdinalIgnoreCase) || assigner.Equals(owner, StringComparison.OrdinalIgnoreCase))
+            if (currentAssignee == null || assigner.Equals(currentAssignee, StringComparison.OrdinalIgnoreCase) || assigner.Equals(Owner, StringComparison.OrdinalIgnoreCase))
             {
                 taskToAssign.Assignee = newAssignee;
                 return taskToAssign;
