@@ -105,12 +105,27 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.User
                 log.Warn(message);
                 throw new KanbanValidationException(message);
             }
-
-            string emailPattern = @"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$";
+            string emailPattern = @"^[a-zA-Z0-9_+&-]+(?:\.[a-zA-Z0-9_+&-]+)*@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$";
 
             if (!Regex.IsMatch(email, emailPattern))
             {
                 string message = "Email must have a valid email structure.";
+                log.Warn(message);
+                throw new KanbanValidationException(message);
+            }
+
+            try
+            {
+                var mailAddress = new System.Net.Mail.MailAddress(email);
+
+                if (mailAddress.Address != email.Trim())
+                {
+                    throw new FormatException("Email format is invalid or contains a display name.");
+                }
+            }
+            catch (FormatException)
+            {
+                string message = $"Email must have a valid RFC 5322 structure. Attempted email: {email}";
                 log.Warn(message);
                 throw new KanbanValidationException(message);
             }
