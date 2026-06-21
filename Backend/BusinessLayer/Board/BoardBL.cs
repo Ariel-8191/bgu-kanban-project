@@ -73,6 +73,17 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
                 throw new KanbanValidationException(message);
             }
 
+            UnassignMemberTasks(email);
+
+            members.Remove(email);
+        }
+
+        /// <summary>
+        /// Unassigns member from all of his assigned tasks that are not done.
+        /// </summary>
+        /// <param name="email">The email of the user to unassign from all the tasks</param>
+        private void UnassignMemberTasks(string email)
+        {
             for (int i = 0; i < columns.Count; i++)
             {
                 if (i == DoneColumnIndex)
@@ -84,12 +95,10 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
                 {
                     if (task.Assignee.Equals(email, StringComparison.OrdinalIgnoreCase))
                     {
-                        task.Assignee = null; 
+                        task.Assignee = null;
                     }
                 }
             }
-
-            members.Remove(email);
         }
 
         /// <summary>
