@@ -25,6 +25,12 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
                     log.Warn(message);
                     throw new KanbanValidationException(message);
                 }
+                if (value == 0)
+                {
+                    string message = $"Cannot set new task limit in column '{Name}' because the value 0 is illegal.";
+                    log.Warn(message);
+                    throw new KanbanValidationException(message);
+                }
                 if (tasks.Count > value)
                 {
                     string message = $"Cannot set new task limit in column '{Name}' because the given limit ({value}) is lower than current task count ({tasks.Count}).";
