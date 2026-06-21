@@ -127,10 +127,10 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
         /// </summary>
         ///<param name="boardID">The ID of the board to which the tasks belong.</param>
         ///<param name="columnIndex">The index of the column for which to retrieve tasks.</param>
-        ///<returns>A dictionary mapping task IDs to their corresponding <see cref="TaskDAL"/> objects.</returns>
-        public Dictionary<long, TaskDAL> SelectColumnTasks(long boardID, int columnIndex)
+        ///<returns>A list of <see cref="TaskDAL"/> objects.</returns>
+        public List<TaskDAL> SelectColumnTasks(long boardID, int columnIndex)
         {
-            Dictionary<long, TaskDAL> tasks = new Dictionary<long, TaskDAL>();
+            List<TaskDAL> tasks = new List<TaskDAL>();
             try
             {
                 using (SQLiteConnection connection = new SQLiteConnection(connectionString))
@@ -145,8 +145,7 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
                         {
                             while (reader.Read())
                             {
-                                TaskDAL task = ConvertReaderToTask(reader);
-                                tasks.Add(task.TaskID, task);
+                                tasks.Add(ConvertReaderToTask(reader));
                             }
                         }
                     }

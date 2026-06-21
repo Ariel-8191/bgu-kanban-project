@@ -77,10 +77,10 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
         /// <param name="taskID">The unique identifier of the task.</param>
         /// <param name="creationTime">The creation time of the task.</param>
         /// <param name="title">The title of the task.</param>
-        /// <param name="description">The description of the task.</param>
         /// <param name="dueDate">The due date of the task.</param>
+        /// <param name="description">The description of the task.</param>
         /// <param name="assignee">The assignee of the task.</param>
-        public TaskDAL(long taskID, DateTime creationTime, string title, string description, DateTime dueDate, string assignee)
+        public TaskDAL(long taskID, DateTime creationTime, string title, DateTime dueDate, string description, string assignee)
         {
             this.taskController = new TaskController();
             this.isPersisted = false;
@@ -104,7 +104,7 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
         /// <param name="boardID">The unique identifier of the board to which the task belongs.</param>
         /// <param name="columnIndex">The index of the column to which the task belongs.</param>
         internal TaskDAL(long taskID, DateTime creationTime, string title, string description, DateTime dueDate, string assignee, long boardID, int columnIndex)
-            : this(taskID, creationTime, title, description, dueDate, assignee)
+            : this(taskID, creationTime, title, dueDate, description, assignee)
         {
             this.boardID = boardID;
             this.columnIndex = columnIndex;

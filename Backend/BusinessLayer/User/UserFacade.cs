@@ -39,6 +39,15 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.User
         }
 
         /// <summary>
+        /// Deletes all users from the system and clears the internal user collection.
+        /// </summary>
+        public void DeleteUsers()
+        {
+            new UserController().DeleteAll();
+            users.Clear();
+        }
+
+        /// <summary>
         /// Registers a new user in the system.
         /// </summary>
         /// <param name="email">The email address of the new user.</param>
