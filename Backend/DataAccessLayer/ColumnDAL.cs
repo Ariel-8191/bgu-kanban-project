@@ -95,7 +95,7 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
         /// <param name="task">The task data access object to add.</param>
         public void AddTask(TaskDAL task)
         {
-            taskController.Insert(boardID.Value, columnIndex.Value, this);
+            taskController.Insert(boardID.Value, columnIndex.Value, task);
         }
 
         /// <summary>
