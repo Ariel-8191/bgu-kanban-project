@@ -66,12 +66,12 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
         /// <param name="boardName">The display name of the board.</param>
         /// <param name="owner">The email address of the user who owns the board.</param>
         /// <param name="NextTaskID">The next available task ID in the board.</param>
-        public BoardDAL(long boardID, string boardName, string owner, long NextTaskID)
+        public BoardDAL(long boardID, string boardName, string owner, long NextTaskID, bool isPersisted = false)
         {
             this.boardController = new BoardController();
             this.boardsUsersController = new BoardsUsersController();
             this.columnController = new ColumnController();
-            this.isPersisted = false;
+            this.isPersisted = isPersisted;
 
             this.BoardID = boardID;
             this.BoardName = boardName;
