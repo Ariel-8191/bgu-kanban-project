@@ -108,6 +108,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             }
 
             BoardBL newBoard = new BoardBL(nextBoardID, boardName, email);
+            boardsByID.Add(newBoard.BoardID, newBoard);
             userBoards.Add(boardName, newBoard);
             nextBoardID++;
             return newBoard;
@@ -178,13 +179,20 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         {
             BoardBL board = GetBoard(email, boardName);
             new BoardController().Delete(board.BoardID);
-            boardsByUser[email].Remove(boardName); // the call to 'GetBoard' in the previous line ensures the input is valid
 
-            // If the user doesn't have any boards after the deletion, don't store an empty dictionary
-            if (boardsByUser[email].Count == 0)
+            foreach (string memberEmail in board.members)
             {
-                boardsByUser.Remove(email);
+                if (boardsByUser.TryGetValue(memberEmail, out Dictionary<string, BoardBL> userBoards))
+                {
+                    userBoards.Remove(boardName);
+                    if (userBoards.Count == 0)
+                    {
+                        boardsByUser.Remove(memberEmail);
+                    }
+                }
             }
+            boardsByID.Remove(board.BoardID);
+
             return board;
         }
 

@@ -38,7 +38,7 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
         public TaskController()
         {
             string path = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "kanban.db"));
-            this.connectionString = $"Data Source={path};Version=3;";
+            this.connectionString = $"Data Source={path};Version=3;Foreign Keys=True;";
         }
 
         /// <summary>

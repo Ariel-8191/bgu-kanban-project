@@ -75,8 +75,8 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
 
             this.BoardID = boardID;
             this.BoardName = boardName;
-            this.Owner = owner;
-            this.NextTaskID = NextTaskID;
+            this._owner = owner;
+            this._nextTaskID = NextTaskID;
         }
 
         /// <summary>
