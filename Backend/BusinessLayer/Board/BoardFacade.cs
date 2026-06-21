@@ -237,6 +237,32 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         }
 
         /// <summary>
+        /// Transfers a board's ownership to another member.
+        /// </summary>
+        /// <param name="currentOwnerEmail">Email of the current owner. Must be logged in.</param>
+        /// <param name="newOwnerEmail">Email of the new owner.</param>
+        /// <param name="boardName">The name of the board.</param>
+        public void TransferOwnership(string currentOwnerEmail, string newOwnerEmail, string boardName)
+        {
+            if (currentOwnerEmail == null)
+            {
+                string message = $"Cannot transfer ownership of board '{boardName}' because an email is null.";
+                log.Warn(message);
+                throw new KanbanValidationException(message);
+            }
+
+            if (!authenticationFacade.IsLoggedIn(currentOwnerEmail))
+            {
+                string message = $"Cannot transfer ownership of board '{boardName}' because the user '{currentOwnerEmail}' is not currently logged in.";
+                log.Warn(message);
+                throw new KanbanAuthenticationException(message);
+            }
+
+            BoardBL board = GetBoard(currentOwnerEmail, boardName);
+            board.TransferOwnership(currentOwnerEmail, newOwnerEmail);
+        }
+
+        /// <summary>
         /// Retrieves all the boards a specific user is a member of.
         /// </summary>
         /// <param name="email">The email address of the user.</param>
