@@ -129,7 +129,7 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
         {
             string email = reader.GetString(emailColumnIndex);
             string password = reader.GetString(passwordColumnIndex);
-            return new UserDAL(email, password);
+            return new UserDAL(email, password, true);
         }
     }
 }
