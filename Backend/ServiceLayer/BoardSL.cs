@@ -8,6 +8,8 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
     public class BoardSL
     {
         public string BoardName { get; set; }
+        public long BoardID { get; set; }
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BoardSL"/> class.
@@ -16,6 +18,7 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         internal BoardSL(BoardBL boardBL)
         {
             this.BoardName = boardBL.BoardName;
+            this.BoardID = boardBL.BoardID;
         }
 
         // Required by System.Text.Json for deserialization

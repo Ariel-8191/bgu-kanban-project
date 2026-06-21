@@ -13,6 +13,7 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         public string Title { get; set; }
         public DateTime DueDate { get; set; }
         public string Description { get; set; }
+        public string Assignee {  get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskSL"/> class.
@@ -25,6 +26,7 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
             this.Title = taskBL.Title;
             this.DueDate = taskBL.DueDate;
             this.Description = taskBL.Description;
+            this.Assignee = taskBL.Assignee;
         }
 
         // Required by System.Text.Json for deserialization
