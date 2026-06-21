@@ -55,6 +55,17 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         }
 
         /// <summary>
+        /// Deletes all boards from the database and clears the in-memory collections.
+        /// </summary>
+        public void DeleteBoards()
+        {
+            new BoardController().DeleteAll();
+            boardsByUser.Clear();
+            boardsByID.Clear();
+            nextBoardID = 0;
+        }
+
+        /// <summary>
         /// Creates a new board for the specified user.
         /// </summary>
         /// <param name="email">The email address of the user creating the board.</param>
