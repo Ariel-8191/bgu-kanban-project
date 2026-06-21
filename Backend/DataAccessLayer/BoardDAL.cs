@@ -103,19 +103,19 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
         /// <summary>
         /// Adds a user as a member to this board and updates the database.
         /// </summary>
-        /// <param name="user">The <see cref="UserDAL"/> instance representing the user to add.</param>
-        public void AddMember(UserDAL user)
+        /// <param name="email">The email address of the user to add as a member.</param>
+        public void AddMember(string email)
         {
-            boardsUsersController.Insert(BoardID, user.Email);
+            boardsUsersController.Insert(BoardID, email);
         }
 
         /// <summary>
         /// Removes a user from this board's members and deletes the database.
         /// </summary>
-        /// <param name="user">The <see cref="UserDAL"/> instance representing the user to remove.</param>
-        public void removeMember(UserDAL user)
+        /// <param name="email">The email address of the user to remove from the board.</param>
+        public void RemoveMember(string email)
         {
-            boardsUsersController.Delete(BoardID, user.Email);
+            boardsUsersController.Delete(BoardID, email);
         }
     }
 }
