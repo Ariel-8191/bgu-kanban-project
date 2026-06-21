@@ -54,6 +54,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
                     throw new KanbanValidationException(message);
                 }
 
+                taskDTO.DueDate = value;
                 _dueDate = value;
             }
         }
@@ -113,10 +114,11 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             this.taskDTO = taskDTO;
             this.TaskID = taskDTO.TaskID;
             this.CreationTime = taskDTO.CreationTime;
-            this.Title = taskDTO.Title;
-            this.DueDate = taskDTO.DueDate;
-            this.Description = taskDTO.Description;
-            this.Assignee = taskDTO.Assignee;
+
+            this._title = taskDTO.Title;
+            this._dueDate = taskDTO.DueDate;
+            this._description = taskDTO.Description;
+            this._assignee = taskDTO.Assignee;
         }
 
         /// <summary>
