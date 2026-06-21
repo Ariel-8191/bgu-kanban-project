@@ -139,7 +139,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
 
                 foreach (TaskBL task in columns[i].GetTasks())
                 {
-                    if (task.Assignee.Equals(email, StringComparison.OrdinalIgnoreCase))
+                    if (email.Equals(task.Assignee, StringComparison.OrdinalIgnoreCase))
                     {
                         task.Assignee = null;
                     }
