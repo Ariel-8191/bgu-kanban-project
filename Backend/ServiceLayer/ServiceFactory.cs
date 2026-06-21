@@ -14,6 +14,8 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
     /// </summary>
     public class ServiceFactory
     {
+        private UserFacade userFacade;
+        private BoardFacade boardFacade;
         public UserService UserService { get; }
         public BoardService BoardService { get; }
         public TaskService TaskService { get; }
@@ -27,24 +29,26 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
             XmlConfigurator.Configure(logRepository, new FileInfo("log4net.config"));
 
             AuthenticationFacade authenticationFacade = new AuthenticationFacade();
-            UserFacade userFacade = new UserFacade(authenticationFacade);
-            BoardFacade boardFacade = new BoardFacade(authenticationFacade);
+            this.userFacade = new UserFacade(authenticationFacade);
+            this.boardFacade = new BoardFacade(authenticationFacade);
 
-            this.UserService = new UserService(userFacade);
-            this.BoardService = new BoardService(boardFacade);
-            this.TaskService = new TaskService(boardFacade);
+            this.UserService = new UserService(this.userFacade);
+            this.BoardService = new BoardService(this.boardFacade);
+            this.TaskService = new TaskService(this.boardFacade);
         }
 
         ///<summary>This method loads all persisted data.</summary>
         public void LoadData()
         {
-            throw new NotImplementedException();
+            this.userFacade.LoadUsers();
+            this.boardFacade.LoadBoards();
         }
 
         ///<summary>This method deletes all persisted data.</summary>
         public void DeleteData()
         {
-            throw new NotImplementedException();
+            this.userFacade.DeleteUsers();
+            this.boardFacade.DeleteBoards();
         }
     }
 }
