@@ -287,6 +287,7 @@ namespace BackendTests
 
         /// <summary>
         /// Tests that the owner of a board can successfully transfer ownership to another registered user.
+        /// Requirement 13
         /// </summary>
         /// <returns>Returns true if the test passed, false otherwise.</returns>
         public bool TransferOwnership_ValidTransfer_Success()
@@ -305,6 +306,7 @@ namespace BackendTests
 
         /// <summary>
         /// Tests the logic error where a user attempts to transfer ownership of a board while not logged in.
+        /// Requirement 26
         /// </summary>
         /// <returns>Returns true if the test passed, false otherwise.</returns>
         public bool TransferOwnership_UserNotLoggedIn_Failure()
@@ -324,6 +326,7 @@ namespace BackendTests
 
         /// <summary>
         /// Tests the logic error where a user attempts to transfer ownership to a user that does not exist.
+        /// Requirement 26
         /// </summary>
         /// <returns>Returns true if the test passed, false otherwise.</returns>
         public bool TransferOwnership_NewOwnerDoesNotExist_Failure()
@@ -340,6 +343,7 @@ namespace BackendTests
 
         /// <summary>
         /// Tests the logic error where a user attempts to transfer ownership of a board that does not exist.
+        /// Requirement 26
         /// </summary>
         /// <returns>Returns true if the test passed, false otherwise.</returns>
         public bool TransferOwnership_BoardDoesNotExist_Failure()
@@ -355,6 +359,7 @@ namespace BackendTests
 
         /// <summary>
         /// Tests the logic error where a user who is not the current owner attempts to transfer ownership.
+        /// Requirement 13 and 26
         /// </summary>
         /// <returns>Returns true if the test passed, false otherwise.</returns>
         public bool TransferOwnership_UserIsNotOwner_Failure()
@@ -382,6 +387,7 @@ namespace BackendTests
 
         /// <summary>
         /// Tests that the name of a board can be successfully retrieved using a valid board ID.
+        /// Requirement 4
         /// </summary>
         /// <returns>Returns true if the test passed, false otherwise.</returns>
         public bool GetBoardName_ValidId_Success()
@@ -399,6 +405,7 @@ namespace BackendTests
 
         /// <summary>
         /// Tests the logic error where a user attempts to get the name of a board ID that does not exist.
+        /// Requirement 26
         /// </summary>
         /// <returns>Returns true if the test passed, false otherwise.</returns>
         public bool GetBoardName_BoardDoesNotExist_Failure()
@@ -415,6 +422,7 @@ namespace BackendTests
 
         /// <summary>
         /// Tests that a logged-in user can successfully retrieve a list of their boards.
+        /// Requirement 1
         /// </summary>
         /// <returns>Returns true if the test passed, false otherwise.</returns>
         public bool GetUserBoards_ValidUser_Success()
@@ -430,6 +438,7 @@ namespace BackendTests
 
         /// <summary>
         /// Tests the logic error where a user attempts to retrieve their boards while not logged in.
+        /// Requirement 26
         /// </summary>
         /// <returns>Returns true if the test passed, false otherwise.</returns>
         public bool GetUserBoards_UserNotLoggedIn_Failure()
@@ -447,6 +456,7 @@ namespace BackendTests
 
         /// <summary>
         /// Tests that a logged-in user can successfully retrieve the name of a valid column.
+        /// Requirement 4
         /// </summary>
         /// <returns>Returns true if the test passed, false otherwise.</returns>
         public bool GetColumnName_ValidColumn_Success()
@@ -460,6 +470,7 @@ namespace BackendTests
 
         /// <summary>
         /// Tests the logic error where a user attempts to retrieve the name of a column index that does not exist.
+        /// Requirement 26
         /// </summary>
         /// <returns>Returns true if the test passed, false otherwise.</returns>
         public bool GetColumnName_InvalidColumnIndex_Failure()
@@ -473,6 +484,7 @@ namespace BackendTests
 
         /// <summary>
         /// Tests the logic error where a user attempts to retrieve a column name while not logged in.
+        /// Requirement 26
         /// </summary>
         /// <returns>Returns true if the test passed, false otherwise.</returns>
         public bool GetColumnName_UserNotLoggedIn_Failure()
@@ -492,6 +504,7 @@ namespace BackendTests
 
         /// <summary>
         /// Tests that a logged-in user can successfully retrieve the limit of a valid column.
+        /// Requirement 16
         /// </summary>
         /// <returns>Returns true if the test passed, false otherwise.</returns>
         public bool GetColumnLimit_ValidColumn_Success()
@@ -507,6 +520,7 @@ namespace BackendTests
 
         /// <summary>
         /// Tests the logic error where a user attempts to retrieve the limit of a column index that does not exist.
+        /// Requirement 26
         /// </summary>
         /// <returns>Returns true if the test passed, false otherwise.</returns>
         public bool GetColumnLimit_InvalidColumnIndex_Failure()
@@ -520,6 +534,7 @@ namespace BackendTests
 
         /// <summary>
         /// Tests the logic error where a user attempts to retrieve a column limit while not logged in.
+        /// Requirement 26
         /// </summary>
         /// <returns>Returns true if the test passed, false otherwise.</returns>
         public bool GetColumnLimit_UserNotLoggedIn_Failure()
@@ -538,6 +553,7 @@ namespace BackendTests
 
         /// <summary>
         /// Tests that a logged-in user can successfully retrieve all tasks in a valid column.
+        /// Requirement 4
         /// </summary>
         /// <returns>Returns true if the test passed, false otherwise.</returns>
         public bool GetColumnTasks_ValidColumn_Success()
@@ -553,6 +569,7 @@ namespace BackendTests
 
         /// <summary>
         /// Tests the logic error where a user attempts to retrieve tasks from a column index that does not exist.
+        /// Requirement 26
         /// </summary>
         /// <returns>Returns true if the test passed, false otherwise.</returns>
         public bool GetColumnTasks_InvalidColumnIndex_Failure()
@@ -566,6 +583,7 @@ namespace BackendTests
 
         /// <summary>
         /// Tests the logic error where a user attempts to retrieve column tasks while not logged in.
+        /// Requirement 26
         /// </summary>
         /// <returns>Returns true if the test passed, false otherwise.</returns>
         public bool GetColumnTasks_UserNotLoggedIn_Failure()
