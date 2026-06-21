@@ -1,5 +1,6 @@
 ﻿using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
 using IntroSE.Kanban.Backend.DataAccessLayer;
+using IntroSE.Kanban.Backend.ServiceLayer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -178,6 +179,13 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         public BoardBL DeleteBoard(string email, string boardName)
         {
             BoardBL board = GetBoard(email, boardName);
+            if (!board.Owner.Equals(email, StringComparison.OrdinalIgnoreCase))
+            {
+                string message = $"Cannot delete the board '{boardName}' because the given email is not the owner.";
+                log.Warn(message);
+                throw new KanbanAuthenticationException(message);
+            }
+
             new BoardController().Delete(board.BoardID);
 
             foreach (string memberEmail in board.members)
@@ -448,7 +456,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         public TaskBL AddTask(string email, string boardName, string title, DateTime dueDate, string description)
         {
             BoardBL board = GetBoard(email, boardName);
-            TaskBL newTask = board.AddTask(title, dueDate, description);
+            TaskBL newTask = board.AddTask(email, title, dueDate, description);
             return newTask;
         }
 
