@@ -139,14 +139,14 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <summary>
         /// This method returns a board's name
         /// </summary>
-        /// <param name="boardId">The board's ID</param>
+        /// <param name="boardID">The board's ID</param>
         /// <returns>A response with the board's name</returns>
-        public string GetBoardName(long boardId)
+        public string GetBoardName(long boardID)
         {
             try
             {
-                string boardName = this.boardFacade.GetBoardName(boardId);
-                log.Info($"Successfully retrieved name of board with ID '{boardId}'.");
+                string boardName = this.boardFacade.GetBoardName(boardID);
+                log.Info($"Successfully retrieved name of board with ID '{boardID}'.");
                 return new Response<string>(null, boardName).ToJson();
             }
             catch (KanbanException ex)
@@ -155,7 +155,7 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
             }
             catch (Exception ex)
             {
-                log.Error($"An unexpected system error occurred in GetBoardName(boardID='{boardId}'): {ex.Message}");
+                log.Error($"An unexpected system error occurred in GetBoardName(boardID='{boardID}'): {ex.Message}");
                 return new Response<string>("An unexpected system error occurred").ToJson();
             }
         }
