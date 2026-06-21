@@ -25,6 +25,9 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.User
             this.authenticationFacade = authenticationFacade;
         }
 
+        /// <summary>
+        /// Loads all users from the database.
+        /// </summary>
         public void LoadUsers()
         {
             List<UserDAL> userDTOs = new UserController().SelectAll();
