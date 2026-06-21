@@ -93,6 +93,30 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         }
 
         /// <summary>
+        /// Transfers the ownership of the board to a new user.
+        /// </summary>
+        /// <param name="currentOwnerEmail">The email of the current owner.</param>
+        /// <param name="newOwnerEmail">The email of the new owner.</param>
+        public void TransferOwnership(string currentOwnerEmail, string newOwnerEmail)
+        {
+            if (!this.owner.Equals(currentOwnerEmail, StringComparison.OrdinalIgnoreCase))
+            {
+                string message = $"Cannot transfer ownership of board '{BoardName}' because user '{currentOwnerEmail}' is not the owner.";
+                log.Warn(message);
+                throw new KanbanAuthenticationException(message);
+            }
+
+            if (!this.members.Contains(newOwnerEmail))
+            {
+                string message = $"Cannot transfer ownership of board '{BoardName}' to user '{newOwnerEmail}' because they have not joined the board.";
+                log.Warn(message);
+                throw new KanbanValidationException(message);
+            }
+
+            this.owner = newOwnerEmail;
+        }
+
+        /// <summary>
         /// Sets or removes the maximum limit on the number of tasks allowed in a specific column.
         /// </summary>
         /// <param name="columnIndex">The zero-based index of the column to modify.</param>

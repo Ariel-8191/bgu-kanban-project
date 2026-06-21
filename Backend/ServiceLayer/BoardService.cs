@@ -133,7 +133,21 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <returns>Returns a JSON representation of the transfered board</returns>
         public string TransferOwnership(string currentOwnerEmail, string newOwnerEmail, string boardName)
         {
-            throw new NotImplementedException();
+            try
+            {
+                this.boardFacade.TransferOwnership(currentOwnerEmail, newOwnerEmail, boardName);
+                log.Info($"Successfully transferred ownership of board '{boardName}' from '{currentOwnerEmail}' to '{newOwnerEmail}'.");
+                return new Response<object>().ToJson();
+            }
+            catch (KanbanException ex)
+            {
+                return new Response<object>(ex.Message).ToJson();
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An unexpected system error occurred in TransferOwnership(currentOwner='{currentOwnerEmail}', newOwner='{newOwnerEmail}', board='{boardName}'): {ex.Message}");
+                return new Response<object>("An unexpected system error occurred").ToJson();
+            }
         }
 
         /// <summary>
