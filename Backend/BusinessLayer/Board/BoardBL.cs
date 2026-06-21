@@ -171,6 +171,13 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
                 throw new KanbanValidationException(message);
             }
 
+            if (currentOwnerEmail.Equals(newOwnerEmail, StringComparison.OrdinalIgnoreCase))
+            {
+                string message = $"Cannot transfer ownership of board '{BoardName}' to the same user.";
+                log.Warn(message);
+                throw new KanbanValidationException(message);
+            }
+
             this.Owner = newOwnerEmail;
         }
 
@@ -384,6 +391,12 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
                 string message = $"Cannot assign task '{taskID}' in the board '{BoardName}' in column {columnIndex} to user '{newAssignee}' because they are not a member of the board.";
                 log.Warn(message);
                 throw new KanbanAuthenticationException(message);
+            }
+            if (assigner.Equals(newAssignee, StringComparison.OrdinalIgnoreCase))
+            {
+                string message = $"Cannot transfer ownership of board '{BoardName}' to the same user.";
+                log.Warn(message);
+                throw new KanbanValidationException(message);
             }
 
             TaskBL taskToAssign = columns[columnIndex].GetTask(taskID);
