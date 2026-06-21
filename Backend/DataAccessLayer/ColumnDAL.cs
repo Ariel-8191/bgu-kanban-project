@@ -15,7 +15,7 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
         private long? boardID;
         private int? columnIndex;
 
-        public Dictionary<long, TaskDAL> Tasks
+        public List<TaskDAL> Tasks
         {
             get
             {
