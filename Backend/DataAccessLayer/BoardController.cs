@@ -249,7 +249,7 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
             string owner = reader.GetString(ownerColumnIndex);
             long nextTaskID = reader.GetInt64(nextTaskIdColumnIndex);
 
-            return new BoardDAL(id, name, owner, nextTaskID);
+            return new BoardDAL(id, name, owner, nextTaskID, true);
         }
     }
 }
