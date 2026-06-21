@@ -16,6 +16,7 @@
         /// Initializes a new instance of the <see cref="UserDAL"/> class.
         /// </summary>
         /// <param name="email">The email address of the user.</param>
+        /// <param name="password">The password for the user.</param>
         /// <param name="isPersisted">Indicates whether the user already exists in the database.</param>
         public UserDAL(string email, string password, bool isPersisted = false)
         {
