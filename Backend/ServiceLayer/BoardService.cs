@@ -75,6 +75,131 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         }
 
         /// <summary>
+        /// This method adds a user as member to an existing board.
+        /// </summary>
+        /// <param name="email">The email of the user that joins the board. Must be logged in</param>
+        /// <param name="boardID">The board's ID</param>
+        /// <returns>Returns a JSON representation of the joined board</returns>
+        public string JoinBoard(string email, long boardID)
+        {
+            try
+            {
+                BoardSL board = new BoardSL(this.boardFacade.JoinBoard(email, boardID));
+                log.Info($"Successfully Joined board: '{boardID}' for user '{email}'.");
+                return new Response<BoardSL>(board).ToJson();
+            }
+            catch (KanbanException ex)
+            {
+                return new Response<BoardSL>(ex.Message).ToJson();
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An unexpected system error occurred in JoinBoard(email='{email}', boardID='{boardID}'): {ex.Message}");
+                return new Response<BoardSL>("An unexpected system error occurred").ToJson();
+            }
+        }
+
+        /// <summary>
+        /// This method removes a user from the members list of a board.
+        /// </summary>
+        /// <param name="email">The email of the user. Must be logged in</param>
+        /// <param name="boardID">The board's ID</param>
+        /// <returns>Returns a JSON representation of the left board</returns>
+        public string LeaveBoard(string email, long boardID)
+        {
+            try
+            {
+                BoardSL board = new BoardSL(this.boardFacade.LeaveBoard(email, boardID));
+                log.Info($"Successfully left board: '{boardID}' for user '{email}'.");
+                return new Response<BoardSL>(board).ToJson();
+            }
+            catch (KanbanException ex)
+            {
+                return new Response<BoardSL>(ex.Message).ToJson();
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An unexpected system error occurred in JoinBoard(email='{email}', boardID='{boardID}'): {ex.Message}");
+                return new Response<BoardSL>("An unexpected system error occurred").ToJson();
+            }
+        }
+
+        /// <summary>
+        /// This method transfers a board ownership.
+        /// </summary>
+        /// <param name="currentOwnerEmail">Email of the current owner. Must be logged in</param>
+        /// <param name="newOwnerEmail">Email of the new owner</param>
+        /// <param name="boardName">The name of the board</param>
+        /// <returns>Returns a JSON representation of the transfered board</returns>
+        public string TransferOwnership(string currentOwnerEmail, string newOwnerEmail, string boardName)
+        {
+            try
+            {
+                this.boardFacade.TransferOwnership(currentOwnerEmail, newOwnerEmail, boardName);
+                log.Info($"Successfully transferred ownership of board '{boardName}' from '{currentOwnerEmail}' to '{newOwnerEmail}'.");
+                return new Response<object>().ToJson();
+            }
+            catch (KanbanException ex)
+            {
+                return new Response<object>(ex.Message).ToJson();
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An unexpected system error occurred in TransferOwnership(currentOwner='{currentOwnerEmail}', newOwner='{newOwnerEmail}', board='{boardName}'): {ex.Message}");
+                return new Response<object>("An unexpected system error occurred").ToJson();
+            }
+        }
+
+        /// <summary>
+        /// This method returns a board's name
+        /// </summary>
+        /// <param name="boardID">The board's ID</param>
+        /// <returns>A response with the board's name</returns>
+        public string GetBoardName(long boardID)
+        {
+            try
+            {
+                string boardName = this.boardFacade.GetBoardName(boardID);
+                log.Info($"Successfully retrieved name of board with ID '{boardID}'.");
+                return new Response<string>(null, boardName).ToJson();
+            }
+            catch (KanbanException ex)
+            {
+                return new Response<string>(ex.Message).ToJson();
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An unexpected system error occurred in GetBoardName(boardID='{boardID}'): {ex.Message}");
+                return new Response<string>("An unexpected system error occurred").ToJson();
+            }
+        }
+
+        /// <summary>
+        /// This method returns a list of IDs of all user's boards.
+        /// </summary>
+        /// <param name="email">Email of the user. Must be logged in</param>
+        /// <returns>A response with a list of IDs of all user's boards,</returns>
+        public string GetUserBoards(string email)
+        {
+            try
+            {
+                List<BoardBL> userBoardsBL = this.boardFacade.GetUserBoards(email);
+                List<long> userBoardIDs = userBoardsBL.Select(board => board.BoardID).ToList();
+                log.Info($"Successfully retrieved all boards for user '{email}'");
+                return new Response<List<long>>(userBoardIDs).ToJson();
+            }
+            catch (KanbanException ex)
+            {
+                return new Response<List<BoardSL>>(ex.Message).ToJson();
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An unexpected system error occurred in GetUserBoards(email='{email}'): {ex.Message}");
+                return new Response<List<BoardSL>>("An unexpected system error occurred").ToJson();
+            }
+        }
+
+        /// <summary>
         /// This method returns all in-progress tasks of a user.
         /// </summary>
         /// <param name="email">Email of the user. Must be logged in</param>

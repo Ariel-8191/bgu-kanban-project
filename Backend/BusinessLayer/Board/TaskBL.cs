@@ -1,5 +1,6 @@
 ﻿using System;
 using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
+using IntroSE.Kanban.Backend.DataAccessLayer;
 
 namespace IntroSE.Kanban.Backend.BusinessLayer.Board
 {
@@ -9,6 +10,11 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
     internal class TaskBL
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+        private const int maxTitleLength = 50;
+        private const int maxDescriptionLength = 300;
+
+        internal TaskDAL taskDTO;
 
         public long TaskID { get; }
         public DateTime CreationTime { get; }
@@ -24,31 +30,58 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
                     log.Warn(message);
                     throw new KanbanValidationException(message);
                 }
-                if (value.Length > 50)
+                if (value.Length > maxTitleLength)
                 {
-                    string message = $"Task title cannot exceed 50 characters. Attempted title length: {value.Length}.";
+                    string message = $"Task title cannot exceed {maxTitleLength} characters. Attempted title length: {value.Length}.";
                     log.Warn(message);
                     throw new KanbanValidationException(message);
                 }
 
+                taskDTO.Title = value;
                 _title = value;
             }
         }
-        public DateTime DueDate { get; private set; }
+        private DateTime _dueDate;
+        public DateTime DueDate
+        {
+            get => _dueDate;
+            private set
+            {
+                if (value < DateTime.Now)
+                {
+                    string message = $"Cannot set a due date in the past. Attempted date: {value}.";
+                    log.Warn(message);
+                    throw new KanbanValidationException(message);
+                }
+
+                _dueDate = value;
+            }
+        }
         private string _description;
         public string Description
         {
             get => _description;
             private set
             {
-                if (value?.Length > 300)
+                if (value?.Length > maxDescriptionLength)
                 {
-                    string message = $"Task description cannot exceed 300 characters. Attempted description length: {value.Length}.";
+                    string message = $"Task description cannot exceed {maxDescriptionLength} characters. Attempted description length: {value.Length}.";
                     log.Warn(message);
                     throw new KanbanValidationException(message);
                 }
 
+                taskDTO.Description = value;
                 _description = value;
+            }
+        }
+        private string _assignee;
+        public string Assignee
+        {
+            get => _assignee;
+            set
+            {
+                taskDTO.Assignee = value;
+                _assignee = value;
             }
         }
 
@@ -61,11 +94,29 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <param name="description">A detailed description of the task.</param>
         public TaskBL(long taskID, string title, DateTime dueDate, string description)
         {
-            this.TaskID = taskID;
             this.CreationTime = DateTime.Now;
+            this.taskDTO = new TaskDAL(taskID, this.CreationTime, title, dueDate, description, null);
+            this.TaskID = taskID;
             this.Title = title;
             this.DueDate = dueDate;
             this.Description = description;
+            this.Assignee = null;
+            taskDTO.Persist();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TaskBL"/> class based on an existing <see cref="TaskDAL"/> object.
+        /// </summary>
+        /// <param name="taskDTO">The data transfer object containing the task details.</param>
+        public TaskBL(TaskDAL taskDTO)
+        {
+            this.taskDTO = taskDTO;
+            this.TaskID = taskDTO.TaskID;
+            this.CreationTime = taskDTO.CreationTime;
+            this.Title = taskDTO.Title;
+            this.DueDate = taskDTO.DueDate;
+            this.Description = taskDTO.Description;
+            this.Assignee = taskDTO.Assignee;
         }
 
         /// <summary>

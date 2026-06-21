@@ -18,6 +18,7 @@ namespace BackendTests
         private void SetUp()
         {
             _serviceFactory = new ServiceFactory();
+            _serviceFactory.DeleteData();
             _userService = _serviceFactory.UserService;
         }
 

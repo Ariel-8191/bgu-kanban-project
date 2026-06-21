@@ -1,6 +1,9 @@
-﻿using System;
+﻿using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
+using IntroSE.Kanban.Backend.DataAccessLayer;
+using IntroSE.Kanban.Backend.ServiceLayer;
+using System;
 using System.Collections.Generic;
-using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
+using System.Linq;
 
 namespace IntroSE.Kanban.Backend.BusinessLayer.Board
 {
@@ -12,7 +15,9 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private Dictionary<string, Dictionary<string, BoardBL>> boardsByUser;
+        private Dictionary<long, BoardBL> boardsByID;
         private AuthenticationFacade authenticationFacade;
+        private long nextBoardID;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BoardFacade"/> class.
@@ -21,7 +26,44 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         public BoardFacade(AuthenticationFacade authenticationFacade)
         {
             this.boardsByUser = new Dictionary<string, Dictionary<string, BoardBL>>(StringComparer.OrdinalIgnoreCase);
+            this.boardsByID = new Dictionary<long, BoardBL>();
             this.authenticationFacade = authenticationFacade;
+            this.nextBoardID = 0;
+        }
+
+        /// <summary>
+        /// Loads all boards from the database.
+        /// </summary>
+        public void LoadBoards()
+        {
+            List<BoardDAL> boardDTOs = new BoardController().SelectAll();
+            foreach (BoardDAL boardDTO in boardDTOs)
+            {
+                BoardBL board = new BoardBL(boardDTO);
+                boardsByID.Add(board.BoardID, board);
+                foreach (string memberEmail in board.members)
+                {
+                    if (!boardsByUser.TryGetValue(memberEmail, out Dictionary<string, BoardBL> userBoards))
+                    {
+                        userBoards = new Dictionary<string, BoardBL>(StringComparer.OrdinalIgnoreCase);
+                        boardsByUser.Add(memberEmail, userBoards);
+                    }
+                    userBoards.Add(board.BoardName, board);
+                }
+            }
+
+            nextBoardID = new BoardController().GetNextAvailableBoardID();
+        }
+
+        /// <summary>
+        /// Deletes all boards from the database and clears the in-memory collections.
+        /// </summary>
+        public void DeleteBoards()
+        {
+            new BoardController().DeleteAll();
+            boardsByUser.Clear();
+            boardsByID.Clear();
+            nextBoardID = 0;
         }
 
         /// <summary>
@@ -66,15 +108,17 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
                 boardsByUser.Add(email, userBoards);
             }
 
-            BoardBL newBoard = new BoardBL(boardName);
+            BoardBL newBoard = new BoardBL(nextBoardID, boardName, email);
+            boardsByID.Add(newBoard.BoardID, newBoard);
             userBoards.Add(boardName, newBoard);
+            nextBoardID++;
             return newBoard;
         }
 
         /// <summary>
-        /// Retrieves a user's board. Used as a helper method in the rest of the facade.
+        /// Retrieves a board that a user is member of. Used as a helper method in the rest of the facade.
         /// </summary>
-        /// <param name="email">The email address of the user the board belongs to.</param>
+        /// <param name="email">The email address of the user that is a member of the board.</param>
         /// <param name="boardName">The name of the board.</param>
         /// <returns>The <see cref="BoardBL"/> object.</returns>
         private BoardBL GetBoard(string email, string boardName)
@@ -110,6 +154,23 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         }
 
         /// <summary>
+        /// Retrieves a board by its unique ID. Used as a helper method in the rest of the facade.
+        /// </summary>
+        /// <param name="boardId">The unique ID of the board.</param>
+        /// <returns>The <see cref="BoardBL"/> object.</returns>
+        private BoardBL GetBoard(long boardID)
+        {
+            if (!boardsByID.TryGetValue(boardID, out BoardBL foundBoard))
+            {
+                string message = $"Cannot get the board with ID '{boardID}' because there is no such board.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
+            }
+
+            return foundBoard;
+        }
+
+        /// <summary>
         /// Deletes an existing board for the specified user.
         /// </summary>
         /// <param name="email">The email address of the user deleting the board.</param>
@@ -118,14 +179,180 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         public BoardBL DeleteBoard(string email, string boardName)
         {
             BoardBL board = GetBoard(email, boardName);
-            boardsByUser[email].Remove(boardName); // the call to 'GetBoard' in the previous line ensures the input is valid
+            if (!board.Owner.Equals(email, StringComparison.OrdinalIgnoreCase))
+            {
+                string message = $"Cannot delete the board '{boardName}' because the given email is not the owner.";
+                log.Warn(message);
+                throw new KanbanAuthenticationException(message);
+            }
 
-            // If the user doesn't have any boards after the deletion, don't store an empty dictionary
-            if (boardsByUser[email].Count == 0)
+            new BoardController().Delete(board.BoardID);
+
+            foreach (string memberEmail in board.members)
+            {
+                if (boardsByUser.TryGetValue(memberEmail, out Dictionary<string, BoardBL> userBoards))
+                {
+                    userBoards.Remove(boardName);
+                    if (userBoards.Count == 0)
+                    {
+                        boardsByUser.Remove(memberEmail);
+                    }
+                }
+            }
+            boardsByID.Remove(board.BoardID);
+
+            return board;
+        }
+
+        /// <summary>
+        /// Adds a user to a certain board
+        /// </summary>
+        /// <param name="email">The email of the user to add to the board</param>
+        /// <param name="boardID">The id of the board to add the user to</param>
+        /// <returns>the joined <see cref="BoardBL"/> object</returns>
+        public BoardBL JoinBoard(string email, long boardID)
+        {
+            if (email == null)
+            {
+                string message = $"Cannot join the board with the ID: '{boardID}' because the given email is null.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
+            }
+            if (!authenticationFacade.IsLoggedIn(email))
+            {
+                string message = $"Cannot join the board with the ID: '{boardID}' because the user '{email}' is not currently logged in.";
+                log.Warn(message);
+                throw new KanbanAuthenticationException(message);
+            }
+
+            BoardBL board = GetBoard(boardID);
+
+            if (boardsByUser.TryGetValue(email, out Dictionary<string, BoardBL> userBoards))
+            {
+                if (userBoards.ContainsKey(board.BoardName))
+                {
+                    string message = $"Cannot join the board with ID '{boardID}' because the user '{email}' already has a board named '{board.BoardName}'.";
+                    log.Warn(message);
+                    throw new KanbanConflictException(message);
+                }
+            }
+            else
+            {
+                userBoards = new Dictionary<string, BoardBL>(StringComparer.OrdinalIgnoreCase);
+                boardsByUser.Add(email, userBoards);
+            }
+
+            board.AddMember(email);
+            userBoards.Add(board.BoardName, board);
+            return board;
+        }
+
+        /// <summary>
+        /// Removes a user from a certain board
+        /// </summary>
+        /// <param name="email">The email of the user to add to the board</param>
+        /// <param name="boardID">The id of the board to add the user to</param>
+        /// <returns>the joined <see cref="BoardBL"/> object</returns>
+        public BoardBL LeaveBoard(string email, long boardID)
+        {
+            if (email == null)
+            {
+                string message = $"Cannot leave the board with the ID: '{boardID}' because the given email is null.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
+            }
+            if (!authenticationFacade.IsLoggedIn(email))
+            {
+                string message = $"Cannot leave the board with the ID: '{boardID}' because the user '{email}' is not currently logged in.";
+                log.Warn(message);
+                throw new KanbanAuthenticationException(message);
+            }
+
+            BoardBL board = GetBoard(boardID);
+
+            if (!boardsByUser.TryGetValue(email, out Dictionary<string, BoardBL> userBoards) || !userBoards.ContainsKey(board.BoardName))
+            {
+                string message = $"Cannot leave the board with ID '{boardID}' because the user '{email}' is not currently a member of the board '{board.BoardName}'.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
+            }
+            board.RemoveMember(email);
+            userBoards.Remove(board.BoardName);
+
+            if (userBoards.Count == 0)
             {
                 boardsByUser.Remove(email);
             }
+
             return board;
+        }
+
+        /// <summary>
+        /// Transfers a board's ownership to another member.
+        /// </summary>
+        /// <param name="currentOwnerEmail">Email of the current owner. Must be logged in.</param>
+        /// <param name="newOwnerEmail">Email of the new owner.</param>
+        /// <param name="boardName">The name of the board.</param>
+        public void TransferOwnership(string currentOwnerEmail, string newOwnerEmail, string boardName)
+        {
+            if (currentOwnerEmail == null)
+            {
+                string message = $"Cannot transfer ownership of board '{boardName}' because an email is null.";
+                log.Warn(message);
+                throw new KanbanValidationException(message);
+            }
+
+            if (!authenticationFacade.IsLoggedIn(currentOwnerEmail))
+            {
+                string message = $"Cannot transfer ownership of board '{boardName}' because the user '{currentOwnerEmail}' is not currently logged in.";
+                log.Warn(message);
+                throw new KanbanAuthenticationException(message);
+            }
+
+            BoardBL board = GetBoard(currentOwnerEmail, boardName);
+            board.TransferOwnership(currentOwnerEmail, newOwnerEmail);
+        }
+
+        /// <summary>
+        /// Retrieves all the boards a specific user is a member of.
+        /// </summary>
+        /// <param name="email">The email address of the user.</param>
+        /// <returns>A list of <see cref="BoardBL"/> objects.</returns>
+        public List<BoardBL> GetUserBoards(string email)
+        {
+            if (email == null)
+            {
+                string message = "Cannot get the boards of a user because the given email is null.";
+                log.Warn(message);
+                throw new KanbanNotFoundException(message);
+            }
+            if (!authenticationFacade.IsLoggedIn(email))
+            {
+                string message = $"Cannot get the boards of the user '{email}' because he is not currently logged in.";
+                log.Warn(message);
+                throw new KanbanAuthenticationException(message);
+            }
+
+
+            Dictionary<string, BoardBL> userBoards;
+            if (!boardsByUser.TryGetValue(email, out userBoards))
+            {
+                return new List<BoardBL>();
+            }
+
+            List<BoardBL> boardsList = userBoards.Values.ToList();
+            return boardsList;
+        }
+
+        /// <summary>
+        /// Retrieves the name of a board by its unique ID.
+        /// </summary>
+        /// <param name="boardID">The unique ID of the board.</param>
+        /// <returns>The name of the board.</returns>
+        public string GetBoardName(long boardID)
+        {
+            BoardBL board = GetBoard(boardID);
+            return board.BoardName;
         }
 
         /// <summary>
@@ -149,18 +376,17 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
             }
 
 
-            List<TaskBL> inProgressTasks = new List<TaskBL>();
-
             Dictionary<string, BoardBL> userBoards;
-            if (boardsByUser.TryGetValue(email, out userBoards))
+            if (!boardsByUser.TryGetValue(email, out userBoards))
             {
-                foreach (BoardBL board in userBoards.Values)
-                {
-                    inProgressTasks.AddRange(board.GetColumnTasks(BoardBL.InProgressColumnIndex));
-                }
+                return new List<TaskBL>();
             }
 
-            return inProgressTasks;
+            IEnumerable<TaskBL> inProgressTasks = userBoards.Values
+                .SelectMany(board => board.GetColumnTasks(BoardBL.InProgressColumnIndex))
+                .Where(task => string.Equals(task.Assignee, email, StringComparison.OrdinalIgnoreCase));
+
+            return inProgressTasks.ToList();
         }
 
         /// <summary>
@@ -230,7 +456,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         public TaskBL AddTask(string email, string boardName, string title, DateTime dueDate, string description)
         {
             BoardBL board = GetBoard(email, boardName);
-            TaskBL newTask = board.AddTask(title, dueDate, description);
+            TaskBL newTask = board.AddTask(email, title, dueDate, description);
             return newTask;
         }
 
@@ -244,10 +470,10 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <param name="dueDate">The new due date for the task.</param>
         /// <param name="description">The new description for the task.</param>
         /// <returns>The edited <see cref="TaskBL"/> object.</returns>
-        public TaskBL EditTask(string email, string boardName, long taskID, string title, DateTime? dueDate, string description)
+        public TaskBL EditTask(string email, string boardName, int columnIndex, long taskID, string title, DateTime? dueDate, string description)
         {
             BoardBL board = GetBoard(email, boardName);
-            TaskBL editedTask = board.EditTask(taskID, title, dueDate, description);
+            TaskBL editedTask = board.EditTask(email, columnIndex, taskID, title, dueDate, description);
             return editedTask;
         }
 
@@ -262,8 +488,24 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         public TaskBL AdvanceTask(string email, string boardName, int columnIndex, long taskID)
         {
             BoardBL board = GetBoard(email, boardName);
-            TaskBL advancedTask = board.AdvanceTask(columnIndex, taskID);
+            TaskBL advancedTask = board.AdvanceTask(email, columnIndex, taskID);
             return advancedTask;
+        }
+
+        /// <summary>
+        /// Assigns a task to a new assignee.
+        /// </summary>
+        /// <param name="email">The email address of the user assigning the task.</param>
+        /// <param name="boardName">The name of the board containing the task.</param>
+        /// <param name="columnIndex">The index of the column where the task is currently located.</param>
+        /// <param name="taskID">The unique identifier of the task to assign.</param>
+        /// <param name="newAssignee">The email address of the user to whom the task is being assigned.</param>
+        /// <returns>The updated <see cref="TaskBL"/> object reflecting its new assignee.</returns>
+        public TaskBL AssignTask(string email, string boardName, int columnIndex, long taskID, string newAssignee)
+        {
+            BoardBL board = GetBoard(email, boardName);
+            TaskBL assignedTask = board.AssignTask(columnIndex, taskID, email, newAssignee);
+            return assignedTask;
         }
     }
 }

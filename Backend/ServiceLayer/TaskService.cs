@@ -60,11 +60,11 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         /// <param name="dueDate">New Due date of the task</param>
         /// <param name="description">New description of the task</param>
         /// <returns>Returns a JSON representation of the edited task</returns>
-        public string EditTask(string email, string boardName, long taskID, string title, DateTime? dueDate, string description)
+        public string EditTask(string email, string boardName, int columnIndex, long taskID, string title, DateTime? dueDate, string description)
         {
             try
             {
-                TaskSL task = new TaskSL(this.boardFacade.EditTask(email, boardName, taskID, title, dueDate, description));
+                TaskSL task = new TaskSL(this.boardFacade.EditTask(email, boardName, columnIndex, taskID, title, dueDate, description));
                 log.Info($"Successfully edited task '{taskID}' in board '{boardName}' (User: '{email}').");
                 return new Response<TaskSL>(task).ToJson();
             }
@@ -102,6 +102,34 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
             catch (Exception ex)
             {
                 log.Error($"An unexpected system error occurred in AdvanceTask(email='{email}', board='{boardName}', taskID={taskID}): {ex.Message}");
+                return new Response<TaskSL>("An unexpected system error occurred").ToJson();
+            }
+        }
+
+        /// <summary>
+        /// This method assigns a task to a user
+        /// </summary>
+        /// <param name="email">The email address of the user assigning the task.</param>
+        /// <param name="boardName">The name of the board containing the task.</param>
+        /// <param name="columnIndex">The index of the column where the task is currently located.</param>
+        /// <param name="taskID">The unique identifier of the task to assign.</param>
+        /// <param name="newAssignee">The email address of the user to whom the task is being assigned.</param>
+        /// <returns>Returns a JSON representation of the task</returns>
+        public string AssignTask(string email, string boardName, int columnIndex, int taskID, string newAssignee)
+        {
+            try
+            {
+                TaskSL task = new TaskSL(this.boardFacade.AssignTask(email, boardName, columnIndex, taskID, newAssignee));
+                log.Info($"Successfully assigned task '{taskID}' to '{newAssignee}' in board '{boardName}' (User: '{email}').");
+                return new Response<TaskSL>(task).ToJson();
+            }
+            catch (KanbanException ex)
+            {
+                return new Response<TaskSL>(ex.Message).ToJson();
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An unexpected system error occurred in AssignTask(email='{email}', board='{boardName}', taskID={taskID}, newAssignee='{newAssignee}'): {ex.Message}");
                 return new Response<TaskSL>("An unexpected system error occurred").ToJson();
             }
         }

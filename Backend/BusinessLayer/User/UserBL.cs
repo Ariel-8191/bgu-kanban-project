@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
+using IntroSE.Kanban.Backend.DataAccessLayer;
 
 namespace IntroSE.Kanban.Backend.BusinessLayer.User
 {
@@ -12,8 +13,21 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.User
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        public string Email { get; }
+        private const int minPasswordLength = 6;
+        private const int maxPasswordLength = 20;
 
+
+        private UserDAL userDTO;
+
+        private string _email;
+        public string Email {
+            get => _email; 
+            set
+            {
+                ValidateEmailStructure(value);
+                _email = value;
+            }
+        }
         private string _password;
         private string Password
         {
@@ -32,9 +46,21 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.User
         /// <param name="password">The password for the user.</param>
         public UserBL(string email, string password)
         {
-            ValidateEmailStructure(email);
+            this.userDTO = new UserDAL(email, password);
             this.Email = email;
             this.Password = password;
+            userDTO.Persist();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UserBL"/> class using an existing <see cref="UserDAL"/> object.
+        /// </summary>
+        /// <param name="userDTO">The data access layer object representing the user.</param>
+        public UserBL(UserDAL userDTO)
+        {
+            this.userDTO = userDTO;
+            this.Email = userDTO.Email;
+            this.Password = userDTO.Password;
         }
 
         /// <summary>
@@ -61,9 +87,9 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.User
                 throw new KanbanValidationException(message);
             }
 
-            if (password.Length < 6 || password.Length > 20)
+            if (password.Length < minPasswordLength || password.Length > maxPasswordLength)
             {
-                string message = $"Password must be between 6 and 20 characters. Attempted password length: {password.Length}";
+                string message = $"Password must be between {minPasswordLength} and {maxPasswordLength} characters. Attempted password length: {password.Length}";
                 log.Warn(message);
                 throw new KanbanValidationException(message);
             }
@@ -102,12 +128,27 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.User
                 log.Warn(message);
                 throw new KanbanValidationException(message);
             }
-
-            string emailPattern = @"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$";
+            string emailPattern = @"^[a-zA-Z0-9_+&-]+(?:\.[a-zA-Z0-9_+&-]+)*@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$";
 
             if (!Regex.IsMatch(email, emailPattern))
             {
                 string message = "Email must have a valid email structure.";
+                log.Warn(message);
+                throw new KanbanValidationException(message);
+            }
+
+            try
+            {
+                var mailAddress = new System.Net.Mail.MailAddress(email);
+
+                if (mailAddress.Address != email.Trim())
+                {
+                    throw new FormatException("Email format is invalid or contains a display name.");
+                }
+            }
+            catch (FormatException)
+            {
+                string message = $"Email must have a valid RFC 5322 structure. Attempted email: {email}";
                 log.Warn(message);
                 throw new KanbanValidationException(message);
             }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
+using IntroSE.Kanban.Backend.DataAccessLayer;
 
 namespace IntroSE.Kanban.Backend.BusinessLayer.User
 {
@@ -23,6 +23,28 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.User
         {
             this.users = new Dictionary<string, UserBL>(StringComparer.OrdinalIgnoreCase);
             this.authenticationFacade = authenticationFacade;
+        }
+
+        /// <summary>
+        /// Loads all users from the database.
+        /// </summary>
+        public void LoadUsers()
+        {
+            List<UserDAL> userDTOs = new UserController().SelectAll();
+            foreach (UserDAL userDTO in userDTOs)
+            {
+                UserBL user = new UserBL(userDTO);
+                users.Add(user.Email, user);
+            }
+        }
+
+        /// <summary>
+        /// Deletes all users from the system and clears the internal user collection.
+        /// </summary>
+        public void DeleteUsers()
+        {
+            new UserController().DeleteAll();
+            users.Clear();
         }
 
         /// <summary>
