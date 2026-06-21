@@ -65,6 +65,7 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
         /// <param name="boardID">The unique identifier for the board.</param>
         /// <param name="boardName">The display name of the board.</param>
         /// <param name="owner">The email address of the user who owns the board.</param>
+        /// <param name="NextTaskID">The next available task ID in the board.</param>
         public BoardDAL(long boardID, string boardName, string owner, long NextTaskID)
         {
             this.boardController = new BoardController();
