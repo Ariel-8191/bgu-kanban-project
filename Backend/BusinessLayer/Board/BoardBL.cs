@@ -1,8 +1,9 @@
 ﻿using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
+using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
 using IntroSE.Kanban.Backend.DataAccessLayer;
+using IntroSE.Kanban.Backend.ServiceLayer;
 using System;
 using System.Collections.Generic;
-using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
 
 namespace IntroSE.Kanban.Backend.BusinessLayer.Board
 {
@@ -25,7 +26,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         public long BoardID { get; }
         public string BoardName { get; }
         private string _owner;
-        private string Owner
+        internal string Owner
         {
             get => _owner;
             set
@@ -243,12 +244,19 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         /// <summary>
         /// Creates and adds a new task to the board. 
         /// </summary>
+        /// <param name="email">The email of the user trying to add a task</param>
         /// <param name="title">The title of the new task.</param>
         /// <param name="dueDate">The deadline/due date for the task.</param>
         /// <param name="description">A detailed description of the task.</param>
         /// <returns>The newly created <see cref="TaskBL"/> object.</returns>
-        public TaskBL AddTask(string title, DateTime dueDate, string description)
+        public TaskBL AddTask(string email, string title, DateTime dueDate, string description)
         {
+            if (!members.Contains(email))
+            {
+                string message = $"Cannot add task because the given user isn't a member of the board.";
+                log.Warn(message);
+                throw new KanbanAuthenticationException(message);
+            }
             TaskBL newTask = new TaskBL(nextTaskID, title, dueDate, description);
             nextTaskID++;
             boardDTO.NextTaskID = nextTaskID;
