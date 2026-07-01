@@ -175,6 +175,30 @@ namespace IntroSE.Kanban.Backend.ServiceLayer
         }
 
         /// <summary>
+        /// This method returns a board (its name and owner) given its unique ID.
+        /// </summary>
+        /// <param name="boardID">The board's ID</param>
+        /// <returns>A JSON representation of the board, including its name and owner</returns>
+        public string GetBoard(long boardID)
+        {
+            try
+            {
+                BoardSL board = new BoardSL(this.boardFacade.GetBoard(boardID));
+                log.Info($"Successfully retrieved board with ID '{boardID}'.");
+                return new Response<BoardSL>(board).ToJson();
+            }
+            catch (KanbanException ex)
+            {
+                return new Response<BoardSL>(ex.Message).ToJson();
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An unexpected system error occurred in GetBoard(boardID='{boardID}'): {ex.Message}");
+                return new Response<BoardSL>("An unexpected system error occurred").ToJson();
+            }
+        }
+
+        /// <summary>
         /// This method returns a list of IDs of all user's boards.
         /// </summary>
         /// <param name="email">Email of the user. Must be logged in</param>
