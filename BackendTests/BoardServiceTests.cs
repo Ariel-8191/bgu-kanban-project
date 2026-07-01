@@ -425,6 +425,44 @@ namespace BackendTests
         }
 
         // =========================================================================
+        // GetBoard Tests
+        // =========================================================================
+
+        /// <summary>
+        /// Tests that a board (its name and owner) can be successfully retrieved using a valid board ID.
+        /// This function tests Requirements 4 and 8.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool GetBoard_ValidId_Success()
+        {
+            SetUp();
+            string boardJson = _boardService.CreateBoard(_testEmail, _testBoardName);
+            BoardSL createdBoard = JsonSerializer.Deserialize<Response<BoardSL>>(boardJson)!.ReturnValue!;
+
+            string getJson = _boardService.GetBoard(createdBoard.BoardID);
+            Response<BoardSL> response = JsonSerializer.Deserialize<Response<BoardSL>>(getJson)!;
+
+            // Verifies there are no errors and that the retrieved name and owner match the created board.
+            return string.IsNullOrEmpty(response.ErrorMessage)
+                && response.ReturnValue != null
+                && response.ReturnValue.BoardName == _testBoardName
+                && response.ReturnValue.Owner == _testEmail;
+        }
+
+        /// <summary>
+        /// Tests the logic error where a user attempts to get a board with an ID that does not exist.
+        /// This function tests Requirement 26.
+        /// </summary>
+        /// <returns>Returns true if the test passed, false otherwise.</returns>
+        public bool GetBoard_BoardDoesNotExist_Failure()
+        {
+            SetUp();
+            string getJson = _boardService.GetBoard(9999);
+            Response<BoardSL> response = JsonSerializer.Deserialize<Response<BoardSL>>(getJson)!;
+            return !string.IsNullOrEmpty(response.ErrorMessage);
+        }
+
+        // =========================================================================
         // GetUserBoards Tests
         // =========================================================================
 
