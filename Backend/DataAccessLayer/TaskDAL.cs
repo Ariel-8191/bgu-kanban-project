@@ -117,19 +117,17 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
         public void Persist() { }
 
         /// <summary>
-        /// Persists the current instance by inserting it into the database and setting its boardID and columnIndex.
+        /// Persists the task at the given location. On the first call the row is inserted,
+        /// on later calls, the columnIndex is updated
         /// </summary>
         /// <param name="boardID">The unique identifier of the board to which the task belongs.</param>
         /// <param name="columnIndex">The index of the column to which the task belongs.</param>
         public void Persist(long boardID, int columnIndex)
         {
-            if (!isPersisted)
-            {
-                this.boardID = boardID;
-                this.columnIndex = columnIndex;
-                taskController.Insert(boardID, columnIndex, this);
-                isPersisted = true;
-            }
+            this.boardID = boardID;
+            this.columnIndex = columnIndex;
+            taskController.Insert(boardID, columnIndex, this);
+            isPersisted = true;
         }
     }
 }

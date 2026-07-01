@@ -25,10 +25,10 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
         private const int creationDateColumnIndex = 3;
         private const string titleColumnName = "title";
         private const int titleColumnIndex = 4;
-        private const string dueDateColumnName = "dueDate";
-        private const int dueDateColumnIndex = 5;
         private const string descriptionColumnName = "description";
-        private const int descriptionColumnIndex = 6;
+        private const int descriptionColumnIndex = 5;
+        private const string dueDateColumnName = "dueDate";
+        private const int dueDateColumnIndex = 6;
         private const string assigneeColumnName = "assignee";
         private const int assigneeColumnIndex = 7;
 
@@ -136,7 +136,7 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
                 using (SQLiteConnection connection = new SQLiteConnection(connectionString))
                 {
                     connection.Open();
-                    string commandText = $"SELECT * FROM {taskTableName} WHERE {boardIdColumnName} = @BoardID AND {columnIndexColumnName} = @ColumnIndex";
+                    string commandText = $"SELECT {boardIdColumnName}, {taskIdColumnName}, {columnIndexColumnName}, {creationDateColumnName}, {titleColumnName}, {descriptionColumnName}, {dueDateColumnName}, {assigneeColumnName} FROM {taskTableName} WHERE {boardIdColumnName} = @BoardID AND {columnIndexColumnName} = @ColumnIndex";
                     using (SQLiteCommand command = new SQLiteCommand(commandText, connection))
                     {
                         command.Parameters.AddWithValue("@BoardID", boardID);

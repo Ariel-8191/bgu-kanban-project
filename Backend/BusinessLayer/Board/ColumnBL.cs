@@ -67,6 +67,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         {
             this.columnDTO = columnDTO;
             this.Name = columnDTO.Name;
+            this._taskLimit = columnDTO.TaskLimit;
             this.tasks = new Dictionary<long, TaskBL>();
             foreach (TaskDAL taskDTO in columnDTO.Tasks)
             {
