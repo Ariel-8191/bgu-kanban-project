@@ -12,6 +12,7 @@ namespace Frontend.Controllers
         private readonly ServiceFactory serviceFactory;
 
         public UserController UserController { get; }
+        public BoardController BoardController { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ControllerFactory"/> class,
@@ -21,6 +22,7 @@ namespace Frontend.Controllers
         {
             this.serviceFactory = new ServiceFactory();
             this.UserController = new UserController(serviceFactory.UserService);
+            this.BoardController = new BoardController(serviceFactory.BoardService);
         }
 
         /// <summary>
