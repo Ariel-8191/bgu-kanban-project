@@ -1,0 +1,72 @@
+<Window x:Class="Frontend.View.BoardsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Frontend.View"
+        mc:Ignorable="d"
+        Title="Kanban - My Boards" Height="480" Width="620"
+        WindowStartupLocation="CenterScreen"
+        FontSize="14">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Header: welcome + logout -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" FontSize="20" FontWeight="Bold" VerticalAlignment="Center"
+                       Text="{Binding Path=WelcomeMessage, Mode=OneWay}" />
+            <Button Grid.Column="1" Content="🚪 Log Out" Width="110" Height="30"
+                    Click="Logout_Click" />
+        </Grid>
+
+        <TextBlock Grid.Row="1" Text="My Boards" FontSize="16" FontWeight="SemiBold"
+                   Margin="0,20,0,8" />
+
+        <!-- Boards list -->
+        <DataGrid Grid.Row="2" ItemsSource="{Binding Path=Boards}"
+                  SelectedItem="{Binding Path=SelectedBoard, Mode=TwoWay}"
+                  AutoGenerateColumns="False" IsReadOnly="True"
+                  HeadersVisibility="Column" CanUserAddRows="False"
+                  GridLinesVisibility="Horizontal" RowHeight="34">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Board Name" Binding="{Binding Path=Name}" Width="*" />
+                <DataGridTextColumn Header="Owner" Binding="{Binding Path=Owner}" Width="*" />
+                <DataGridTemplateColumn Header="Actions" Width="Auto">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="🗑 Delete" Margin="4,2" Padding="6,2"
+                                    Click="Delete_Click" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Create board -->
+        <Grid Grid.Row="3" Margin="0,16,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" Content="New board:" VerticalAlignment="Center" />
+            <TextBox Grid.Column="1" Margin="5" Padding="4" VerticalAlignment="Center"
+                     Text="{Binding Path=NewBoardName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <Button Grid.Column="2" Content="✚ Create" Width="110" Height="30"
+                    Click="Create_Click" IsDefault="True" />
+        </Grid>
+
+        <TextBlock Grid.Row="4" Margin="0,10,0,0" TextWrapping="Wrap" Foreground="Red"
+                   Text="{Binding Path=ErrorMessage, Mode=OneWay}" />
+    </Grid>
+</Window>
