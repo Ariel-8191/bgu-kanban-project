@@ -50,7 +50,9 @@ namespace Frontend.View
         /// <param name="user">The logged-in user.</param>
         private void OpenBoards(UserModel user)
         {
-            throw new NotImplementedException();
+            BoardsWindow boardsWindow = new BoardsWindow(controllerFactory, user);
+            boardsWindow.Show();
+            this.Close();
         }
     }
 }
