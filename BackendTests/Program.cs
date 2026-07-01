@@ -62,6 +62,9 @@ namespace IntroSE.Kanban.BackendTests
             runner.RunTest(boardTests.GetBoardName_ValidId_Success);
             runner.RunTest(boardTests.GetBoardName_BoardDoesNotExist_Failure);
 
+            runner.RunTest(boardTests.GetBoard_ValidId_Success);
+            runner.RunTest(boardTests.GetBoard_BoardDoesNotExist_Failure);
+
             runner.RunTest(boardTests.GetUserBoards_ValidUser_Success);
             runner.RunTest(boardTests.GetUserBoards_UserNotLoggedIn_Failure);
 

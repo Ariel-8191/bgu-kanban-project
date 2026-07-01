@@ -154,11 +154,11 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
         }
 
         /// <summary>
-        /// Retrieves a board by its unique ID. Used as a helper method in the rest of the facade.
+        /// Retrieves a board by its unique ID.
         /// </summary>
         /// <param name="boardId">The unique ID of the board.</param>
         /// <returns>The <see cref="BoardBL"/> object.</returns>
-        private BoardBL GetBoard(long boardID)
+        public BoardBL GetBoard(long boardID)
         {
             if (!boardsByID.TryGetValue(boardID, out BoardBL foundBoard))
             {
