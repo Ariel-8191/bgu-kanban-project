@@ -13,6 +13,21 @@ namespace Frontend
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+
+            ControllerFactory controllerFactory = new ControllerFactory();
+
+            try
+            {
+                controllerFactory.LoadData();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to load saved data: {ex.Message}",
+                    "Kanban", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+
+            LoginWindow loginWindow = new LoginWindow(controllerFactory);
+            loginWindow.Show();
         }
     }
 }
