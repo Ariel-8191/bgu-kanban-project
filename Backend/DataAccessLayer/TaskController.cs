@@ -136,7 +136,7 @@ namespace IntroSE.Kanban.Backend.DataAccessLayer
                 using (SQLiteConnection connection = new SQLiteConnection(connectionString))
                 {
                     connection.Open();
-                    string commandText = $"SELECT * FROM {taskTableName} WHERE {boardIdColumnName} = @BoardID AND {columnIndexColumnName} = @ColumnIndex";
+                    string commandText = $"SELECT {boardIdColumnName}, {taskIdColumnName}, {columnIndexColumnName}, {creationDateColumnName}, {titleColumnName}, {descriptionColumnName}, {dueDateColumnName}, {assigneeColumnName} FROM {taskTableName} WHERE {boardIdColumnName} = @BoardID AND {columnIndexColumnName} = @ColumnIndex";
                     using (SQLiteCommand command = new SQLiteCommand(commandText, connection))
                     {
                         command.Parameters.AddWithValue("@BoardID", boardID);
