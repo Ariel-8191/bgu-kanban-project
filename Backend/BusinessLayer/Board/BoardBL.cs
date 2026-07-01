@@ -1,7 +1,5 @@
 ﻿using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
-using IntroSE.Kanban.Backend.BusinessLayer.CrossCutting;
 using IntroSE.Kanban.Backend.DataAccessLayer;
-using IntroSE.Kanban.Backend.ServiceLayer;
 using System;
 using System.Collections.Generic;
 
@@ -56,6 +54,7 @@ namespace IntroSE.Kanban.Backend.BusinessLayer.Board
 
 
             boardDTO.Persist();
+            boardDTO.AddMember(creator);
 
             this.columns = new List<ColumnBL>();
             CreateColumn(BacklogColumnName);
