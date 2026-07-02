@@ -1,6 +1,8 @@
 using Frontend.Controllers;
 using Frontend.Model;
 using Frontend.ViewModel;
+using MaterialDesignThemes.Wpf;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -55,6 +57,31 @@ namespace Frontend.View
                 loginWindow.Show();
                 this.Close();
             }
+        }
+
+        private void Minimize_Click(object sender, RoutedEventArgs e)
+        {
+            this.WindowState = WindowState.Minimized;
+        }
+
+        private void MaxRestore_Click(object sender, RoutedEventArgs e)
+        {
+            this.WindowState = this.WindowState == WindowState.Maximized
+                ? WindowState.Normal
+                : WindowState.Maximized;
+        }
+
+        private void Close_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
+        protected override void OnStateChanged(EventArgs e)
+        {
+            base.OnStateChanged(e);
+            MaxRestoreIcon.Kind = this.WindowState == WindowState.Maximized
+                ? PackIconKind.WindowRestore
+                : PackIconKind.WindowMaximize;
         }
     }
 }
