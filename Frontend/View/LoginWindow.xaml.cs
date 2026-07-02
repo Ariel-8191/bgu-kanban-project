@@ -44,6 +44,16 @@ namespace Frontend.View
             }
         }
 
+        private void Minimize_Click(object sender, RoutedEventArgs e)
+        {
+            this.WindowState = WindowState.Minimized;
+        }
+
+        private void Close_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
         /// <summary>
         /// Opens the boards window for the logged-in user and closes the login window.
         /// </summary>
